@@ -1,142 +1,36 @@
-\# MoliyaHub
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Getting Started
 
+First, run the development server:
 
-\*\*Платформа финансового анализа и поиска финансирования для предпринимателей Узбекистана\*\*
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Домен: \[moliyahub.uz](https://moliyahub.uz)
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Learn More
 
+To learn more about Next.js, take a look at the following resources:
 
-\---
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Deploy on Vercel
 
-\## О проекте
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-
-
-MoliyaHub — цифровая экосистема для предпринимателей и инвесторов Узбекистана.
-
-
-
-Платформа позволяет:
-
-
-
-\- Загрузить бухгалтерский баланс и отчёт о прибылях и убытках
-
-\- Автоматически рассчитать ключевые финансовые показатели
-
-\- Получить подробный анализ и рекомендации от искусственного интеллекта
-
-\- Сравнить предложения банков и альтернативные источники финансирования
-
-\- Разместить свой проект / стартап и найти инвестора
-
-\- Инвесторам — находить перспективные проекты
-
-
-
-\---
-
-
-
-\## Основные возможности
-
-
-
-\### Для предпринимателей
-
-\- Финансовый анализатор (баланс + ОПУ → коэффициенты + скоринг 0–100)
-
-\- ИИ-советник с конкретными рекомендациями
-
-\- Каталог финансирования (банки, исламское финансирование, венчур, краудфандинг и др.)
-
-\- Размещение проектов и поиск инвесторов
-
-
-
-\### Для инвесторов
-
-\- Каталог проектов с фильтрами
-
-\- Просмотр бизнес-планов и ТЭО
-
-\- Подача заявок на инвестирование
-
-
-
-\### Для банков и финансовых организаций
-
-\- Размещение рекламы и финансовых продуктов
-
-
-
-\---
-
-
-
-\## Технологический стек (планируемый)
-
-
-
-\- \*\*Frontend:\*\* Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
-
-\- \*\*Backend:\*\* NestJS / Next.js API Routes + Prisma
-
-\- \*\*База данных:\*\* PostgreSQL
-
-\- \*\*ИИ:\*\* OpenAI / Grok / Claude
-
-\- \*\*Файлы:\*\* Cloudflare R2 / S3-совместимое хранилище
-
-\- \*\*Инфраструктура:\*\* Vercel + Neon / Railway
-
-
-
-\---
-
-
-
-\## Статус проекта
-
-
-
-Проект находится на стадии проектирования и подготовки MVP.
-
-
-
-\*\*Текущий этап:\*\* формирование технического задания, архитектуры и структуры базы данных.
-
-
-
-\---
-
-
-
-\## Структура репозитория
-
-
-
-```text
-
-moliyahub/
-
-├── docs/                     # Документация
-
-│   ├── TZ.md
-
-│   └── database-schema.md
-
-├── apps/                     # Приложения (будет позже)
-
-├── packages/                 # Общие пакеты
-
-├── .gitignore
-
-└── README.md
-
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
