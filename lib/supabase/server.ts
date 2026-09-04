@@ -2,6 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CookieToSet = { name: string; value: string; options?: any };
+
 // Серверный клиент Supabase — для Server Components и Server Actions.
 // Читает/пишет auth-куки текущего запроса; сам поход к данным всё ещё
 // ограничен RLS-политиками (anon-ключ + auth.uid() из куки).
@@ -16,7 +19,7 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),

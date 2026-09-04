@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CookieToSet = { name: string; value: string; options?: any };
+
 // Продлевает auth-сессию Supabase на каждом запросе (обновляет куки, если
 // токен истёк) и возвращает текущего пользователя. Вызывается из middleware.ts.
 export async function updateSupabaseSession(request: NextRequest) {
@@ -14,7 +17,7 @@ export async function updateSupabaseSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
