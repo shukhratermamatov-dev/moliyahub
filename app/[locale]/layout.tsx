@@ -31,6 +31,9 @@ export async function generateMetadata({
 }) {
   const { locale: rawLocale } = await params;
   const locale: Locale = isLocale(rawLocale) ? rawLocale : "ru";
+  // Только для метаданных (title/description) — это плоские строки, их можно
+  // спокойно возвращать из серверного компонента, они не пересекают границу
+  // сервер→клиент как React-проп.
   const dict = await getDictionary(locale);
   return {
     title: dict.meta.title,
@@ -58,7 +61,6 @@ export default async function LocaleLayout({
     notFound();
   }
   const locale: Locale = rawLocale;
-  const dict = await getDictionary(locale);
 
   return (
     <html
@@ -67,9 +69,7 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full">
-        <I18nProvider locale={locale} dict={dict}>
-          {children}
-        </I18nProvider>
+        <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
   );
