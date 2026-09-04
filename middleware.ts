@@ -29,6 +29,12 @@ const PROTECTED_SEGMENTS = ["cabinet"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // API-роуты (например /api/cbu-rates) — не под [locale], их не редиректим
+  // на языковой префикс, иначе получаем 404.
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   // Админка живёт вне [locale] — всегда на /admin, без языкового префикса,
   // и использует свой отдельный пароль-гейт (не Supabase Auth).
   if (pathname === "/admin/login") {
