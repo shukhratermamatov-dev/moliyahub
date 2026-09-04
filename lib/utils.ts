@@ -1,20 +1,34 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Locale } from "@/i18n/config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatMoney(value: number, currency = "UZS"): string {
+const INTL_LOCALE: Record<Locale, string> = {
+  ru: "ru-RU",
+  uz: "uz-UZ",
+  en: "en-US",
+};
+
+const UNIT_LABEL: Record<Locale, { billion: string; million: string }> = {
+  ru: { billion: "млрд", million: "млн" },
+  uz: { billion: "mlrd", million: "mln" },
+  en: { billion: "bn", million: "mn" },
+};
+
+export function formatMoney(value: number, locale: Locale = "ru", currency = "UZS"): string {
   const abs = Math.abs(value);
   const sign = value < 0 ? "−" : "";
+  const units = UNIT_LABEL[locale] ?? UNIT_LABEL.ru;
   if (abs >= 1_000_000_000) {
-    return `${sign}${(abs / 1_000_000_000).toFixed(1)} млрд ${currency}`;
+    return `${sign}${(abs / 1_000_000_000).toFixed(1)} ${units.billion} ${currency}`;
   }
   if (abs >= 1_000_000) {
-    return `${sign}${(abs / 1_000_000).toFixed(1)} млн ${currency}`;
+    return `${sign}${(abs / 1_000_000).toFixed(1)} ${units.million} ${currency}`;
   }
-  return `${sign}${abs.toLocaleString("ru-RU")} ${currency}`;
+  return `${sign}${abs.toLocaleString(INTL_LOCALE[locale] ?? "ru-RU")} ${currency}`;
 }
 
 export function formatPct(value: number | null, digits = 1): string {

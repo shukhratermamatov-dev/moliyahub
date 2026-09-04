@@ -2,17 +2,29 @@
 
 import { buildRuleAdvice } from "@/lib/finance/advice";
 import { calculateRatios } from "@/lib/finance/ratios";
+import { getDictionary } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/config";
 import type { AiAdvice, MinimalFinanceData } from "@/lib/finance/types";
 
 type AnalyzeInput = {
   data: MinimalFinanceData;
   industry?: string;
   region?: string;
+  locale: Locale;
+};
+
+const LANGUAGE_NAME: Record<Locale, string> = {
+  ru: "русском",
+  uz: "узбекском (латиница)",
+  en: "английском",
 };
 
 export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> {
+  // Словарь запрашиваем на сервере — Server Action получает от клиента только
+  // сериализуемые данные (locale), а не сам объект словаря (в нём есть функции).
+  const dict = await getDictionary(payload.locale);
   const ratios = calculateRatios(payload.data);
-  const fallback = buildRuleAdvice(payload.data, ratios);
+  const fallback = buildRuleAdvice(payload.data, ratios, dict, payload.locale);
   const apiKey = process.env.XAI_API_KEY;
   if (!apiKey) return fallback;
 
@@ -31,8 +43,7 @@ export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> 
         messages: [
           {
             role: "system",
-            content:
-              "Ты финансовый консультант по МСБ Узбекистана. Отвечай только JSON без markdown.",
+            content: `Ты финансовый консультант по МСБ Узбекистана. Отвечай только JSON без markdown. Весь текст в ответе — на ${LANGUAGE_NAME[payload.locale] ?? "русском"} языке.`,
           },
           {
             role: "user",

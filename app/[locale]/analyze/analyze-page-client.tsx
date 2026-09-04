@@ -8,6 +8,7 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n/provider";
 import { requestAiAdvice } from "@/lib/ai/analyze";
 import { buildRuleAdvice } from "@/lib/finance/advice";
 import { calculateRatios } from "@/lib/finance/ratios";
@@ -20,7 +21,9 @@ import {
 } from "@/lib/finance/types";
 import { useHubStore } from "@/lib/store";
 
-export default function AnalyzePage() {
+export function AnalyzePageClient() {
+  const { locale, dict } = useI18n();
+  const t = dict.analyze;
   const [form, setForm] = useState<MinimalFinanceData>({ ...DEMO_FINANCE });
   const [industry, setIndustry] = useState("Текстиль");
   const [region, setRegion] = useState("Навоийская область");
@@ -36,23 +39,23 @@ export default function AnalyzePage() {
   };
 
   const runLocal = () => {
-    const next = buildRuleAdvice(form, ratios);
+    const next = buildRuleAdvice(form, ratios, dict, locale);
     setAdvice(next);
     saveAnalysis({ industry, region, data: form, ratios, advice: next });
-    toast.success("Показатели посчитаны");
+    toast.success(t.toastCalculated);
   };
 
   const runAi = async () => {
     setLoading(true);
     try {
-      const next = await requestAiAdvice({ data: form, industry, region });
+      const next = await requestAiAdvice({ data: form, industry, region, locale });
       setAdvice(next);
       saveAnalysis({ industry, region, data: form, ratios, advice: next });
-      toast.success(next.source === "ai" ? "ИИ-анализ готов" : "Показан экспресс-анализ");
+      toast.success(next.source === "ai" ? t.toastAiReady : t.toastExpress);
     } catch {
-      const next = buildRuleAdvice(form, ratios);
+      const next = buildRuleAdvice(form, ratios, dict, locale);
       setAdvice(next);
-      toast.error("ИИ недоступен, показан локальный разбор");
+      toast.error(t.toastAiUnavailable);
     } finally {
       setLoading(false);
     }
@@ -62,18 +65,15 @@ export default function AnalyzePage() {
     <Shell>
       <Toaster theme="dark" position="top-center" />
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-display text-3xl md:text-4xl">Финансовый анализ</h1>
-        <p className="mt-2 max-w-2xl text-muted">
-          Суммы в сумах. Можно подставить демо-компанию и сразу увидеть скоринг, а затем запросить
-          рекомендации.
-        </p>
+        <h1 className="font-display text-3xl md:text-4xl">{t.title}</h1>
+        <p className="mt-2 max-w-2xl text-muted">{t.subtitle}</p>
 
         <div className="mt-6 flex flex-wrap gap-2">
           <Button type="button" variant="subtle" onClick={() => setForm({ ...DEMO_FINANCE })}>
-            Демо: устойчивая компания
+            {t.demoStrong}
           </Button>
           <Button type="button" variant="subtle" onClick={() => setForm({ ...WEAK_FINANCE })}>
-            Демо: слабая компания
+            {t.demoWeak}
           </Button>
         </div>
 
@@ -81,52 +81,52 @@ export default function AnalyzePage() {
           <Card>
             <div className="mb-4 grid gap-3 sm:grid-cols-2">
               <label className="text-sm">
-                <span className="mb-1 block text-muted">Отрасль</span>
+                <span className="mb-1 block text-muted">{t.industryLabel}</span>
                 <Input value={industry} onChange={(e) => setIndustry(e.target.value)} />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-muted">Регион</span>
+                <span className="mb-1 block text-muted">{t.regionLabel}</span>
                 <Input value={region} onChange={(e) => setRegion(e.target.value)} />
               </label>
             </div>
-            {(["Баланс", "ОПУ"] as const).map((group) => (
-              <div key={group} className="mb-6">
-                <h2 className="mb-3 font-display text-xl">{group}</h2>
+            {(["balance", "pnl"] as const).map((groupKey) => (
+              <div key={groupKey} className="mb-6">
+                <h2 className="mb-3 font-display text-xl">{dict.financeFields.groups[groupKey]}</h2>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {FINANCE_FIELDS.filter((f) => f.group === group).map((f) => (
-                    <label key={f.key} className="text-sm">
-                      <span className="mb-1 block text-muted">{f.label}</span>
-                      <Input
-                        type="number"
-                        value={form[f.key]}
-                        onChange={(e) => setField(f.key, e.target.value)}
-                      />
-                    </label>
-                  ))}
+                  {FINANCE_FIELDS.filter((f) => (groupKey === "balance" ? f.group === "Баланс" : f.group === "ОПУ")).map(
+                    (f) => (
+                      <label key={f.key} className="text-sm">
+                        <span className="mb-1 block text-muted">{dict.financeFields.labels[f.key]}</span>
+                        <Input
+                          type="number"
+                          value={form[f.key]}
+                          onChange={(e) => setField(f.key, e.target.value)}
+                        />
+                      </label>
+                    ),
+                  )}
                 </div>
               </div>
             ))}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button type="button" onClick={runLocal}>
-                Посчитать сейчас
+                {t.calcNow}
               </Button>
               <Button type="button" variant="gold" disabled={loading} onClick={runAi}>
-                {loading ? "Готовим анализ…" : "Получить ИИ-анализ"}
+                {loading ? t.loadingAi : t.getAi}
               </Button>
             </div>
-            <p className="mt-3 text-xs text-muted">
-              ИИ вызывается только по кнопке. Если сервис недоступен, сработает локальный разбор.
-            </p>
+            <p className="mt-3 text-xs text-muted">{t.aiHint}</p>
           </Card>
 
           <div>
             <AnalysisPanel ratios={ratios} advice={advice} />
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild variant="outline">
-                <Link href="/financing">Сравнить кредиты</Link>
+                <Link href={`/${locale}/financing`}>{t.compareLoans}</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href="/projects">Найти инвестора</Link>
+                <Link href={`/${locale}/projects`}>{t.findInvestor}</Link>
               </Button>
             </div>
           </div>

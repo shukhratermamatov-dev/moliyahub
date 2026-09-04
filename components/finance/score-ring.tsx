@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export function ScoreRing({ score }: { score: number }) {
+export function ScoreRing({ score, label }: { score: number; label: string }) {
   const r = 42;
   const c = 2 * Math.PI * r;
   const offset = c - (score / 100) * c;
@@ -25,7 +25,7 @@ export function ScoreRing({ score }: { score: number }) {
       </svg>
       <div className="absolute text-center">
         <div className={cn("font-display text-3xl tabular-nums", tone)}>{score}</div>
-        <div className="text-[10px] uppercase tracking-wider text-muted">из 100</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted">{label}</div>
       </div>
     </div>
   );

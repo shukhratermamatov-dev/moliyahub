@@ -6,45 +6,47 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { OFFERS, TYPE_LABEL, type FinancingType } from "@/lib/data/banks";
+import { useI18n } from "@/i18n/provider";
+import type { FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
+import { useVisibleOffers } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
-const FILTERS: { id: "ALL" | FinancingType; label: string }[] = [
-  { id: "ALL", label: "Все" },
-  { id: "BANK_LOAN", label: "Кредиты" },
-  { id: "ISLAMIC", label: "Исламские" },
-  { id: "LEASING", label: "Лизинг" },
-  { id: "VENTURE", label: "Венчур" },
-  { id: "CROWDFUNDING", label: "Крауд" },
-  { id: "GRANT", label: "Гранты" },
+const FILTER_IDS: ("ALL" | FinancingType)[] = [
+  "ALL",
+  "BANK_LOAN",
+  "ISLAMIC",
+  "LEASING",
+  "VENTURE",
+  "CROWDFUNDING",
+  "GRANT",
 ];
 
-export default function FinancingPage() {
-  const [type, setType] = useState<(typeof FILTERS)[number]["id"]>("ALL");
+export function FinancingPageClient() {
+  const { locale, dict } = useI18n();
+  const t = dict.financing;
+  const offers = useVisibleOffers();
+  const [type, setType] = useState<(typeof FILTER_IDS)[number]>("ALL");
   const [amount, setAmount] = useState(500_000_000);
   const [months, setMonths] = useState(24);
-  const [selected, setSelected] = useState(OFFERS[0].id);
+  const [selected, setSelected] = useState<string | null>(null);
 
-  const list = useMemo(() => OFFERS.filter((o) => type === "ALL" || o.type === type), [type]);
-  const offer = OFFERS.find((o) => o.id === selected) ?? list[0];
+  const list = useMemo(() => offers.filter((o) => type === "ALL" || o.type === type), [offers, type]);
+  const offer = offers.find((o) => o.id === selected) ?? list[0] ?? offers[0];
   const rate = offer ? (offer.rateMin + offer.rateMax) / 2 : 0;
   const payment = offer && offer.rateMax > 0 ? monthlyPayment(amount, rate, months) : 0;
 
   return (
     <Shell>
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-display text-3xl md:text-4xl">Финансирование</h1>
-        <p className="mt-2 max-w-2xl text-muted">
-          Сравнение продуктов банков Узбекистана и альтернатив. Ставки ориентировочные — уточняйте в
-          банке.
-        </p>
+        <h1 className="font-display text-3xl md:text-4xl">{t.title}</h1>
+        <p className="mt-2 max-w-2xl text-muted">{t.subtitle}</p>
 
         <Card className="mt-8">
-          <h2 className="font-display text-xl">Калькулятор платежа</h2>
+          <h2 className="font-display text-xl">{t.calculatorHeading}</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <label className="text-sm">
-              <span className="mb-1 block text-muted">Сумма, сум</span>
+              <span className="mb-1 block text-muted">{t.amountLabel}</span>
               <Input
                 type="number"
                 value={amount}
@@ -52,7 +54,7 @@ export default function FinancingPage() {
               />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block text-muted">Срок, мес.</span>
+              <span className="mb-1 block text-muted">{t.termLabel}</span>
               <Input
                 type="number"
                 value={months}
@@ -60,28 +62,28 @@ export default function FinancingPage() {
               />
             </label>
             <div className="rounded-xl bg-raised p-3">
-              <div className="text-sm text-muted">Ориентир платежа / мес.</div>
+              <div className="text-sm text-muted">{t.paymentEstimateLabel}</div>
               <div className="mt-1 font-display text-2xl tabular-nums">
-                {offer?.rateMax === 0 ? "без %" : formatMoney(Math.round(payment))}
+                {offer?.rateMax === 0 ? t.noPercent : formatMoney(Math.round(payment), locale)}
               </div>
               <div className="text-xs text-muted">
-                {offer?.bank} · средняя ставка {rate}%
+                {offer?.bank} · {t.averageRate} {rate}%
               </div>
             </div>
           </div>
         </Card>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {FILTERS.map((f) => (
+          {FILTER_IDS.map((id) => (
             <button
-              key={f.id}
+              key={id}
               type="button"
-              onClick={() => setType(f.id)}
+              onClick={() => setType(id)}
               className={`min-h-10 rounded-full px-4 text-sm ${
-                type === f.id ? "bg-primary text-primary-fg" : "bg-raised text-muted"
+                type === id ? "bg-primary text-primary-fg" : "bg-raised text-muted"
               }`}
             >
-              {f.label}
+              {t.filters[id]}
             </button>
           ))}
         </div>
@@ -93,7 +95,7 @@ export default function FinancingPage() {
               type="button"
               onClick={() => setSelected(o.id)}
               className={`rounded-2xl bg-surface p-5 text-left shadow-[0_0_0_1px_rgba(255,255,255,0.07)] transition-shadow ${
-                selected === o.id ? "shadow-[0_0_0_1px_var(--color-primary)]" : ""
+                (selected ?? list[0]?.id) === o.id ? "shadow-[0_0_0_1px_var(--color-primary)]" : ""
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -102,15 +104,15 @@ export default function FinancingPage() {
                   <h3 className="mt-1 font-display text-xl">{o.title}</h3>
                 </div>
                 <span className="rounded-full bg-line px-2 py-1 text-xs text-muted">
-                  {TYPE_LABEL[o.type]}
+                  {dict.financingTypes[o.type]}
                 </span>
               </div>
               <p className="mt-3 text-sm tabular-nums">
-                {o.rateMax === 0 ? "Без процента" : `${o.rateMin}–${o.rateMax}%`} · {o.termMin}–
-                {o.termMax} мес.
+                {o.rateMax === 0 ? t.interestFree : `${o.rateMin}–${o.rateMax}%`} · {o.termMin}–{o.termMax}{" "}
+                {t.monthsShort}
               </p>
               <p className="mt-1 text-sm text-muted">
-                {formatMoney(o.minAmount)} — {formatMoney(o.maxAmount)}
+                {formatMoney(o.minAmount, locale)} — {formatMoney(o.maxAmount, locale)}
               </p>
               <p className="mt-2 text-sm text-muted">{o.note}</p>
               <div className="mt-3 flex flex-wrap gap-1">
@@ -126,7 +128,7 @@ export default function FinancingPage() {
 
         <div className="mt-8">
           <Button asChild>
-            <Link href="/projects">Перейти к проектам инвесторов</Link>
+            <Link href={`/${locale}/projects`}>{t.goToProjects}</Link>
           </Button>
         </div>
       </div>

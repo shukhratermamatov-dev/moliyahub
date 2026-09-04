@@ -1,140 +1,148 @@
 import { formatMoney, formatPct, formatRatio } from "../utils";
+import type { Dictionary } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/config";
 import type { AiAdvice, FinancialRatios, MinimalFinanceData, Recommendation, RedFlag } from "./types";
 
-export function buildRuleAdvice(data: MinimalFinanceData, ratios: FinancialRatios): AiAdvice {
+export function buildRuleAdvice(
+  data: MinimalFinanceData,
+  ratios: FinancialRatios,
+  dict: Dictionary,
+  locale: Locale,
+): AiAdvice {
+  const t = dict.adviceTemplates;
   const red_flags: RedFlag[] = [];
   const strengths: string[] = [];
   const recommendations: Recommendation[] = [];
 
   if (ratios.currentRatio !== null && ratios.currentRatio < 1) {
     red_flags.push({
-      indicator: "Текущая ликвидность",
+      indicator: t.lowCurrentRatio.indicator,
       value: formatRatio(ratios.currentRatio),
-      why_critical:
-        "Текущих активов не хватает, чтобы покрыть краткосрочные долги. Есть риск кассовых разрывов.",
+      why_critical: t.lowCurrentRatio.whyCritical,
       priority: 1,
     });
     recommendations.push({
-      title: "Укрепить оборотный капитал",
-      description:
-        "Соберите дебиторку быстрее, сократите запасы неликвида и перенесите часть краткосрочных кредитов на длинный срок.",
-      expected_effect: "Текущая ликвидность выше 1,2",
+      title: t.lowCurrentRatio.recTitle,
+      description: t.lowCurrentRatio.recDescription,
+      expected_effect: t.lowCurrentRatio.recEffect,
       priority: 1,
       difficulty: "medium",
-      timeframe: "1–3 месяца",
+      timeframe: t.lowCurrentRatio.recTimeframe,
     });
   } else if (ratios.currentRatio !== null && ratios.currentRatio >= 1.5) {
-    strengths.push("Запас ликвидности достаточный — краткосрочные обязательства покрываются активами.");
+    strengths.push(t.goodCurrentRatio);
   }
 
   if (data.netProfit < 0) {
     red_flags.push({
-      indicator: "Чистая прибыль",
-      value: formatMoney(data.netProfit),
-      why_critical: "Компания убыточна. Без разворота это быстро съест капитал.",
+      indicator: t.negativeProfit.indicator,
+      value: formatMoney(data.netProfit, locale),
+      why_critical: t.negativeProfit.whyCritical,
       priority: 1,
     });
     recommendations.push({
-      title: "Разобрать убыток по статьям",
-      description:
-        "Отделите переменные и постоянные расходы. Поднимите цены на низкомаржинальные позиции и заморозьте необязательные затраты.",
-      expected_effect: "Выход в операционную прибыль",
+      title: t.negativeProfit.recTitle,
+      description: t.negativeProfit.recDescription,
+      expected_effect: t.negativeProfit.recEffect,
       priority: 1,
       difficulty: "high",
-      timeframe: "1–3 месяца",
+      timeframe: t.negativeProfit.recTimeframe,
     });
   }
 
   if (ratios.autonomyRatio !== null && ratios.autonomyRatio < 0.3) {
     red_flags.push({
-      indicator: "Автономия",
+      indicator: t.lowAutonomy.indicator,
       value: formatPct(ratios.autonomyRatio),
-      why_critical: "Бизнес сильно зависит от заёмных средств. Банки и инвесторы это заметят.",
+      why_critical: t.lowAutonomy.whyCritical,
       priority: 2,
     });
     recommendations.push({
-      title: "Снизить долговую нагрузку",
-      description:
-        "Не берите новый оборотный кредит, пока не вырастет собственный капитал. Рассмотрите долю инвестора вместо долга.",
-      expected_effect: "Коэффициент автономии выше 40%",
+      title: t.lowAutonomy.recTitle,
+      description: t.lowAutonomy.recDescription,
+      expected_effect: t.lowAutonomy.recEffect,
       priority: 2,
       difficulty: "high",
-      timeframe: "3–6 месяцев",
+      timeframe: t.lowAutonomy.recTimeframe,
     });
   } else if (ratios.autonomyRatio !== null && ratios.autonomyRatio >= 0.5) {
-    strengths.push("Высокая финансовая независимость — собственный капитал доминирует в пассивах.");
+    strengths.push(t.goodAutonomy);
   }
 
   if (ratios.absoluteLiquidity !== null && ratios.absoluteLiquidity < 0.1) {
     red_flags.push({
-      indicator: "Абсолютная ликвидность",
+      indicator: t.lowAbsoluteLiquidity.indicator,
       value: formatRatio(ratios.absoluteLiquidity),
-      why_critical: "Денег на счетах почти нет. Любая задержка оплаты от клиентов бьёт по платежам.",
+      why_critical: t.lowAbsoluteLiquidity.whyCritical,
       priority: 2,
     });
   }
 
   if (ratios.inventoryTurnover !== null && ratios.inventoryTurnover < 2 && data.inventory > 0) {
     red_flags.push({
-      indicator: "Оборачиваемость запасов",
+      indicator: t.lowInventoryTurnover.indicator,
       value: formatRatio(ratios.inventoryTurnover, 1),
-      why_critical: "Запасы залеживаются. Деньги заморожены на складе.",
+      why_critical: t.lowInventoryTurnover.whyCritical,
       priority: 3,
     });
     recommendations.push({
-      title: "Расчистить склад",
-      description:
-        "Проведите инвентаризацию, распродайте неликвид со скидкой и перейдите на закупки под заказ, где возможно.",
-      expected_effect: "Высвобождение денежных средств",
+      title: t.lowInventoryTurnover.recTitle,
+      description: t.lowInventoryTurnover.recDescription,
+      expected_effect: t.lowInventoryTurnover.recEffect,
       priority: 3,
       difficulty: "medium",
-      timeframe: "1–3 месяца",
+      timeframe: t.lowInventoryTurnover.recTimeframe,
     });
   }
 
   if (data.operatingProfit > 0 && ratios.ros !== null && ratios.ros >= 0.08) {
-    strengths.push("Рентабельность продаж на здоровом уровне для МСБ.");
+    strengths.push(t.goodRos);
   }
 
   if (ratios.workingCapital > 0) {
-    strengths.push("Чистый оборотный капитал положительный.");
+    strengths.push(t.goodWorkingCapital);
   }
 
   if (recommendations.length === 0) {
     recommendations.push({
-      title: "Зафиксировать финансовую дисциплину",
-      description:
-        "Ведите ежемесячный отчёт кассовых разрывов и сравнивайте коэффициенты с предыдущим периодом.",
-      expected_effect: "Управляемость и раннее обнаружение проблем",
+      title: t.defaultRecommendation.recTitle,
+      description: t.defaultRecommendation.recDescription,
+      expected_effect: t.defaultRecommendation.recEffect,
       priority: 3,
       difficulty: "low",
-      timeframe: "1 месяц",
+      timeframe: t.defaultRecommendation.recTimeframe,
     });
   }
 
-  let financing_advice =
-    "Сначала закройте кассовые разрывы и убыток, затем рассматривайте кредит.";
+  let financing_advice = t.financingLow;
   if (ratios.score >= 70 && data.netProfit > 0) {
-    financing_advice =
-      "Финансовое состояние позволяет привлекать банковский кредит или инвестора. Сравнивайте ставку с рентабельностью проекта: если доходность выше стоимости денег — имеет смысл масштабироваться.";
+    financing_advice = t.financingHigh;
   } else if (ratios.score >= 45) {
-    financing_advice =
-      "Классический кредит возможен, но банки запросят залог и обороты. Параллельно покажите проект инвесторам и рассмотрите исламское финансирование / лизинг оборудования.";
-  } else {
-    financing_advice =
-      "Сейчас новый долг опасен. Сначала поправьте ликвидность и прибыль. Для роста лучше искать инвестора в капитал или грант, а не кредит.";
+    financing_advice = t.financingMid;
   }
 
-  const tone =
-    ratios.score >= 70 ? "устойчивое" : ratios.score >= 45 ? "среднее, с зонами риска" : "напряжённое";
+  const tone = ratios.score >= 70 ? t.toneGood : ratios.score >= 45 ? t.toneMid : t.toneLow;
+
+  const middle =
+    data.netProfit >= 0
+      ? t.summaryProfit(formatMoney(data.netProfit, locale), formatMoney(data.revenue, locale))
+      : t.summaryLoss(formatMoney(data.netProfit, locale));
 
   return {
-    summary: `Финансовое здоровье компании — ${tone} (балл ${ratios.score} из 100). ${
-      data.netProfit >= 0
-        ? `Чистая прибыль ${formatMoney(data.netProfit)} при выручке ${formatMoney(data.revenue)}.`
-        : `Убыток ${formatMoney(data.netProfit)} требует первоочередного внимания.`
-    } Автономия ${formatPct(ratios.autonomyRatio)}, текущая ликвидность ${formatRatio(ratios.currentRatio)}.`,
-    score_comment: `Балл ${ratios.score}/100 собран из ликвидности (${ratios.scoreDetails.liquidity}), рентабельности (${ratios.scoreDetails.profitability}), устойчивости (${ratios.scoreDetails.stability}) и эффективности (${ratios.scoreDetails.efficiency}).`,
+    summary: t.summaryTemplate(
+      tone,
+      ratios.score,
+      middle,
+      formatPct(ratios.autonomyRatio),
+      formatRatio(ratios.currentRatio),
+    ),
+    score_comment: t.scoreCommentTemplate(
+      ratios.score,
+      ratios.scoreDetails.liquidity,
+      ratios.scoreDetails.profitability,
+      ratios.scoreDetails.stability,
+      ratios.scoreDetails.efficiency,
+    ),
     red_flags: red_flags.sort((a, b) => a.priority - b.priority),
     strengths,
     recommendations: recommendations.sort((a, b) => a.priority - b.priority),
