@@ -1,7 +1,7 @@
 import type { Viewport } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
-import { isLocale, type Locale } from "@/i18n/config";
+import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { I18nProvider } from "@/i18n/provider";
 import "../globals.css";
@@ -30,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "ru";
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   // Только для метаданных (title/description) — это плоские строки, их можно
   // спокойно возвращать из серверного компонента, они не пересекают границу
   // сервер→клиент как React-проп.

@@ -18,6 +18,8 @@ const dict: Dictionary = {
     closeMenu: "Menyuni yopish",
     footerLine1: "© {year} MoliyaHub. Oʻzbekiston tadbirkorlari uchun moliyaviy platforma.",
     footerLine2: "Hisob-kitoblar maʼlumot xarakteriga ega va bank taklifi hisoblanmaydi.",
+    contactsLabel: "Aloqa",
+    cbuRatesLabel: "OʻzR MB:",
   },
   languageSwitcher: {
     label: "Til",

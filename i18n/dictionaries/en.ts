@@ -18,6 +18,8 @@ const dict: Dictionary = {
     closeMenu: "Close menu",
     footerLine1: "© {year} MoliyaHub. A financial platform for Uzbekistan entrepreneurs.",
     footerLine2: "Calculations are for reference only and are not a bank offer.",
+    contactsLabel: "Contacts",
+    cbuRatesLabel: "CBU:",
   },
   languageSwitcher: {
     label: "Language",

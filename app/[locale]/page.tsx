@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
-import { isLocale, type Locale } from "@/i18n/config";
+import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 
 const FEATURE_ICONS = [BarChart3, Sparkles, Landmark, LineChart, Users, Building2];
@@ -21,7 +21,7 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "ru";
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const dict = await getDictionary(locale);
   const t = dict.home;
 

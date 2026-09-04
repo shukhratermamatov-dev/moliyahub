@@ -16,6 +16,8 @@ const dict = {
     closeMenu: "Закрыть меню",
     footerLine1: "© {year} MoliyaHub. Финансовая площадка для предпринимателей Узбекистана.",
     footerLine2: "Расчёты носят справочный характер и не являются офертой банка.",
+    contactsLabel: "Контакты",
+    cbuRatesLabel: "ЦБ РУз:",
   },
   languageSwitcher: {
     label: "Язык",

@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { CurrencyTicker } from "@/components/finance/currency-ticker";
 import { useI18n } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
+      <CurrencyTicker />
       <header className="sticky top-0 z-40 border-b border-line/80 bg-bg/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
           <Link href={`/${locale}`} className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
@@ -90,9 +92,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main>{children}</main>
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-10 text-sm text-muted md:flex-row md:items-center md:justify-between">
-          <p>{dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}</p>
-          <p>{dict.shell.footerLine2}</p>
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-2">
+            <p>{dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}</p>
+            <p>{dict.shell.footerLine2}</p>
+          </div>
+          <div className="flex flex-col gap-2 md:items-end">
+            <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.contactsLabel}</span>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+              <a href="tel:+998909300330" className="transition-colors hover:text-fg">
+                +998 90 930 03 30
+              </a>
+              <a href="mailto:info@moliyahub.uz" className="transition-colors hover:text-fg">
+                info@moliyahub.uz
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
