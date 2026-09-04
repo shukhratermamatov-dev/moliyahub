@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isLocale, locales, type Locale } from "@/i18n/config";
 import { ADMIN_SESSION_COOKIE, computeAdminToken } from "@/lib/admin-auth";
+import { updateSupabaseSession } from "@/lib/supabase/middleware";
 
 function detectLocale(request: NextRequest): Locale {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
@@ -21,10 +22,15 @@ function detectLocale(request: NextRequest): Locale {
   return defaultLocale;
 }
 
+// Пути внутри /[locale]/..., которые требуют входа — редиректим на /login,
+// если пользователь не аутентифицирован через Supabase.
+const PROTECTED_SEGMENTS = ["cabinet"];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Админка живёт вне [locale] — всегда на /admin, без языкового префикса.
+  // Админка живёт вне [locale] — всегда на /admin, без языкового префикса,
+  // и использует свой отдельный пароль-гейт (не Supabase Auth).
   if (pathname === "/admin/login") {
     return NextResponse.next();
   }
@@ -42,17 +48,36 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Продлеваем Supabase-сессию на всех остальных маршрутах.
+  const { response: supabaseResponse, user } = await updateSupabaseSession(request);
+
   const hasLocalePrefix = locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
+
   if (hasLocalePrefix) {
-    return NextResponse.next();
+    const segments = pathname.split("/").filter(Boolean); // ["ru", "cabinet", ...]
+    const currentLocale = segments[0] as Locale;
+    const routeSegment = segments[1];
+
+    if (routeSegment && PROTECTED_SEGMENTS.includes(routeSegment) && !user) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${currentLocale}/login`;
+      url.searchParams.set("next", pathname);
+      const redirectResponse = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+      return redirectResponse;
+    }
+
+    return supabaseResponse;
   }
 
   const locale = detectLocale(request);
   const url = request.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(url);
+  const redirectResponse = NextResponse.redirect(url);
+  supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+  return redirectResponse;
 }
 
 export const config = {

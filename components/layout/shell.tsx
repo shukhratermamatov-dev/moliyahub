@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { CurrencyTicker } from "@/components/finance/currency-ticker";
+import { AuthNav } from "@/components/auth-nav";
 import { useI18n } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +51,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
+            <AuthNav />
             <LanguageSwitcher current={locale} />
             <Button asChild size="sm">
               <Link href={`/${locale}/analyze`}>{dict.shell.calcCta}</Link>
@@ -79,6 +81,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
               <div className="mt-2 flex items-center justify-between gap-3">
+                <AuthNav onNavigate={() => setOpen(false)} />
                 <LanguageSwitcher current={locale} />
               </div>
               <Button asChild className="mt-2">
