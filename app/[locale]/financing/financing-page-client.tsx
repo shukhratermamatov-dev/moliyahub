@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
 import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
+import { applyRateOverrides, type RateOverrideMap } from "@/lib/finance/rate-overrides";
 import { pickList, pickText } from "@/lib/i18n-text";
 import { SITE_IMAGES } from "@/lib/site-images";
 import { useVisibleOffers } from "@/lib/store";
@@ -29,7 +30,28 @@ const CATEGORY_ORDER: BankCategory[] = ["STATE", "JOINT_STOCK", "PRIVATE", "FORE
 export function FinancingPageClient() {
   const { locale, dict } = useI18n();
   const t = dict.financing;
-  const offers = useVisibleOffers();
+  const rawOffers = useVisibleOffers();
+  const [rateOverrides, setRateOverrides] = useState<RateOverrideMap>({});
+  // Ставки, загруженные админом через Excel (см. /admin), — публичный
+  // эндпоинт отдаёт их всем посетителям, не только с этого устройства.
+  // Тихо игнорируем ошибку: без override'ов просто останутся ставки по
+  // умолчанию из каталога.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/finance/rate-overrides")
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: RateOverrideMap) => {
+        if (!cancelled && data && typeof data === "object") setRateOverrides(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const offers = useMemo(
+    () => applyRateOverrides(rawOffers, rateOverrides),
+    [rawOffers, rateOverrides],
+  );
   const [type, setType] = useState<(typeof FILTER_IDS)[number]>("ALL");
   const [amount, setAmount] = useState(500_000_000);
   const [months, setMonths] = useState(24);

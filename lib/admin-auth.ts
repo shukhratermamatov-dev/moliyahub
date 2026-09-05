@@ -11,3 +11,18 @@ async function sha256Hex(input: string): Promise<string> {
 export async function computeAdminToken(password: string): Promise<string> {
   return sha256Hex(`moliyahub-admin-session:${password}`);
 }
+
+// Проверка админ-сессии для Route Handler'ов под /api/admin/* — middleware.ts
+// сознательно не трогает /api/* (см. его комментарий про /api/cbu-rates),
+// поэтому каждый такой роут проверяет куку сам, тем же способом, что и
+// middleware для страниц /admin/*.
+export async function isAdminAuthenticated(): Promise<boolean> {
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return false;
+  const { cookies } = await import("next/headers");
+  const store = await cookies();
+  const token = store.get(ADMIN_SESSION_COOKIE)?.value;
+  if (!token) return false;
+  const validToken = await computeAdminToken(expected);
+  return token === validToken;
+}

@@ -8,6 +8,8 @@ import { sameForAllLocales, sameListForAllLocales } from "@/lib/i18n-text";
 import { useHubStore } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
+type RateImportResult = { updated: number; skipped: string[] };
+
 const TABS = [
   { id: "catalog", label: "Каталог финансирования" },
   { id: "projects", label: "Проекты" },
@@ -47,6 +49,50 @@ export function AdminDashboard() {
   const applications = useHubStore((s) => s.applications);
 
   const [draft, setDraft] = useState(EMPTY_OFFER_DRAFT);
+
+  const [rateBusy, setRateBusy] = useState(false);
+  const [rateMessage, setRateMessage] = useState<string | null>(null);
+
+  const uploadRates = async (file: File) => {
+    setRateBusy(true);
+    setRateMessage(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/finance/rate-overrides/import", {
+        method: "POST",
+        body: fd,
+      });
+      const json = (await res.json().catch(() => null)) as RateImportResult | { error: string } | null;
+      if (!res.ok || !json || "error" in json) {
+        setRateMessage("Не удалось загрузить файл. Проверьте, что это .xlsx из скачанного шаблона.");
+        return;
+      }
+      const skippedNote = json.skipped.length > 0 ? ` Пропущено (код не найден или ставка некорректна): ${json.skipped.join(", ")}.` : "";
+      setRateMessage(`Обновлено продуктов: ${json.updated}.${skippedNote}`);
+    } catch {
+      setRateMessage("Не удалось загрузить файл — проверьте соединение и попробуйте ещё раз.");
+    } finally {
+      setRateBusy(false);
+    }
+  };
+
+  const resetRates = async () => {
+    if (!window.confirm("Сбросить все загруженные ставки к значениям по умолчанию из каталога?")) {
+      return;
+    }
+    setRateBusy(true);
+    setRateMessage(null);
+    try {
+      const res = await fetch("/api/admin/finance/rate-overrides/reset", { method: "POST" });
+      if (!res.ok) throw new Error("failed");
+      setRateMessage("Ставки сброшены к значениям по умолчанию.");
+    } catch {
+      setRateMessage("Не удалось сбросить ставки — попробуйте ещё раз.");
+    } finally {
+      setRateBusy(false);
+    }
+  };
 
   const submitOffer = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +168,48 @@ export function AdminDashboard() {
 
         {tab === "catalog" ? (
           <div className="mt-6 space-y-6">
+            <section className="rounded-2xl bg-surface p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
+              <h2 className="font-display text-xl">Ставки по кредитам (Excel)</h2>
+              <p className="mt-1 text-sm text-muted">
+                Скачайте шаблон с текущими ставками встроенных продуктов, поправьте колонки
+                &quot;Ставка от&quot; / &quot;Ставка до&quot; и загрузите файл обратно — новые ставки увидят
+                все посетители сайта, не только этот браузер. Колонку &quot;Код&quot; не трогайте, по ней
+                находится нужный продукт. Продукты, добавленные вручную ниже, этим способом не
+                обновляются.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <a
+                  href="/api/admin/finance/rate-overrides/template"
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg bg-raised px-4 text-sm font-medium text-fg hover:bg-line"
+                >
+                  Скачать шаблон
+                </a>
+                <label className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-lg bg-raised px-4 text-sm font-medium text-fg hover:bg-line">
+                  {rateBusy ? "Загрузка…" : "Загрузить ставки"}
+                  <input
+                    type="file"
+                    accept=".xlsx"
+                    className="hidden"
+                    disabled={rateBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void uploadRates(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={rateBusy}
+                  onClick={() => void resetRates()}
+                  className="min-h-10 rounded-lg px-4 text-sm font-medium text-danger hover:bg-line"
+                >
+                  Сбросить к значениям по умолчанию
+                </button>
+              </div>
+              {rateMessage ? <p className="mt-3 text-sm text-muted">{rateMessage}</p> : null}
+            </section>
+
             <section>
               <h2 className="font-display text-xl">Встроенные продукты ({OFFERS.length})</h2>
               <p className="mt-1 text-sm text-muted">
