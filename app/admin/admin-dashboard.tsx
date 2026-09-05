@@ -44,7 +44,6 @@ export function AdminDashboard() {
   const removeProject = useHubStore((s) => s.removeProject);
 
   const applications = useHubStore((s) => s.applications);
-  const analyses = useHubStore((s) => s.analyses);
 
   const [draft, setDraft] = useState(EMPTY_OFFER_DRAFT);
 
@@ -389,24 +388,14 @@ export function AdminDashboard() {
 
         {tab === "analyses" ? (
           <div className="mt-6">
-            <h2 className="font-display text-xl">Проведённые анализы ({analyses.length})</h2>
-            {analyses.length === 0 ? (
-              <p className="mt-1 text-sm text-muted">Пока ничего не посчитано в этом браузере.</p>
-            ) : (
-              <div className="mt-3 grid gap-2">
-                {analyses.map((a) => (
-                  <div key={a.id} className="rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
-                    <div className="flex items-center justify-between text-xs text-muted">
-                      <span>
-                        {a.industry} · {a.region}
-                      </span>
-                      <span>{new Date(a.createdAt).toLocaleString("ru-RU")}</span>
-                    </div>
-                    <div className="mt-1 font-display text-2xl tabular-nums">{a.ratios.score} / 100</div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <h2 className="font-display text-xl">Проведённые анализы</h2>
+            <p className="mt-2 max-w-xl text-sm text-muted">
+              Анализы гостей больше не хранятся локально (по требованию — данные незарегистрированных
+              посетителей не должны сохраняться после ухода с сайта). Анализы зарегистрированных
+              пользователей сохраняются в Supabase, в таблице <code>analyses</code>, привязаны к их
+              аккаунту и видны им в личном кабинете. Общий список по всем пользователям сюда пока не
+              выведен — при необходимости можно добавить отдельным экраном через сервисный ключ Supabase.
+            </p>
           </div>
         ) : null}
       </div>

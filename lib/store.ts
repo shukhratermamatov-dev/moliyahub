@@ -3,18 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { OFFERS, type FinancingOffer } from "./data/banks";
 import { SEED_PROJECTS, type Project } from "./data/projects";
-import type { AiAdvice, FinancialRatios, MinimalFinanceData } from "./finance/types";
 import { uid } from "./utils";
-
-export type SavedAnalysis = {
-  id: string;
-  createdAt: string;
-  industry: string;
-  region: string;
-  data: MinimalFinanceData;
-  ratios: FinancialRatios;
-  advice: AiAdvice | null;
-};
 
 export type Application = {
   id: string;
@@ -25,12 +14,10 @@ export type Application = {
 };
 
 type HubState = {
-  analyses: SavedAnalysis[];
   extraProjects: Project[];
   applications: Application[];
   customOffers: FinancingOffer[];
   hiddenOfferIds: string[];
-  saveAnalysis: (item: Omit<SavedAnalysis, "id" | "createdAt">) => string;
   addProject: (item: Omit<Project, "id">) => string;
   removeProject: (id: string) => void;
   addApplication: (item: Omit<Application, "id" | "createdAt">) => void;
@@ -42,21 +29,10 @@ type HubState = {
 export const useHubStore = create<HubState>()(
   persist(
     (set) => ({
-      analyses: [],
       extraProjects: [],
       applications: [],
       customOffers: [],
       hiddenOfferIds: [],
-      saveAnalysis: (item) => {
-        const id = uid();
-        set((s) => ({
-          analyses: [{ ...item, id, createdAt: new Date().toISOString() }, ...s.analyses].slice(
-            0,
-            20,
-          ),
-        }));
-        return id;
-      },
       addProject: (item) => {
         const id = uid();
         set((s) => ({ extraProjects: [{ ...item, id }, ...s.extraProjects] }));

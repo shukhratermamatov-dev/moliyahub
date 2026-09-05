@@ -49,3 +49,10 @@ export async function deleteProject(locale: string, id: string, _formData: FormD
   await supabase.from("projects").delete().eq("id", id);
   revalidatePath(`/${locale}/cabinet`);
 }
+
+
+export async function deleteAnalysis(locale: string, id: string, _formData: FormData) {
+  const supabase = await createClient();
+  await supabase.from("analyses").delete().eq("id", id);
+  revalidatePath(`/${locale}/cabinet`);
+}

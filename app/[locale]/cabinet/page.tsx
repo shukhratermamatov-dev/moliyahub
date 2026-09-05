@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/layout/shell";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
-import { CabinetClient, type ProjectRow } from "./cabinet-client";
+import { CabinetClient, type AnalysisRow, type ProjectRow } from "./cabinet-client";
 
 export default async function CabinetPage({
   params,
@@ -28,9 +28,19 @@ export default async function CabinetPage({
     .select("id, name, description, region, amount, stage, created_at")
     .order("created_at", { ascending: false });
 
+  const { data: analyses } = await supabase
+    .from("analyses")
+    .select("id, industry, region, data, ratios, advice, created_at")
+    .order("created_at", { ascending: false })
+    .limit(30);
+
   return (
     <Shell>
-      <CabinetClient email={user.email ?? ""} projects={(projects as ProjectRow[]) ?? []} />
+      <CabinetClient
+        email={user.email ?? ""}
+        projects={(projects as ProjectRow[]) ?? []}
+        analyses={(analyses as AnalysisRow[]) ?? []}
+      />
     </Shell>
   );
 }
