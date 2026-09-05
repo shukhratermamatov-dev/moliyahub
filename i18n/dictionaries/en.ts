@@ -169,6 +169,18 @@ const dict: Dictionary = {
       GRANT: "Grants",
     },
   },
+  bankDirectory: {
+    heading: "All banks in Uzbekistan",
+    subtitle:
+      "Full list of licensed commercial banks (per the Central Bank of Uzbekistan registry). Rates and terms are not published openly — confirm directly with the bank.",
+    disclaimer: "Confirm terms with the bank",
+    categories: {
+      STATE: "State-owned",
+      JOINT_STOCK: "Joint-stock commercial",
+      PRIVATE: "Private",
+      FOREIGN_CAPITAL: "Foreign-capital",
+    },
+  },
   financingTypes: {
     BANK_LOAN: "Bank loan",
     ISLAMIC: "Islamic finance",

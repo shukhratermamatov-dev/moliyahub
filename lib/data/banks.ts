@@ -198,3 +198,65 @@ export const OFFERS: FinancingOffer[] = [
     note: "Конкурсный отбор. Деньги не возвращаются при выполнении условий.",
   },
 ];
+
+export type BankCategory = "STATE" | "JOINT_STOCK" | "PRIVATE" | "FOREIGN_CAPITAL";
+
+export type BankDirectoryEntry = {
+  id: string;
+  name: string;
+  category: BankCategory;
+};
+
+// Полный список действующих коммерческих банков Узбекистана.
+// Источник: официальный реестр ЦБ РУз (cbu.uz/ru/credit-organizations/banks/head-offices/).
+// Ставки и условия намеренно не указаны — они не публикуются ЦБ и меняются у каждого
+// банка индивидуально. На странице "Финансирование" эти банки показываются с пометкой
+// "уточняйте условия в банке", без выдуманных цифр.
+export const BANK_DIRECTORY: BankDirectoryEntry[] = [
+  // Государственные банки (9)
+  { id: "nbu", name: "Национальный банк внешнеэкономической деятельности Республики Узбекистан", category: "STATE" },
+  { id: "narodny", name: "Народный банк Республики Узбекистан", category: "STATE" },
+  { id: "asaka", name: "Асакабанк", category: "STATE" },
+  { id: "uzpsb", name: "Узбекский промышленно-строительный банк", category: "STATE" },
+  { id: "agrobank", name: "Агробанк", category: "STATE" },
+  { id: "bbb", name: "Банк развития бизнеса", category: "STATE" },
+  { id: "turon", name: "Турон банк", category: "STATE" },
+  { id: "mikrokreditbank", name: "Микрокредитбанк", category: "STATE" },
+  { id: "aloqabank", name: "Алокабанк", category: "STATE" },
+  // Акционерно-коммерческие банки (7)
+  { id: "poytaxt", name: "Пойтахт банк", category: "JOINT_STOCK" },
+  { id: "ifb", name: "Invest Finance Bank", category: "JOINT_STOCK" },
+  { id: "madad", name: "Мадад Инвест Банк", category: "JOINT_STOCK" },
+  { id: "avo", name: "AVO BANK", category: "JOINT_STOCK" },
+  { id: "tbc", name: "TBC Bank", category: "JOINT_STOCK" },
+  { id: "anor", name: "ANOR BANK", category: "JOINT_STOCK" },
+  { id: "tayanch", name: "Tayanch mikromoliya banki", category: "JOINT_STOCK" },
+  // Частные банки (14)
+  { id: "asia-alliance", name: "Asia Alliance Bank", category: "PRIVATE" },
+  { id: "ipak-yuli", name: "Ипак Йули", category: "PRIVATE" },
+  { id: "kapitalbank", name: "Капиталбанк", category: "PRIVATE" },
+  { id: "universal", name: "Универсал банк", category: "PRIVATE" },
+  { id: "trustbank", name: "Трастбанк", category: "PRIVATE" },
+  { id: "davr", name: "Давр-банк", category: "PRIVATE" },
+  { id: "octobank", name: "Octobank", category: "PRIVATE" },
+  { id: "orient", name: "Ориент Финанс", category: "PRIVATE" },
+  { id: "garant", name: "Гарант банк", category: "PRIVATE" },
+  { id: "hamkorbank", name: "Hamkorbank", category: "PRIVATE" },
+  { id: "uzum", name: "Uzum Bank", category: "PRIVATE" },
+  { id: "openbank", name: "Open Bank", category: "PRIVATE" },
+  { id: "apex", name: "Apex Bank", category: "PRIVATE" },
+  { id: "hayot", name: "Hayot Bank", category: "PRIVATE" },
+  // Банки с участием иностранного капитала (5)
+  { id: "tenge", name: "Tenge Bank", category: "FOREIGN_CAPITAL" },
+  { id: "kdb", name: "КДБ Банк Узбекистан", category: "FOREIGN_CAPITAL" },
+  { id: "ziraat", name: "Ziraat Bank Uzbekistan", category: "FOREIGN_CAPITAL" },
+  { id: "saderat", name: "\u00abСодерот\u00bb Банк", category: "FOREIGN_CAPITAL" },
+  { id: "ipoteka", name: "Ипотека-банк", category: "FOREIGN_CAPITAL" },
+];
+
+export const BANK_CATEGORY_LABEL: Record<BankCategory, string> = {
+  STATE: "Государственный банк",
+  JOINT_STOCK: "Акционерно-коммерческий банк",
+  PRIVATE: "Частный банк",
+  FOREIGN_CAPITAL: "Банк с участием иностранного капитала",
+};

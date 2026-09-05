@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
-import type { FinancingType } from "@/lib/data/banks";
+import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
 import { useVisibleOffers } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
@@ -21,6 +21,8 @@ const FILTER_IDS: ("ALL" | FinancingType)[] = [
   "CROWDFUNDING",
   "GRANT",
 ];
+
+const CATEGORY_ORDER: BankCategory[] = ["STATE", "JOINT_STOCK", "PRIVATE", "FOREIGN_CAPITAL"];
 
 export function FinancingPageClient() {
   const { locale, dict } = useI18n();
@@ -125,6 +127,35 @@ export function FinancingPageClient() {
             </button>
           ))}
         </div>
+
+        <Card className="mt-10">
+          <h2 className="font-display text-xl">{dict.bankDirectory.heading}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted">{dict.bankDirectory.subtitle}</p>
+          <div className="mt-6 space-y-6">
+            {CATEGORY_ORDER.map((category) => {
+              const banks = BANK_DIRECTORY.filter((b) => b.category === category);
+              if (banks.length === 0) return null;
+              return (
+                <div key={category}>
+                  <h3 className="text-sm font-medium text-gold">
+                    {dict.bankDirectory.categories[category]} ({banks.length})
+                  </h3>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {banks.map((bank) => (
+                      <div
+                        key={bank.id}
+                        className="rounded-xl bg-raised p-3 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
+                      >
+                        <div>{bank.name}</div>
+                        <div className="mt-1 text-xs text-muted">{dict.bankDirectory.disclaimer}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
 
         <div className="mt-8">
           <Button asChild>

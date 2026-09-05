@@ -169,6 +169,18 @@ const dict: Dictionary = {
       GRANT: "Grantlar",
     },
   },
+  bankDirectory: {
+    heading: "Oʻzbekistondagi barcha banklar",
+    subtitle:
+      "Amaldagi tijorat banklarining toʻliq roʻyxati (OʻzR MB reestriga koʻra). Stavka va shartlar ochiq manbalarda eʼlon qilinmaydi — bankdan bevosita aniqlashtiring.",
+    disclaimer: "Shartlarni bankda aniqlashtiring",
+    categories: {
+      STATE: "Davlat banklari",
+      JOINT_STOCK: "Aksiyadorlik-tijorat banklari",
+      PRIVATE: "Xususiy banklar",
+      FOREIGN_CAPITAL: "Chet el kapitali ishtirokidagi banklar",
+    },
+  },
   financingTypes: {
     BANK_LOAN: "Bank krediti",
     ISLAMIC: "Islom moliyasi",
