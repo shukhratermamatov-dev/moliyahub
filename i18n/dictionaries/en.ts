@@ -66,6 +66,13 @@ const dict: Dictionary = {
       { n: "3", title: "Choose your funding", text: "A loan, murabaha, leasing, or an investor matched to your score." },
     ],
     finalCta: "Start the calculation",
+    gallery: {
+      heading: "Uzbekistan's economy — in numbers and in action",
+      items: [
+        { caption: "Small business and trade — the backbone of the economy" },
+        { caption: "Manufacturing and export — growth points" },
+      ],
+    },
   },
   analyze: {
     title: "Financial analysis",
@@ -204,6 +211,7 @@ const dict: Dictionary = {
     title: "Financing",
     subtitle:
       "Compare Uzbekistan bank products and alternatives. Rates are indicative — confirm with the bank.",
+    bannerCaption: "Financing works for real businesses already in motion — from street vendors to workshops",
     calculatorHeading: "Payment calculator",
     amountLabel: "Amount, soʻm",
     termLabel: "Term, months",

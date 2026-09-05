@@ -66,6 +66,13 @@ const dict: Dictionary = {
       { n: "3", title: "Mablagʻni tanlang", text: "Ballingizga mos kredit, murobaha, lizing yoki investor." },
     ],
     finalCta: "Hisoblashni boshlash",
+    gallery: {
+      heading: "Oʻzbekiston iqtisodiyoti — raqamlarda va amalda",
+      items: [
+        { caption: "Kichik biznes va savdo — iqtisodiyot poydevori" },
+        { caption: "Ishlab chiqarish va eksport — oʻsish nuqtalari" },
+      ],
+    },
   },
   analyze: {
     title: "Moliyaviy tahlil",
@@ -204,6 +211,7 @@ const dict: Dictionary = {
     title: "Moliyalashtirish",
     subtitle:
       "Oʻzbekiston banklari va muqobil mahsulotlarni solishtirish. Stavkalar taxminiy — bankda aniqlashtiring.",
+    bannerCaption: "Moliyalashtirish real biznes uchun ishlaydi — koʻcha savdosidan sexgacha",
     calculatorHeading: "Toʻlov kalkulyatori",
     amountLabel: "Miqdor, soʻm",
     termLabel: "Muddat, oy",

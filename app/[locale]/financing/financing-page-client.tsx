@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n/provider";
 import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
 import { pickList, pickText } from "@/lib/i18n-text";
+import { SITE_IMAGES } from "@/lib/site-images";
 import { useVisibleOffers } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
@@ -44,6 +45,19 @@ export function FinancingPageClient() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <h1 className="font-display text-3xl md:text-4xl">{t.title}</h1>
         <p className="mt-2 max-w-2xl text-muted">{t.subtitle}</p>
+
+        <div className="relative mt-6 h-40 overflow-hidden rounded-2xl shadow-[0_0_0_1px_rgba(255,255,255,0.07)] md:h-56">
+          <img
+            src={SITE_IMAGES.smallBusinessOwner.src}
+            alt={SITE_IMAGES.smallBusinessOwner.alt}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/90 via-bg/20 to-transparent" />
+          <p className="absolute inset-x-0 bottom-0 p-4 font-display text-base text-fg md:p-5 md:text-lg">
+            {t.bannerCaption}
+          </p>
+        </div>
 
         <Card className="mt-8">
           <h2 className="font-display text-xl">{t.calculatorHeading}</h2>
