@@ -6,13 +6,17 @@ const VALID_KEYS = new Set(Object.keys(EMPTY_FINANCE_DATA));
 
 function cellToNumber(value: ExcelJS.CellValue): number | null {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (value && typeof value === "object" && "result" in (value as Record<string, unknown>)) {
-    const result = (value as Record<string, unknown>).result;
-    return typeof result === "number" && Number.isFinite(result) ? result : null;
-  }
   if (typeof value === "string") {
     const n = Number(value.replace(/\s/g, "").replace(",", "."));
     return Number.isFinite(n) ? n : null;
+  }
+  // Ячейка-формула (обычная или расшаренная) — exceljs кладёт посчитанный
+  // результат в поле result. Используем "in" вместо приведения к
+  // Record<string, unknown> — CellValue включает варианты без индексной
+  // сигнатуры, и такое приведение не проходит проверку типов.
+  if (value && typeof value === "object" && "result" in value) {
+    const result = value.result;
+    return typeof result === "number" && Number.isFinite(result) ? result : null;
   }
   return null;
 }
@@ -37,7 +41,10 @@ export async function POST(request: Request) {
   const arrayBuffer = await file.arrayBuffer();
   const workbook = new ExcelJS.Workbook();
   try {
-    await workbook.xlsx.load(Buffer.from(arrayBuffer));
+    // exceljs объявляет load() под чуть другую форму Buffer, чем даёт
+    // текущий @types/node (Buffer<ArrayBufferLike> с дженериком) — на
+    // рантайме это тот же самый Node Buffer, поэтому приводим тип явно.
+    await workbook.xlsx.load(Buffer.from(arrayBuffer) as unknown as Buffer);
   } catch {
     return NextResponse.json({ error: "bad_file" }, { status: 400 });
   }
