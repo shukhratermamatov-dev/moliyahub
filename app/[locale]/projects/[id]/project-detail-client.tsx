@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
 import type { ProjectStage } from "@/lib/data/projects";
+import { pickText } from "@/lib/i18n-text";
 import { useAllProjects, useHubStore } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
@@ -54,13 +55,16 @@ export function ProjectDetailClient({ id }: { id: string }) {
           {t.backLink}
         </Link>
         <p className="mt-6 text-xs text-gold">
-          {project.industry} · {dict.projectStages[project.stage as ProjectStage]} · {project.region}
+          {pickText(project.industry, locale)} · {dict.projectStages[project.stage as ProjectStage]} ·{" "}
+          {pickText(project.region, locale)}
         </p>
-        <h1 className="mt-2 font-display text-4xl">{project.title}</h1>
-        <p className="mt-2 text-muted">{project.owner}</p>
+        <h1 className="mt-2 font-display text-4xl">{pickText(project.title, locale)}</h1>
+        <p className="mt-2 text-muted">{pickText(project.owner, locale)}</p>
         <p className="mt-6 text-lg tabular-nums text-primary">{formatMoney(project.amount, locale)}</p>
-        <p className="mt-6 leading-relaxed">{project.description}</p>
-        {project.raisedHint ? <p className="mt-4 text-sm text-gold">{project.raisedHint}</p> : null}
+        <p className="mt-6 leading-relaxed">{pickText(project.description, locale)}</p>
+        {project.raisedHint ? (
+          <p className="mt-4 text-sm text-gold">{pickText(project.raisedHint, locale)}</p>
+        ) : null}
 
         <Card className="mt-10">
           <h2 className="font-display text-xl">{t.applicationHeading}</h2>

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
 import type { ProjectStage } from "@/lib/data/projects";
+import { sameForAllLocales } from "@/lib/i18n-text";
 import { useHubStore } from "@/lib/store";
 
 export function NewProjectPageClient() {
@@ -30,7 +31,18 @@ export function NewProjectPageClient() {
       toast.error(t.toastFillRequired);
       return;
     }
-    const id = addProject({ title, industry, stage, amount, region, owner, description });
+    // Форма не спрашивает язык — публикатор пишет на одном языке, поэтому
+    // показываем введённый текст как есть на всех локалях, а не переводим
+    // его машинно.
+    const id = addProject({
+      title: sameForAllLocales(title),
+      industry: sameForAllLocales(industry),
+      stage,
+      amount,
+      region: sameForAllLocales(region),
+      owner: sameForAllLocales(owner),
+      description: sameForAllLocales(description),
+    });
     toast.success(t.toastPublished);
     router.push(`/${locale}/projects/${id}`);
   };

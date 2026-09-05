@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
 import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
+import { pickList, pickText } from "@/lib/i18n-text";
 import { useVisibleOffers } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
@@ -69,7 +70,7 @@ export function FinancingPageClient() {
                 {offer?.rateMax === 0 ? t.noPercent : formatMoney(Math.round(payment), locale)}
               </div>
               <div className="text-xs text-muted">
-                {offer?.bank} · {t.averageRate} {rate}%
+                {offer ? pickText(offer.bank, locale) : ""} · {t.averageRate} {rate}%
               </div>
             </div>
           </div>
@@ -102,8 +103,8 @@ export function FinancingPageClient() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs text-gold">{o.bank}</div>
-                  <h3 className="mt-1 font-display text-xl">{o.title}</h3>
+                  <div className="text-xs text-gold">{pickText(o.bank, locale)}</div>
+                  <h3 className="mt-1 font-display text-xl">{pickText(o.title, locale)}</h3>
                 </div>
                 <span className="rounded-full bg-line px-2 py-1 text-xs text-muted">
                   {dict.financingTypes[o.type]}
@@ -116,9 +117,9 @@ export function FinancingPageClient() {
               <p className="mt-1 text-sm text-muted">
                 {formatMoney(o.minAmount, locale)} — {formatMoney(o.maxAmount, locale)}
               </p>
-              <p className="mt-2 text-sm text-muted">{o.note}</p>
+              <p className="mt-2 text-sm text-muted">{pickText(o.note, locale)}</p>
               <div className="mt-3 flex flex-wrap gap-1">
-                {o.purpose.map((p) => (
+                {pickList(o.purpose, locale).map((p) => (
                   <span key={p} className="rounded-full bg-raised px-2 py-0.5 text-xs text-muted">
                     {p}
                   </span>
@@ -146,7 +147,7 @@ export function FinancingPageClient() {
                         key={bank.id}
                         className="rounded-xl bg-raised p-3 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                       >
-                        <div>{bank.name}</div>
+                        <div>{pickText(bank.name, locale)}</div>
                         <div className="mt-1 text-xs text-muted">{dict.bankDirectory.disclaimer}</div>
                       </div>
                     ))}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { adminLogout } from "./actions";
 import { OFFERS, TYPE_LABEL, type FinancingOffer, type FinancingType } from "@/lib/data/banks";
 import { SEED_PROJECTS, STAGE_LABEL } from "@/lib/data/projects";
+import { sameForAllLocales, sameListForAllLocales } from "@/lib/i18n-text";
 import { useHubStore } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
@@ -50,22 +51,26 @@ export function AdminDashboard() {
   const submitOffer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!draft.bank.trim() || !draft.title.trim()) return;
+    // Админ-панель не спрашивает язык — введённый текст показываем как есть
+    // на всех локалях сайта, а не переводим его машинно.
     const offer: Omit<FinancingOffer, "id"> = {
-      bank: draft.bank,
+      bank: sameForAllLocales(draft.bank),
       type: draft.type,
-      title: draft.title,
+      title: sameForAllLocales(draft.title),
       rateMin: draft.rateMin,
       rateMax: draft.rateMax,
       termMin: draft.termMin,
       termMax: draft.termMax,
       minAmount: draft.minAmount,
       maxAmount: draft.maxAmount,
-      purpose: draft.purpose
-        .split(",")
-        .map((p) => p.trim())
-        .filter(Boolean),
+      purpose: sameListForAllLocales(
+        draft.purpose
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean),
+      ),
       islamic: draft.islamic,
-      note: draft.note,
+      note: sameForAllLocales(draft.note),
     };
     addCustomOffer(offer);
     setDraft(EMPTY_OFFER_DRAFT);
@@ -132,9 +137,9 @@ export function AdminDashboard() {
                       className="flex items-center justify-between gap-3 rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
                     >
                       <div>
-                        <div className="text-xs text-gold">{o.bank}</div>
+                        <div className="text-xs text-gold">{o.bank.ru}</div>
                         <div className="font-medium">
-                          {o.title} <span className="text-muted">· {TYPE_LABEL[o.type]}</span>
+                          {o.title.ru} <span className="text-muted">· {TYPE_LABEL[o.type]}</span>
                         </div>
                       </div>
                       <button
@@ -164,9 +169,9 @@ export function AdminDashboard() {
                       className="flex items-center justify-between gap-3 rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
                     >
                       <div>
-                        <div className="text-xs text-gold">{o.bank}</div>
+                        <div className="text-xs text-gold">{o.bank.ru}</div>
                         <div className="font-medium">
-                          {o.title} <span className="text-muted">· {TYPE_LABEL[o.type]}</span>
+                          {o.title.ru} <span className="text-muted">· {TYPE_LABEL[o.type]}</span>
                         </div>
                       </div>
                       <button
@@ -317,11 +322,11 @@ export function AdminDashboard() {
                 {SEED_PROJECTS.map((p) => (
                   <div key={p.id} className="rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
                     <div className="text-xs text-gold">
-                      {p.industry} · {STAGE_LABEL[p.stage]}
+                      {p.industry.ru} · {STAGE_LABEL[p.stage]}
                     </div>
-                    <div className="font-medium">{p.title}</div>
+                    <div className="font-medium">{p.title.ru}</div>
                     <div className="text-sm text-muted">
-                      {formatMoney(p.amount, "ru")} · {p.region}
+                      {formatMoney(p.amount, "ru")} · {p.region.ru}
                     </div>
                   </div>
                 ))}
@@ -342,11 +347,11 @@ export function AdminDashboard() {
                     >
                       <div>
                         <div className="text-xs text-gold">
-                          {p.industry} · {STAGE_LABEL[p.stage]}
+                          {p.industry.ru} · {STAGE_LABEL[p.stage]}
                         </div>
-                        <div className="font-medium">{p.title}</div>
+                        <div className="font-medium">{p.title.ru}</div>
                         <div className="text-sm text-muted">
-                          {formatMoney(p.amount, "ru")} · {p.owner}
+                          {formatMoney(p.amount, "ru")} · {p.owner.ru}
                         </div>
                       </div>
                       <button
