@@ -41,10 +41,13 @@ export async function POST(request: Request) {
   const arrayBuffer = await file.arrayBuffer();
   const workbook = new ExcelJS.Workbook();
   try {
-    // exceljs объявляет load() под чуть другую форму Buffer, чем даёт
-    // текущий @types/node (Buffer<ArrayBufferLike> с дженериком) — на
-    // рантайме это тот же самый Node Buffer, поэтому приводим тип явно.
-    await workbook.xlsx.load(Buffer.from(arrayBuffer) as unknown as Buffer);
+    // exceljs тянет в node_modules собственную копию @types/node, и её
+    // Buffer структурно отличается от Buffer в остальном проекте — прямое
+    // приведение "as unknown as Buffer" не проходит проверку типов.
+    // Берём тип параметра прямо из сигнатуры load(), какой бы Buffer она
+    // ни объявляла — на рантайме это всё равно один и тот же Node Buffer.
+    type LoadArg = Parameters<typeof workbook.xlsx.load>[0];
+    await workbook.xlsx.load(Buffer.from(arrayBuffer) as unknown as LoadArg);
   } catch {
     return NextResponse.json({ error: "bad_file" }, { status: 400 });
   }
