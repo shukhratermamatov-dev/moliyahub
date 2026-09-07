@@ -7,6 +7,7 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import type { ProjectStage } from "@/lib/data/projects";
 import { sameForAllLocales } from "@/lib/i18n-text";
@@ -90,11 +91,7 @@ export function NewProjectPageClient() {
               </label>
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.amountLabel}</span>
-                <Input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value) || 0)}
-                />
+                <NumberField value={amount} onValueChange={(n) => setAmount(n || 0)} />
               </label>
             </div>
             <label className="block text-sm">

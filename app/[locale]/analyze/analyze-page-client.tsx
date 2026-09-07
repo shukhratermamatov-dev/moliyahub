@@ -8,6 +8,7 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import { requestAiAdvice } from "@/lib/ai/analyze";
 import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
@@ -67,8 +68,7 @@ export function AnalyzePageClient() {
   const ratios = useMemo(() => calculateRatios(aggregate), [aggregate]);
   const balanceOk = Math.abs(subtotals.balanceDiff) < 1;
 
-  const setField = (key: FinanceFieldKey, raw: string) => {
-    const n = Number(raw.replace(/\s/g, "").replace(",", "."));
+  const setField = (key: FinanceFieldKey, n: number) => {
     setForm((prev) => ({ ...prev, [key]: Number.isFinite(n) ? n : 0 }));
   };
 
@@ -227,7 +227,7 @@ export function AnalyzePageClient() {
                   {groupFields(groupKey).map((key) => (
                     <label key={key} className="text-sm">
                       <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
-                      <Input type="number" value={form[key]} onChange={(e) => setField(key, e.target.value)} />
+                      <NumberField allowNegative value={form[key]} onValueChange={(n) => setField(key, n)} />
                     </label>
                   ))}
                 </div>
@@ -255,7 +255,7 @@ export function AnalyzePageClient() {
               {groupFields("pnl").map((key) => (
                 <label key={key} className="text-sm">
                   <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
-                  <Input type="number" value={form[key]} onChange={(e) => setField(key, e.target.value)} />
+                  <NumberField allowNegative value={form[key]} onValueChange={(n) => setField(key, n)} />
                 </label>
               ))}
             </div>

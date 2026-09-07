@@ -6,7 +6,9 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
+import { BankLogo } from "@/components/finance/bank-logo";
 import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
 import { monthlyPayment } from "@/lib/finance/ratios";
 import { applyRateOverrides, type RateOverrideMap } from "@/lib/finance/rate-overrides";
@@ -86,11 +88,7 @@ export function FinancingPageClient() {
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <label className="text-sm">
               <span className="mb-1 block text-muted">{t.amountLabel}</span>
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value) || 0)}
-              />
+              <NumberField value={amount} onValueChange={(n) => setAmount(n || 0)} />
             </label>
             <label className="text-sm">
               <span className="mb-1 block text-muted">{t.termLabel}</span>
@@ -138,9 +136,12 @@ export function FinancingPageClient() {
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-xs text-gold">{pickText(o.bank, locale)}</div>
-                  <h3 className="mt-1 font-display text-xl">{pickText(o.title, locale)}</h3>
+                <div className="flex items-start gap-3">
+                  <BankLogo name={pickText(o.bank, locale)} logoDomain={o.logoDomain} size={36} />
+                  <div>
+                    <div className="text-xs text-gold">{pickText(o.bank, locale)}</div>
+                    <h3 className="mt-1 font-display text-xl">{pickText(o.title, locale)}</h3>
+                  </div>
                 </div>
                 <span className="rounded-full bg-line px-2 py-1 text-xs text-muted">
                   {dict.financingTypes[o.type]}
@@ -181,10 +182,13 @@ export function FinancingPageClient() {
                     {banks.map((bank) => (
                       <div
                         key={bank.id}
-                        className="rounded-xl bg-raised p-3 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
+                        className="flex items-start gap-3 rounded-xl bg-raised p-3 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                       >
-                        <div>{pickText(bank.name, locale)}</div>
-                        <div className="mt-1 text-xs text-muted">{dict.bankDirectory.disclaimer}</div>
+                        <BankLogo name={pickText(bank.name, locale)} logoDomain={bank.logoDomain} size={28} />
+                        <div>
+                          <div>{pickText(bank.name, locale)}</div>
+                          <div className="mt-1 text-xs text-muted">{dict.bankDirectory.disclaimer}</div>
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
+import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import type { AiAdvice, FinanceData, FinancialRatios } from "@/lib/finance/types";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
@@ -55,6 +56,7 @@ export function CabinetClient({
   const { locale, dict } = useI18n();
   const boundAddProject = addProject.bind(null, locale);
   const [state, formAction, pending] = useActionState(boundAddProject, initialState);
+  const [projectAmount, setProjectAmount] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggleSelected = (id: string) => {
@@ -161,7 +163,8 @@ export function CabinetClient({
             </label>
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{dict.cabinet.projectAmountLabel}</span>
-              <input type="number" name="amount" min={0} className={inputClass} />
+              <NumberField value={projectAmount} onValueChange={setProjectAmount} className={inputClass} />
+              <input type="hidden" name="amount" value={projectAmount || ""} />
             </label>
           </div>
           {state?.error ? <p className="text-sm text-danger">{state.error}</p> : null}

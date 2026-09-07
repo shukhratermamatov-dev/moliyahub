@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { NumberField } from "@/components/ui/number-input";
 import { adminLogout } from "./actions";
 import { OFFERS, TYPE_LABEL, type FinancingOffer, type FinancingType } from "@/lib/data/banks";
 import { SEED_PROJECTS, STAGE_LABEL } from "@/lib/data/projects";
@@ -354,20 +355,16 @@ export function AdminDashboard() {
                 </label>
                 <label className="text-sm">
                   <span className="mb-1 block text-muted">Сумма от, сум</span>
-                  <input
-                    type="number"
-                    className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
+                  <NumberField
                     value={draft.minAmount}
-                    onChange={(e) => setDraft((d) => ({ ...d, minAmount: Number(e.target.value) || 0 }))}
+                    onValueChange={(n) => setDraft((d) => ({ ...d, minAmount: n || 0 }))}
                   />
                 </label>
                 <label className="text-sm">
                   <span className="mb-1 block text-muted">Сумма до, сум</span>
-                  <input
-                    type="number"
-                    className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
+                  <NumberField
                     value={draft.maxAmount}
-                    onChange={(e) => setDraft((d) => ({ ...d, maxAmount: Number(e.target.value) || 0 }))}
+                    onValueChange={(n) => setDraft((d) => ({ ...d, maxAmount: n || 0 }))}
                   />
                 </label>
                 <label className="text-sm sm:col-span-2">

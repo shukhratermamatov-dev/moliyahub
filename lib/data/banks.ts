@@ -22,6 +22,8 @@ export type FinancingOffer = {
   purpose: LocalizedList;
   islamic: boolean;
   note: LocalizedText;
+  /** Домен банка для логотипа (через прокси фавиконок). Нет — показываем аватар с инициалом. */
+  logoDomain?: string;
 };
 
 // Используется только во внутренней (нелокализованной) admin-панели.
@@ -65,6 +67,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Garov va soʻnggi 12 oydagi barqaror aylanma mablagʻ talab qilinadi.",
       en: "Collateral and stable turnover over the past 12 months are required.",
     },
+    logoDomain: "nbu.uz",
   },
   {
     id: "asaka-oborot",
@@ -92,6 +95,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Shu bankda aylanma boʻlsa, tez koʻrib chiqiladi.",
       en: "Fast approval if your turnover already runs through this bank.",
     },
+    logoDomain: "asakabank.uz",
   },
   {
     id: "ipak-sme",
@@ -119,6 +123,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Savdo va ishlab chiqarish uchun mos.",
       en: "Suitable for trade and manufacturing.",
     },
+    logoDomain: "ipakyulibank.uz",
   },
   {
     id: "hamkor-agro",
@@ -146,6 +151,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Toʻlov jadvalida mavsumiylik hisobga olinadi.",
       en: "Seasonality is factored into the repayment schedule.",
     },
+    logoDomain: "hamkorbank.uz",
   },
   {
     id: "kapital-express",
@@ -173,6 +179,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Qisqa muddat, stavka yuqoriroq, hujjat kamroq.",
       en: "Short term, higher rate, less paperwork.",
     },
+    logoDomain: "kapitalbank.uz",
   },
   {
     id: "murabaha",
@@ -204,6 +211,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Foiz oʻrniga ustama narx. Aktivni bank sotib olib, sizga boʻlib toʻlashga sotadi.",
       en: "A markup instead of interest. The bank buys the asset and resells it to you in installments.",
     },
+    logoDomain: "sqb.uz",
   },
   {
     id: "ijara",
@@ -235,6 +243,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Aktiv sotib olinguncha moliyalashtiruvchi tomonning mulki boʻlib qoladi.",
       en: "The asset remains the financier's property until it is bought out.",
     },
+    logoDomain: "trustbank.uz",
   },
   {
     id: "uzbekleasing",
@@ -262,6 +271,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Boshlangʻich toʻlov odatda 15–30%.",
       en: "Down payment is typically 15–30%.",
     },
+    logoDomain: "uzbekleasing.uz",
   },
   {
     id: "angel-uz",
@@ -355,6 +365,7 @@ export const OFFERS: FinancingOffer[] = [
       uz: "Tanlov asosida. Shartlar bajarilsa, mablagʻ qaytarilmaydi.",
       en: "Competitive selection. Funds are non-repayable if conditions are met.",
     },
+    logoDomain: "it-park.uz",
   },
 ];
 
@@ -364,6 +375,8 @@ export type BankDirectoryEntry = {
   id: string;
   name: LocalizedText;
   category: BankCategory;
+  /** Домен банка для логотипа (через прокси фавиконок). Нет — показываем аватар с инициалом. */
+  logoDomain?: string;
 };
 
 // Полный список действующих коммерческих банков Узбекистана.
@@ -381,6 +394,7 @@ export const BANK_DIRECTORY: BankDirectoryEntry[] = [
       en: "National Bank for Foreign Economic Activity of the Republic of Uzbekistan",
     },
     category: "STATE",
+    logoDomain: "nbu.uz",
   },
   {
     id: "narodny",
@@ -391,7 +405,7 @@ export const BANK_DIRECTORY: BankDirectoryEntry[] = [
     },
     category: "STATE",
   },
-  { id: "asaka", name: { ru: "Асакабанк", uz: "Asakabank", en: "Asakabank" }, category: "STATE" },
+  { id: "asaka", name: { ru: "Асакабанк", uz: "Asakabank", en: "Asakabank" }, category: "STATE", logoDomain: "asakabank.uz" },
   {
     id: "uzpsb",
     name: {
@@ -400,8 +414,9 @@ export const BANK_DIRECTORY: BankDirectoryEntry[] = [
       en: "Uzpromstroybank (SQB)",
     },
     category: "STATE",
+    logoDomain: "sqb.uz",
   },
-  { id: "agrobank", name: { ru: "Агробанк", uz: "Agrobank", en: "Agrobank" }, category: "STATE" },
+  { id: "agrobank", name: { ru: "Агробанк", uz: "Agrobank", en: "Agrobank" }, category: "STATE", logoDomain: "agrobank.uz" },
   {
     id: "bbb",
     name: {
@@ -411,32 +426,35 @@ export const BANK_DIRECTORY: BankDirectoryEntry[] = [
     },
     category: "STATE",
   },
-  { id: "turon", name: { ru: "Турон банк", uz: "Turon bank", en: "Turon Bank" }, category: "STATE" },
+  { id: "turon", name: { ru: "Турон банк", uz: "Turon bank", en: "Turon Bank" }, category: "STATE", logoDomain: "turonbank.uz" },
   {
     id: "mikrokreditbank",
     name: { ru: "Микрокредитбанк", uz: "Mikrokreditbank", en: "Mikrokreditbank" },
     category: "STATE",
+    logoDomain: "mkbank.uz",
   },
-  { id: "aloqabank", name: { ru: "Алокабанк", uz: "Aloqabank", en: "Aloqabank" }, category: "STATE" },
+  { id: "aloqabank", name: { ru: "Алокабанк", uz: "Aloqabank", en: "Aloqabank" }, category: "STATE", logoDomain: "aloqabank.uz" },
   // Акционерно-коммерческие банки (7)
   {
     id: "poytaxt",
     name: { ru: "Пойтахт банк", uz: "Poytaxt bank", en: "Poytaxt Bank" },
     category: "JOINT_STOCK",
+    logoDomain: "poytaxtbank.uz",
   },
   {
     id: "ifb",
     name: { ru: "Invest Finance Bank", uz: "Invest Finance Bank", en: "Invest Finance Bank" },
     category: "JOINT_STOCK",
+    logoDomain: "infinbank.uz",
   },
   {
     id: "madad",
     name: { ru: "Мадад Инвест Банк", uz: "Madad Invest Bank", en: "Madad Invest Bank" },
     category: "JOINT_STOCK",
   },
-  { id: "avo", name: { ru: "AVO BANK", uz: "AVO BANK", en: "AVO BANK" }, category: "JOINT_STOCK" },
-  { id: "tbc", name: { ru: "TBC Bank", uz: "TBC Bank", en: "TBC Bank" }, category: "JOINT_STOCK" },
-  { id: "anor", name: { ru: "ANOR BANK", uz: "ANOR BANK", en: "ANOR BANK" }, category: "JOINT_STOCK" },
+  { id: "avo", name: { ru: "AVO BANK", uz: "AVO BANK", en: "AVO BANK" }, category: "JOINT_STOCK", logoDomain: "avobank.uz" },
+  { id: "tbc", name: { ru: "TBC Bank", uz: "TBC Bank", en: "TBC Bank" }, category: "JOINT_STOCK", logoDomain: "tbcbank.uz" },
+  { id: "anor", name: { ru: "ANOR BANK", uz: "ANOR BANK", en: "ANOR BANK" }, category: "JOINT_STOCK", logoDomain: "anorbank.uz" },
   {
     id: "tayanch",
     name: {
@@ -451,53 +469,60 @@ export const BANK_DIRECTORY: BankDirectoryEntry[] = [
     id: "asia-alliance",
     name: { ru: "Asia Alliance Bank", uz: "Asia Alliance Bank", en: "Asia Alliance Bank" },
     category: "PRIVATE",
+    logoDomain: "aab.uz",
   },
-  { id: "ipak-yuli", name: { ru: "Ипак Йули", uz: "Ipak Yoʻli", en: "Ipak Yuli Bank" }, category: "PRIVATE" },
+  { id: "ipak-yuli", name: { ru: "Ипак Йули", uz: "Ipak Yoʻli", en: "Ipak Yuli Bank" }, category: "PRIVATE", logoDomain: "ipakyulibank.uz" },
   {
     id: "kapitalbank",
     name: { ru: "Капиталбанк", uz: "Kapitalbank", en: "Kapitalbank" },
     category: "PRIVATE",
+    logoDomain: "kapitalbank.uz",
   },
   {
     id: "universal",
     name: { ru: "Универсал банк", uz: "Universal bank", en: "Universal Bank" },
     category: "PRIVATE",
+    logoDomain: "universalbank.uz",
   },
-  { id: "trustbank", name: { ru: "Трастбанк", uz: "Trustbank", en: "Trustbank" }, category: "PRIVATE" },
-  { id: "davr", name: { ru: "Давр-банк", uz: "Davr-bank", en: "Davr Bank" }, category: "PRIVATE" },
-  { id: "octobank", name: { ru: "Octobank", uz: "Octobank", en: "Octobank" }, category: "PRIVATE" },
+  { id: "trustbank", name: { ru: "Трастбанк", uz: "Trustbank", en: "Trustbank" }, category: "PRIVATE", logoDomain: "trustbank.uz" },
+  { id: "davr", name: { ru: "Давр-банк", uz: "Davr-bank", en: "Davr Bank" }, category: "PRIVATE", logoDomain: "davrbank.uz" },
+  { id: "octobank", name: { ru: "Octobank", uz: "Octobank", en: "Octobank" }, category: "PRIVATE", logoDomain: "octobank.uz" },
   {
     id: "orient",
     name: { ru: "Ориент Финанс", uz: "Orient Finans", en: "Orient Finans Bank" },
     category: "PRIVATE",
   },
-  { id: "garant", name: { ru: "Гарант банк", uz: "Garant bank", en: "Garant Bank" }, category: "PRIVATE" },
-  { id: "hamkorbank", name: { ru: "Hamkorbank", uz: "Hamkorbank", en: "Hamkorbank" }, category: "PRIVATE" },
-  { id: "uzum", name: { ru: "Uzum Bank", uz: "Uzum Bank", en: "Uzum Bank" }, category: "PRIVATE" },
-  { id: "openbank", name: { ru: "Open Bank", uz: "Open Bank", en: "Open Bank" }, category: "PRIVATE" },
-  { id: "apex", name: { ru: "Apex Bank", uz: "Apex Bank", en: "Apex Bank" }, category: "PRIVATE" },
-  { id: "hayot", name: { ru: "Hayot Bank", uz: "Hayot Bank", en: "Hayot Bank" }, category: "PRIVATE" },
+  { id: "garant", name: { ru: "Гарант банк", uz: "Garant bank", en: "Garant Bank" }, category: "PRIVATE", logoDomain: "garantbank.uz" },
+  { id: "hamkorbank", name: { ru: "Hamkorbank", uz: "Hamkorbank", en: "Hamkorbank" }, category: "PRIVATE", logoDomain: "hamkorbank.uz" },
+  { id: "uzum", name: { ru: "Uzum Bank", uz: "Uzum Bank", en: "Uzum Bank" }, category: "PRIVATE", logoDomain: "uzumbank.uz" },
+  { id: "openbank", name: { ru: "Open Bank", uz: "Open Bank", en: "Open Bank" }, category: "PRIVATE", logoDomain: "openbank.uz" },
+  { id: "apex", name: { ru: "Apex Bank", uz: "Apex Bank", en: "Apex Bank" }, category: "PRIVATE", logoDomain: "apexbank.uz" },
+  { id: "hayot", name: { ru: "Hayot Bank", uz: "Hayot Bank", en: "Hayot Bank" }, category: "PRIVATE", logoDomain: "hayotbank.uz" },
   // Банки с участием иностранного капитала (5)
   { id: "tenge", name: { ru: "Tenge Bank", uz: "Tenge Bank", en: "Tenge Bank" }, category: "FOREIGN_CAPITAL" },
   {
     id: "kdb",
     name: { ru: "КДБ Банк Узбекистан", uz: "KDB Bank Oʻzbekiston", en: "KDB Bank Uzbekistan" },
     category: "FOREIGN_CAPITAL",
+    logoDomain: "kdb.uz",
   },
   {
     id: "ziraat",
     name: { ru: "Ziraat Bank Uzbekistan", uz: "Ziraat Bank Uzbekistan", en: "Ziraat Bank Uzbekistan" },
     category: "FOREIGN_CAPITAL",
+    logoDomain: "ziraatbank.uz",
   },
   {
     id: "saderat",
     name: { ru: "«Содерот» Банк", uz: "«Saderat» banki", en: "Saderat Bank" },
     category: "FOREIGN_CAPITAL",
+    logoDomain: "saderatbank.uz",
   },
   {
     id: "ipoteka",
     name: { ru: "Ипотека-банк", uz: "Ipoteka-bank", en: "Ipoteka Bank" },
     category: "FOREIGN_CAPITAL",
+    logoDomain: "ipotekabank.uz",
   },
 ];
 
