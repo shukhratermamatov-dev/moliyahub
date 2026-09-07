@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NumberField } from "@/components/ui/number-input";
 import { adminLogout } from "./actions";
 import { OFFERS, TYPE_LABEL, type FinancingOffer, type FinancingType } from "@/lib/data/banks";
+import { findIndustry, findSubIndustry } from "@/lib/data/industries";
 import { SEED_PROJECTS, STAGE_LABEL } from "@/lib/data/projects";
 import { sameForAllLocales, sameListForAllLocales } from "@/lib/i18n-text";
 import { useHubStore } from "@/lib/store";
@@ -34,6 +35,13 @@ const EMPTY_OFFER_DRAFT = {
   islamic: false,
   note: "",
 };
+
+function projectIndustryLabel(industryId: string, subIndustryId?: string): string {
+  const industry = findIndustry(industryId);
+  if (!industry) return "";
+  const sub = findSubIndustry(industryId, subIndustryId);
+  return sub ? `${industry.name.ru} · ${sub.name.ru}` : industry.name.ru;
+}
 
 export function AdminDashboard() {
   const [tab, setTab] = useState<TabId>("catalog");
@@ -407,7 +415,7 @@ export function AdminDashboard() {
                 {SEED_PROJECTS.map((p) => (
                   <div key={p.id} className="rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
                     <div className="text-xs text-gold">
-                      {p.industry.ru} · {STAGE_LABEL[p.stage]}
+                      {projectIndustryLabel(p.industryId, p.subIndustryId)} · {STAGE_LABEL[p.stage]}
                     </div>
                     <div className="font-medium">{p.title.ru}</div>
                     <div className="text-sm text-muted">
@@ -432,7 +440,7 @@ export function AdminDashboard() {
                     >
                       <div>
                         <div className="text-xs text-gold">
-                          {p.industry.ru} · {STAGE_LABEL[p.stage]}
+                          {projectIndustryLabel(p.industryId, p.subIndustryId)} · {STAGE_LABEL[p.stage]}
                         </div>
                         <div className="font-medium">{p.title.ru}</div>
                         <div className="text-sm text-muted">

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
+import { findIndustry, findSubIndustry } from "@/lib/data/industries";
 import type { ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { useAllProjects, useHubStore } from "@/lib/store";
@@ -55,8 +56,11 @@ export function ProjectDetailClient({ id }: { id: string }) {
           {t.backLink}
         </Link>
         <p className="mt-6 text-xs text-gold">
-          {pickText(project.industry, locale)} · {dict.projectStages[project.stage as ProjectStage]} ·{" "}
-          {pickText(project.region, locale)}
+          {findIndustry(project.industryId) ? pickText(findIndustry(project.industryId)!.name, locale) : ""}
+          {findSubIndustry(project.industryId, project.subIndustryId)
+            ? ` · ${pickText(findSubIndustry(project.industryId, project.subIndustryId)!.name, locale)}`
+            : ""}{" "}
+          · {dict.projectStages[project.stage as ProjectStage]} · {pickText(project.region, locale)}
         </p>
         <h1 className="mt-2 font-display text-4xl">{pickText(project.title, locale)}</h1>
         <p className="mt-2 text-muted">{pickText(project.owner, locale)}</p>

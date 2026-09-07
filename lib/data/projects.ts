@@ -13,7 +13,11 @@ export const STAGE_LABEL: Record<ProjectStage, string> = {
 export type Project = {
   id: string;
   title: LocalizedText;
-  industry: LocalizedText;
+  // Отрасль/подотрасль — ссылка на справочник lib/data/industries.ts, а не
+  // свободный текст: так фильтр на «Бирже проектов» работает по единому
+  // списку отраслей для всех проектов, включая добавленные посетителями.
+  industryId: string;
+  subIndustryId?: string;
   stage: ProjectStage;
   amount: number;
   region: LocalizedText;
@@ -30,7 +34,8 @@ export const SEED_PROJECTS: Project[] = [
       uz: "Toʻqimachilik ishlab chiqarishini modernizatsiya qilish",
       en: "Modernizing textile weaving production",
     },
-    industry: { ru: "Текстиль", uz: "Toʻqimachilik", en: "Textiles" },
+    industryId: "industry",
+    subIndustryId: "textiles",
     stage: "GROWTH",
     amount: 2_500_000_000,
     region: { ru: "Навоийская область", uz: "Navoiy viloyati", en: "Navoiy region" },
@@ -57,7 +62,8 @@ export const SEED_PROJECTS: Project[] = [
       uz: "Fermerlar uchun sovutgich logistikasi",
       en: "Cold-chain logistics for farmers",
     },
-    industry: { ru: "Агро / логистика", uz: "Agro / logistika", en: "Agriculture / logistics" },
+    industryId: "logistics",
+    subIndustryId: "warehousing-cold-chain",
     stage: "MVP",
     amount: 1_200_000_000,
     region: { ru: "Ташкентская область", uz: "Toshkent viloyati", en: "Tashkent region" },
@@ -75,7 +81,8 @@ export const SEED_PROJECTS: Project[] = [
       uz: "Sopol buyumlar va suvenirlar eksporti",
       en: "Ceramics and souvenir exports",
     },
-    industry: { ru: "Ремесло / e-com", uz: "Hunarmandchilik / e-tijorat", en: "Craft / e-commerce" },
+    industryId: "creative",
+    subIndustryId: "handicrafts",
     stage: "SCALE",
     amount: 800_000_000,
     region: { ru: "Самарканд", uz: "Samarqand", en: "Samarkand" },
@@ -93,7 +100,8 @@ export const SEED_PROJECTS: Project[] = [
       uz: "Issiqxonalar uchun quyosh stansiyalari",
       en: "Solar power stations for greenhouses",
     },
-    industry: { ru: "Энергетика", uz: "Energetika", en: "Energy" },
+    industryId: "industry",
+    subIndustryId: "power-generation",
     stage: "GROWTH",
     amount: 4_000_000_000,
     region: { ru: "Ферганская долина", uz: "Fargʻona vodiysi", en: "Fergana Valley" },
@@ -111,7 +119,8 @@ export const SEED_PROJECTS: Project[] = [
       uz: "KOʻB buxgalterlari uchun EdTech",
       en: "EdTech for SME accountants",
     },
-    industry: { ru: "IT / образование", uz: "IT / taʼlim", en: "IT / education" },
+    industryId: "education",
+    subIndustryId: "online-education",
     stage: "MVP",
     amount: 450_000_000,
     region: { ru: "Ташкент", uz: "Toshkent", en: "Tashkent" },

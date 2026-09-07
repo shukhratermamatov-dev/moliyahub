@@ -9,8 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
+import { findIndustry, INDUSTRIES } from "@/lib/data/industries";
 import type { ProjectStage } from "@/lib/data/projects";
-import { sameForAllLocales } from "@/lib/i18n-text";
+import { pickText, sameForAllLocales } from "@/lib/i18n-text";
 import { useHubStore } from "@/lib/store";
 
 export function NewProjectPageClient() {
@@ -19,12 +20,15 @@ export function NewProjectPageClient() {
   const router = useRouter();
   const addProject = useHubStore((s) => s.addProject);
   const [title, setTitle] = useState("");
-  const [industry, setIndustry] = useState("Производство");
+  const [industryId, setIndustryId] = useState(INDUSTRIES[0].id);
+  const [subIndustryId, setSubIndustryId] = useState(INDUSTRIES[0].subIndustries[0]?.id ?? "");
   const [stage, setStage] = useState<ProjectStage>("GROWTH");
   const [amount, setAmount] = useState(500_000_000);
   const [region, setRegion] = useState("Ташкент");
   const [owner, setOwner] = useState("");
   const [description, setDescription] = useState("");
+
+  const selectedIndustry = findIndustry(industryId);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +38,12 @@ export function NewProjectPageClient() {
     }
     // Форма не спрашивает язык — публикатор пишет на одном языке, поэтому
     // показываем введённый текст как есть на всех локалях, а не переводим
-    // его машинно.
+    // его машинно. Отрасль/подотрасль — не текст, а id из общего справочника
+    // lib/data/industries.ts, поэтому переводится сама вместе с интерфейсом.
     const id = addProject({
       title: sameForAllLocales(title),
-      industry: sameForAllLocales(industry),
+      industryId,
+      subIndustryId: subIndustryId || undefined,
       stage,
       amount,
       region: sameForAllLocales(region),
@@ -67,13 +73,41 @@ export function NewProjectPageClient() {
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.industryLabel}</span>
-                <Input value={industry} onChange={(e) => setIndustry(e.target.value)} />
+                <select
+                  className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
+                  value={industryId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    setIndustryId(nextId);
+                    setSubIndustryId(findIndustry(nextId)?.subIndustries[0]?.id ?? "");
+                  }}
+                >
+                  {INDUSTRIES.map((ind) => (
+                    <option key={ind.id} value={ind.id}>
+                      {pickText(ind.name, locale)}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-muted">{t.regionLabel}</span>
-                <Input value={region} onChange={(e) => setRegion(e.target.value)} />
+                <span className="mb-1 block text-muted">{t.subIndustryLabel}</span>
+                <select
+                  className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
+                  value={subIndustryId}
+                  onChange={(e) => setSubIndustryId(e.target.value)}
+                >
+                  {selectedIndustry?.subIndustries.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {pickText(sub.name, locale)}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted">{t.regionLabel}</span>
+              <Input value={region} onChange={(e) => setRegion(e.target.value)} />
+            </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.stageLabel}</span>

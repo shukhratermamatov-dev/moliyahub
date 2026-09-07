@@ -262,6 +262,7 @@ const dict: Dictionary = {
     subtitle: "Investor kartochkani tanlaydi. Tadbirkor esa kapitalga soʻrov joylashtiradi.",
     listProject: "Loyihani joylashtirish",
     allIndustries: "Barchasi",
+    emptyState: "Bu filtr boʻyicha hozircha loyihalar yoʻq.",
   },
   projectsNew: {
     title: "Yangi loyiha",
@@ -269,6 +270,7 @@ const dict: Dictionary = {
     titleLabel: "Nomi",
     ownerLabel: "Kompaniya / muallif",
     industryLabel: "Soha",
+    subIndustryLabel: "Yoʻnalish",
     regionLabel: "Hudud",
     stageLabel: "Bosqich",
     amountLabel: "Miqdor, soʻm",

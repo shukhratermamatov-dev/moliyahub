@@ -260,6 +260,7 @@ const dict = {
     subtitle: "Инвестор выбирает карточку. Предприниматель публикует запрос на капитал.",
     listProject: "Разместить проект",
     allIndustries: "Все",
+    emptyState: "По этому фильтру пока нет проектов.",
   },
   projectsNew: {
     title: "Новый проект",
@@ -267,6 +268,7 @@ const dict = {
     titleLabel: "Название",
     ownerLabel: "Компания / автор",
     industryLabel: "Отрасль",
+    subIndustryLabel: "Детализация",
     regionLabel: "Регион",
     stageLabel: "Стадия",
     amountLabel: "Сумма, сум",

@@ -262,6 +262,7 @@ const dict: Dictionary = {
     subtitle: "Investors pick a card. Entrepreneurs publish a capital request.",
     listProject: "List a project",
     allIndustries: "All",
+    emptyState: "No projects match this filter yet.",
   },
   projectsNew: {
     title: "New project",
@@ -269,6 +270,7 @@ const dict: Dictionary = {
     titleLabel: "Title",
     ownerLabel: "Company / author",
     industryLabel: "Industry",
+    subIndustryLabel: "Sub-industry",
     regionLabel: "Region",
     stageLabel: "Stage",
     amountLabel: "Amount, soʻm",
