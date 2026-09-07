@@ -11,6 +11,7 @@ const dict: Dictionary = {
     analyze: "Analysis",
     financing: "Financing",
     projects: "Projects",
+    businessPlans: "Business plans",
   },
   shell: {
     calcCta: "Calculate metrics",
@@ -72,6 +73,19 @@ const dict: Dictionary = {
         { caption: "Small business and trade — the backbone of the economy" },
         { caption: "Manufacturing and export — growth points" },
       ],
+    },
+    businessPlansSection: {
+      heading: "Business plan — a ready template or with AI",
+      subtitle:
+        "Download a ready Excel template for your industry, or put together a plan for your specific project with AI — grounded in real market analysis of Uzbekistan and foreign markets.",
+      samplesTitle: "Ready-made business plan samples",
+      samplesText:
+        "11 Excel templates — one for each industry on the Project exchange. The formulas are already set up, just fill in your numbers.",
+      samplesCta: "Browse samples",
+      aiTitle: "AI-powered business plan builder",
+      aiText:
+        "Describe your idea — AI will put together a plan for your project, comparing the Uzbekistan market with a few foreign markets.",
+      aiCta: "Build a plan with AI",
     },
   },
   analyze: {
@@ -291,6 +305,73 @@ const dict: Dictionary = {
     toastSent: "Application sent to the entrepreneur",
     receivedApplications: "Applications received",
   },
+  businessPlans: {
+    title: "Ready-made business plan samples",
+    subtitle:
+      "An Excel template for every industry on the Project exchange: executive summary, market analysis, plan and risks, and a financial section with working formulas. Download it, fill in your data, and adapt it to your project.",
+    downloadButton: "Download sample (.xlsx)",
+    cardDescription: (industry: string) =>
+      `Template for the "${industry}" industry: executive summary, market analysis, plan and risks, financial section with formulas.`,
+    aiBanner: {
+      title: "Need a plan for a specific project?",
+      text: "AI will put together a business plan from your idea — with market analysis of Uzbekistan and a few foreign markets for comparison.",
+      cta: "Build a plan with AI",
+    },
+  },
+  businessPlanAi: {
+    title: "AI-powered business plan builder",
+    subtitle:
+      "Fill in your project data — AI will put together a business plan with market analysis of Uzbekistan and foreign markets for comparison. The financial figures are an AI estimate for your project, not verified market data.",
+    formHeading: "Project data",
+    industryLabel: "Industry",
+    subIndustryLabel: "Sub-industry",
+    projectNameLabel: "Project name",
+    ideaLabel: "Idea / project description",
+    ideaPlaceholder: "Describe the product or service, target customers, and what sets the project apart",
+    regionLabel: "Region",
+    investmentLabel: "Planned investment, soʻm",
+    stageLabel: "Project stage",
+    teamSizeLabel: "Team (optional)",
+    teamSizePlaceholder: "E.g. 3 people, still looking for a technologist",
+    timeframeLabel: "Planning horizon, months (optional)",
+    submit: "Generate business plan",
+    generating: "Building your plan — researching and analyzing the market, this can take up to a minute…",
+    toastReady: "Business plan ready",
+    errorNotConfigured:
+      "The AI generator is temporarily unavailable: the administrator needs to set up the API key. Try again later or use the ready-made samples.",
+    errorGeneration: "Couldn't generate the plan. Check the idea description and try again.",
+    toastFillRequired: "Fill in the project name and idea",
+    guestNotice:
+      "You're not signed in: you can export the plan to Excel and PDF, but its data isn't stored anywhere after export. Sign in or register to save plans to your cabinet.",
+    exportXlsx: "Export to Excel",
+    exportPdf: "Export to PDF",
+    exportingFile: "Preparing file…",
+    saveToCabinet: "Save to cabinet",
+    saving: "Saving…",
+    savedNotice: "Plan saved to your cabinet",
+    newPlan: "Start a new plan",
+    resultTitlePrefix: "Business plan:",
+    summaryHeading: "Executive summary",
+    companyHeading: "Company / project description",
+    marketUzHeading: "Uzbekistan market analysis",
+    marketForeignHeading: "Foreign markets for comparison",
+    marketingHeading: "Marketing and sales",
+    operationsHeading: "Operations plan",
+    organizationHeading: "Organizational plan",
+    risksHeading: "Risks",
+    financialsHeading: "Financial plan",
+    financialsDisclaimer:
+      "The estimates below are an AI forecast for the stated investment amount and project idea, not verified market data. Adjust them to real prices and terms before use.",
+    startupCostsLabel: "Startup costs",
+    monthlyRevenueLabel: "Monthly revenue",
+    monthlyCostsLabel: "Monthly costs",
+    profitLabel: "Monthly profit (estimate)",
+    breakEvenLabel: "Break-even period",
+    paybackLabel: "Payback period",
+    monthsShort: "mo.",
+    assumptionsLabel: "Assumptions",
+    sourcesHeading: "Sources (web search)",
+  },
   moneyUnits: {
     billion: "bn",
     million: "mn",
@@ -421,6 +502,10 @@ const dict: Dictionary = {
     compareEarlier: "Earlier",
     compareLater: "Later",
     compareDelta: "Change",
+    myBusinessPlans: "My business plans",
+    noBusinessPlans: "No saved business plans yet — create one on the AI business plan builder page.",
+    goToBusinessPlanAi: "Go to the AI builder",
+    deleteBusinessPlan: "Delete",
   },
 };
 

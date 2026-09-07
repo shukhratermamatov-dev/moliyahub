@@ -5,9 +5,10 @@ import { useActionState, useMemo, useState } from "react";
 import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import type { AiAdvice, FinanceData, FinancialRatios } from "@/lib/finance/types";
+import type { BusinessPlan } from "@/lib/business-plan/types";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
 import { signOut } from "../login/actions";
-import { addProject, deleteAnalysis, deleteProject, type ProjectFormState } from "./actions";
+import { addProject, deleteAnalysis, deleteBusinessPlan, deleteProject, type ProjectFormState } from "./actions";
 
 export type ProjectRow = {
   id: string;
@@ -29,6 +30,16 @@ export type AnalysisRow = {
   created_at: string;
 };
 
+export type BusinessPlanRow = {
+  id: string;
+  industry_id: string | null;
+  sub_industry_id: string | null;
+  project_name: string;
+  idea: string | null;
+  data: BusinessPlan | null;
+  created_at: string;
+};
+
 const initialState: ProjectFormState = undefined;
 
 const inputClass =
@@ -44,20 +55,41 @@ const COMPARE_ROWS: { key: keyof FinancialRatios; kind: "ratio" | "pct" | "money
   { key: "workingCapital", kind: "money" },
 ];
 
+async function downloadBlob(url: string, body: unknown, filename: string) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error("export_failed");
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
 export function CabinetClient({
   email,
   projects,
   analyses,
+  businessPlans,
 }: {
   email: string;
   projects: ProjectRow[];
   analyses: AnalysisRow[];
+  businessPlans: BusinessPlanRow[];
 }) {
   const { locale, dict } = useI18n();
   const boundAddProject = addProject.bind(null, locale);
   const [state, formAction, pending] = useActionState(boundAddProject, initialState);
   const [projectAmount, setProjectAmount] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
+  const [exportingPlanId, setExportingPlanId] = useState<string | null>(null);
 
   const toggleSelected = (id: string) => {
     setSelected((prev) => {
@@ -85,6 +117,16 @@ export function CabinetClient({
     if (kind === "score") return `${value} / 100`;
     return formatRatio(value);
   }
+
+  const exportPlan = async (row: BusinessPlanRow, kind: "xlsx" | "pdf") => {
+    if (!row.data) return;
+    setExportingPlanId(`${row.id}:${kind}`);
+    try {
+      await downloadBlob(`/api/business-plan/export/${kind}`, { plan: row.data }, `business-plan.${kind}`);
+    } finally {
+      setExportingPlanId(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -270,6 +312,66 @@ export function CabinetClient({
               </div>
             ) : null}
           </>
+        )}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="font-display text-lg">{dict.cabinet.myBusinessPlans}</h2>
+
+        {businessPlans.length === 0 ? (
+          <div className="mt-3">
+            <p className="text-sm text-muted">{dict.cabinet.noBusinessPlans}</p>
+            <Link
+              href={`/${locale}/business-plan-ai`}
+              className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline"
+            >
+              {dict.cabinet.goToBusinessPlanAi}
+            </Link>
+          </div>
+        ) : (
+          <ul className="mt-4 flex flex-col gap-3">
+            {businessPlans.map((bp) => (
+              <li
+                key={bp.id}
+                className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium">{bp.project_name}</p>
+                    <p className="mt-1 text-xs text-muted">
+                      {new Date(bp.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
+                    </p>
+                  </div>
+                  <form action={deleteBusinessPlan.bind(null, locale, bp.id)}>
+                    <button
+                      type="submit"
+                      className="text-xs text-muted transition-colors hover:text-danger"
+                    >
+                      {dict.cabinet.deleteBusinessPlan}
+                    </button>
+                  </form>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={exportingPlanId !== null}
+                    onClick={() => exportPlan(bp, "xlsx")}
+                    className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
+                  >
+                    {dict.businessPlanAi.exportXlsx}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={exportingPlanId !== null}
+                    onClick={() => exportPlan(bp, "pdf")}
+                    className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
+                  >
+                    {dict.businessPlanAi.exportPdf}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

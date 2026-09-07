@@ -21,6 +21,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     { href: `/${locale}/analyze`, label: dict.nav.analyze },
     { href: `/${locale}/financing`, label: dict.nav.financing },
     { href: `/${locale}/projects`, label: dict.nav.projects },
+    { href: `/${locale}/business-plans`, label: dict.nav.businessPlans },
   ];
 
   return (

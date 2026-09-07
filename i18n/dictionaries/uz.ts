@@ -11,6 +11,7 @@ const dict: Dictionary = {
     analyze: "Tahlil",
     financing: "Moliyalashtirish",
     projects: "Loyihalar",
+    businessPlans: "Biznes-rejalar",
   },
   shell: {
     calcCta: "Koʻrsatkichlarni hisoblash",
@@ -72,6 +73,19 @@ const dict: Dictionary = {
         { caption: "Kichik biznes va savdo — iqtisodiyot poydevori" },
         { caption: "Ishlab chiqarish va eksport — oʻsish nuqtalari" },
       ],
+    },
+    businessPlansSection: {
+      heading: "Biznes-reja — tayyor namuna yoki SI yordamida",
+      subtitle:
+        "Sohangiz uchun tayyor Excel shablonini yuklab oling yoki loyihangiz uchun SI bilan reja tuzing — Oʻzbekiston va chet el bozorlarining real tahlili bilan.",
+      samplesTitle: "Tayyor biznes-reja namunalari",
+      samplesText:
+        "«Loyihalar birjasi»dagi har bir soha uchun bittadan — jami 11 ta Excel shabloni. Formulalar allaqachon hisoblangan, oʻz raqamlaringizni kiriting.",
+      samplesCta: "Namunalarni koʻrish",
+      aiTitle: "SI yordamida biznes-reja tuzish",
+      aiText:
+        "Gʻoyangizni tasvirlab bering — SI loyihangiz uchun Oʻzbekiston va bir nechta chet el bozorlarini solishtirgan holda reja tuzadi.",
+      aiCta: "SI yordamida biznes-reja",
     },
   },
   analyze: {
@@ -291,6 +305,73 @@ const dict: Dictionary = {
     toastSent: "Ariza tadbirkorga yuborildi",
     receivedApplications: "Kelib tushgan arizalar",
   },
+  businessPlans: {
+    title: "Tayyor biznes-reja namunalari",
+    subtitle:
+      "«Loyihalar birjasi»dagi har bir soha uchun Excel shabloni: loyiha xulosasi, bozor tahlili, reja va xavflar, formulalar bilan moliyaviy boʻlim. Yuklab oling, oʻz maʼlumotlaringizni kiriting va vazifaga moslang.",
+    downloadButton: "Namunani yuklab olish (.xlsx)",
+    cardDescription: (industry: string) =>
+      `«${industry}» sohasi uchun shablon: loyiha xulosasi, bozor tahlili, reja va xavflar, formulalar bilan moliyaviy boʻlim.`,
+    aiBanner: {
+      title: "Aniq loyiha uchun reja kerakmi?",
+      text: "SI gʻoyangiz asosida biznes-reja tuzadi — Oʻzbekiston va bir nechta chet el bozorlarini solishtirgan holda.",
+      cta: "SI yordamida biznes-reja",
+    },
+  },
+  businessPlanAi: {
+    title: "SI yordamida biznes-reja tuzish",
+    subtitle:
+      "Loyiha maʼlumotlarini kiriting — SI Oʻzbekiston va chet el bozorlarini solishtirgan holda biznes-reja tuzadi. Moliyaviy hisob-kitoblar — loyihangiz uchun SI bahosi, tekshirilgan bozor maʼlumotlari emas.",
+    formHeading: "Loyiha maʼlumotlari",
+    industryLabel: "Soha",
+    subIndustryLabel: "Yoʻnalish",
+    projectNameLabel: "Loyiha nomi",
+    ideaLabel: "Gʻoya / loyiha mohiyati",
+    ideaPlaceholder: "Mahsulot yoki xizmatni, maqsadli mijozlarni va raqobatchilardan farqini tasvirlab bering",
+    regionLabel: "Amalga oshirish hududi",
+    investmentLabel: "Rejalashtirilgan investitsiya, soʻm",
+    stageLabel: "Loyiha bosqichi",
+    teamSizeLabel: "Jamoa (ixtiyoriy)",
+    teamSizePlaceholder: "Masalan: 3 kishi, yana texnolog qidiryapmiz",
+    timeframeLabel: "Rejalashtirish gorizonti, oy (ixtiyoriy)",
+    submit: "Biznes-rejani shakllantirish",
+    generating: "Reja tuzilmoqda — bozor izlanmoqda va tahlil qilinmoqda, bu bir daqiqagacha vaqt olishi mumkin…",
+    toastReady: "Biznes-reja tayyor",
+    errorNotConfigured:
+      "SI generatori vaqtincha mavjud emas: administrator API-kalitni ulashi kerak. Keyinroq urinib koʻring yoki tayyor namunalardan foydalaning.",
+    errorGeneration: "Rejani shakllantirib boʻlmadi. Gʻoya tavsifini tekshirib, qayta urinib koʻring.",
+    toastFillRequired: "Loyiha nomi va gʻoyasini kiriting",
+    guestNotice:
+      "Siz tizimga kirmagansiz: rejani Excel va PDF formatida eksport qilish mumkin, lekin eksportdan keyin uning maʼlumotlari hech qayerda saqlanmaydi. Rejalarni kabinetda saqlash uchun tizimga kiring yoki roʻyxatdan oʻting.",
+    exportXlsx: "Excelga eksport",
+    exportPdf: "PDFga eksport",
+    exportingFile: "Fayl tayyorlanmoqda…",
+    saveToCabinet: "Kabinetga saqlash",
+    saving: "Saqlanmoqda…",
+    savedNotice: "Reja shaxsiy kabinetga saqlandi",
+    newPlan: "Yangi reja tuzish",
+    resultTitlePrefix: "Biznes-reja:",
+    summaryHeading: "Loyiha xulosasi",
+    companyHeading: "Kompaniya / loyiha tavsifi",
+    marketUzHeading: "Oʻzbekiston bozori tahlili",
+    marketForeignHeading: "Solishtirish uchun chet el bozorlari",
+    marketingHeading: "Marketing va sotuv",
+    operationsHeading: "Operatsion reja",
+    organizationHeading: "Tashkiliy reja",
+    risksHeading: "Xavflar",
+    financialsHeading: "Moliyaviy reja",
+    financialsDisclaimer:
+      "Quyidagi baholar — koʻrsatilgan investitsiya summasi va loyiha gʻoyasi asosidagi SI bashorati, tekshirilgan bozor maʼlumotlari emas. Foydalanishdan oldin real narx va shartlarga moslang.",
+    startupCostsLabel: "Startap xarajatlari",
+    monthlyRevenueLabel: "Oylik tushum",
+    monthlyCostsLabel: "Oylik xarajatlar",
+    profitLabel: "Oylik foyda (baho)",
+    breakEvenLabel: "Oʻzini oqlash muddati",
+    paybackLabel: "Investitsiya qaytish muddati",
+    monthsShort: "oy",
+    assumptionsLabel: "Hisob-kitob asoslari",
+    sourcesHeading: "Manbalar (veb-qidiruv)",
+  },
   moneyUnits: {
     billion: "mlrd",
     million: "mln",
@@ -422,6 +503,10 @@ const dict: Dictionary = {
     compareEarlier: "Avvalroq",
     compareLater: "Keyinroq",
     compareDelta: "Oʻzgarish",
+    myBusinessPlans: "Mening biznes-rejalarim",
+    noBusinessPlans: "Hali saqlangan biznes-reja yoʻq — «SI yordamida biznes-reja tuzish» sahifasida yarating.",
+    goToBusinessPlanAi: "SI generatoriga oʻtish",
+    deleteBusinessPlan: "Oʻchirish",
   },
 };
 
