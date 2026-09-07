@@ -5,11 +5,6 @@ import { findIndustry, findSubIndustry } from "@/lib/data/industries";
 import { pickText } from "@/lib/i18n-text";
 import type { BusinessPlan, BusinessPlanInput, BusinessPlanSource } from "@/lib/business-plan/types";
 
-// У серверных экшенов на Vercel есть лимит времени выполнения — генерация с
-// веб-поиском (несколько запросов подряд) может занимать заметно дольше
-// обычного ИИ-вызова, поэтому увеличиваем лимит для этого файла.
-export const maxDuration = 60;
-
 const LANGUAGE_NAME: Record<Locale, string> = {
   ru: "русском",
   uz: "узбекском (латиница)",
