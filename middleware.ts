@@ -35,6 +35,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Статические файлы из public/ (образцы .xlsx, изображения и т.п.) — у них
+  // нет языкового префикса и не должно быть: последний сегмент пути с точкой
+  // (расширением) — это файл, а не страница. Раньше сюда попадали только
+  // favicon/og с явным перечислением, но /business-plans/<id>.xlsx показал,
+  // что список нужно было держать закрытым по паттерну, а не перечислением —
+  // иначе редирект на /<locale>/business-plans/<id>.xlsx даёт 404.
+  if (/\.[a-zA-Z0-9]+$/.test(pathname)) {
+    return NextResponse.next();
+  }
+
   // Админка живёт вне [locale] — всегда на /admin, без языкового префикса,
   // и использует свой отдельный пароль-гейт (не Supabase Auth).
   if (pathname === "/admin/login") {
@@ -87,5 +97,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|favicon.svg|og.jpg).*)"],
+  matcher: ["/((?!_next).*)"],
 };
