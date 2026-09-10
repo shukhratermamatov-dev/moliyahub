@@ -106,21 +106,21 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main>{children}</main>
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted md:flex-row md:items-start md:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col flex-wrap gap-x-8 gap-y-6 px-4 py-10 text-sm text-muted md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-2">
             <p>{dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}</p>
             <p>{dict.shell.footerLine2}</p>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.usefulLinksLabel}</span>
-            <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="flex flex-wrap gap-2">
               {USEFUL_LINKS.map((link) => (
                 <a
                   key={link.id}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-fg"
+                  className="whitespace-nowrap rounded-full border border-line bg-raised px-3 py-1.5 text-xs text-muted transition-colors hover:border-primary/50 hover:text-fg"
                 >
                   {dict.shell.usefulLinks[link.id]}
                 </a>
@@ -130,10 +130,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col gap-2 md:items-end">
             <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.contactsLabel}</span>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-              <a href="tel:+998909300330" className="transition-colors hover:text-fg">
+              <a href="tel:+998909300330" className="whitespace-nowrap transition-colors hover:text-fg">
                 +998 90 930 03 30
               </a>
-              <a href="mailto:info@moliyahub.uz" className="transition-colors hover:text-fg">
+              <a href="mailto:info@moliyahub.uz" className="whitespace-nowrap transition-colors hover:text-fg">
                 info@moliyahub.uz
               </a>
             </div>
