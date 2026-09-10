@@ -11,6 +11,16 @@ import { AuthNav } from "@/components/auth-nav";
 import { useI18n } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
+// Внешние сайты по теме платформы — финграмотность, законодательство,
+// ЦБ и госуслуги. Ссылки одинаковые для всех локалей, подписи — из словаря.
+const USEFUL_LINKS = [
+  { id: "finlit", url: "https://finlit.uz" },
+  { id: "lex", url: "https://lex.uz" },
+  { id: "cbu", url: "https://cbu.uz" },
+  { id: "gov", url: "https://my.gov.uz" },
+  { id: "soliq", url: "https://soliq.uz" },
+] as const;
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -100,6 +110,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col gap-2">
             <p>{dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}</p>
             <p>{dict.shell.footerLine2}</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.usefulLinksLabel}</span>
+            <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              {USEFUL_LINKS.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-fg"
+                >
+                  {dict.shell.usefulLinks[link.id]}
+                </a>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col gap-2 md:items-end">
             <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.contactsLabel}</span>

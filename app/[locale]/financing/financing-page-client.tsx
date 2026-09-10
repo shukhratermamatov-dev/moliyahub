@@ -10,7 +10,7 @@ import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import { BankLogo } from "@/components/finance/bank-logo";
 import { BANK_DIRECTORY, type BankCategory, type FinancingType } from "@/lib/data/banks";
-import { monthlyPayment } from "@/lib/finance/ratios";
+import { buildRepaymentSchedule, type RepaymentMethod } from "@/lib/finance/ratios";
 import { applyRateOverrides, type RateOverrideMap } from "@/lib/finance/rate-overrides";
 import { pickList, pickText } from "@/lib/i18n-text";
 import { SITE_IMAGES } from "@/lib/site-images";
@@ -28,6 +28,7 @@ const FILTER_IDS: ("ALL" | FinancingType)[] = [
 ];
 
 const CATEGORY_ORDER: BankCategory[] = ["STATE", "JOINT_STOCK", "PRIVATE", "FOREIGN_CAPITAL"];
+const METHOD_IDS: RepaymentMethod[] = ["ANNUITY", "DIFFERENTIATED"];
 
 export function FinancingPageClient() {
   const { locale, dict } = useI18n();
@@ -58,11 +59,31 @@ export function FinancingPageClient() {
   const [amount, setAmount] = useState(500_000_000);
   const [months, setMonths] = useState(24);
   const [selected, setSelected] = useState<string | null>(null);
+  const [method, setMethod] = useState<RepaymentMethod>("ANNUITY");
+  const [rateOverride, setRateOverride] = useState<number | null>(null);
+  const [showSchedule, setShowSchedule] = useState(false);
 
   const list = useMemo(() => offers.filter((o) => type === "ALL" || o.type === type), [offers, type]);
   const offer = offers.find((o) => o.id === selected) ?? list[0] ?? offers[0];
-  const rate = offer ? (offer.rateMin + offer.rateMax) / 2 : 0;
-  const payment = offer && offer.rateMax > 0 ? monthlyPayment(amount, rate, months) : 0;
+  const autoRate = offer ? Math.round(((offer.rateMin + offer.rateMax) / 2) * 10) / 10 : 0;
+  const rate = rateOverride ?? autoRate;
+  const isRepayable = !!offer && offer.rateMax > 0;
+
+  // При выборе другого продукта сбрасываем ручную правку ставки — иначе
+  // после переключения с кредита на другой кредит осталась бы ставка от
+  // предыдущего выбора, что запутывает.
+  useEffect(() => {
+    setRateOverride(null);
+  }, [selected]);
+
+  const schedule = useMemo(
+    () => (isRepayable ? buildRepaymentSchedule(amount, rate, months, method) : []),
+    [isRepayable, amount, rate, months, method],
+  );
+  const firstPayment = schedule[0]?.payment ?? 0;
+  const lastPayment = schedule[schedule.length - 1]?.payment ?? 0;
+  const totalInterest = schedule.reduce((sum, row) => sum + row.interestPart, 0);
+  const totalPayment = schedule.reduce((sum, row) => sum + row.payment, 0);
 
   return (
     <Shell>
@@ -98,16 +119,115 @@ export function FinancingPageClient() {
                 onChange={(e) => setMonths(Number(e.target.value) || 1)}
               />
             </label>
-            <div className="rounded-xl bg-raised p-3">
-              <div className="text-sm text-muted">{t.paymentEstimateLabel}</div>
-              <div className="mt-1 font-display text-2xl tabular-nums">
-                {offer?.rateMax === 0 ? t.noPercent : formatMoney(Math.round(payment), locale)}
-              </div>
-              <div className="text-xs text-muted">
-                {offer ? pickText(offer.bank, locale) : ""} · {t.averageRate} {rate}%
-              </div>
-            </div>
+            <label className="text-sm">
+              <span className="mb-1 block text-muted">{t.rateLabel}</span>
+              <Input
+                type="number"
+                step="0.1"
+                disabled={!isRepayable}
+                value={rate}
+                onChange={(e) => setRateOverride(Number(e.target.value) || 0)}
+              />
+            </label>
           </div>
+
+          {isRepayable ? (
+            <>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {METHOD_IDS.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setMethod(id)}
+                    className={`min-h-10 rounded-full px-4 text-sm ${
+                      method === id ? "bg-primary text-primary-fg" : "bg-raised text-muted"
+                    }`}
+                  >
+                    {id === "ANNUITY" ? t.methodAnnuity : t.methodDifferentiated}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl bg-raised p-3">
+                  <div className="text-sm text-muted">
+                    {method === "ANNUITY" ? t.paymentEstimateLabel : t.firstPaymentLabel}
+                  </div>
+                  <div className="mt-1 font-display text-2xl tabular-nums">
+                    {formatMoney(Math.round(firstPayment), locale)}
+                  </div>
+                </div>
+                {method === "DIFFERENTIATED" ? (
+                  <div className="rounded-xl bg-raised p-3">
+                    <div className="text-sm text-muted">{t.lastPaymentLabel}</div>
+                    <div className="mt-1 font-display text-2xl tabular-nums">
+                      {formatMoney(Math.round(lastPayment), locale)}
+                    </div>
+                  </div>
+                ) : null}
+                <div className="rounded-xl bg-raised p-3">
+                  <div className="text-sm text-muted">{t.totalInterestLabel}</div>
+                  <div className="mt-1 font-display text-2xl tabular-nums">
+                    {formatMoney(Math.round(totalInterest), locale)}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-raised p-3">
+                  <div className="text-sm text-muted">{t.totalPaymentLabel}</div>
+                  <div className="mt-1 font-display text-2xl tabular-nums">
+                    {formatMoney(Math.round(totalPayment), locale)}
+                  </div>
+                  <div className="text-xs text-muted">
+                    {offer ? pickText(offer.bank, locale) : ""} · {t.averageRate} {rate}%
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowSchedule((v) => !v)}
+                className="mt-4 text-sm text-primary hover:underline"
+              >
+                {showSchedule ? t.hideScheduleLabel : t.showScheduleLabel}
+              </button>
+
+              {showSchedule ? (
+                <div className="mt-3 max-h-80 overflow-auto rounded-xl bg-raised">
+                  <table className="w-full text-sm">
+                    <thead className="sticky top-0 bg-raised text-xs text-muted">
+                      <tr>
+                        <th className="px-3 py-2 text-left">{t.scheduleMonthHeader}</th>
+                        <th className="px-3 py-2 text-right">{t.schedulePaymentHeader}</th>
+                        <th className="px-3 py-2 text-right">{t.schedulePrincipalHeader}</th>
+                        <th className="px-3 py-2 text-right">{t.scheduleInterestHeader}</th>
+                        <th className="px-3 py-2 text-right">{t.scheduleBalanceHeader}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="tabular-nums">
+                      {schedule.map((row) => (
+                        <tr key={row.month} className="border-t border-line/60">
+                          <td className="px-3 py-1.5">{row.month}</td>
+                          <td className="px-3 py-1.5 text-right">
+                            {formatMoney(Math.round(row.payment), locale)}
+                          </td>
+                          <td className="px-3 py-1.5 text-right text-muted">
+                            {formatMoney(Math.round(row.principalPart), locale)}
+                          </td>
+                          <td className="px-3 py-1.5 text-right text-muted">
+                            {formatMoney(Math.round(row.interestPart), locale)}
+                          </td>
+                          <td className="px-3 py-1.5 text-right text-muted">
+                            {formatMoney(Math.round(row.balance), locale)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="mt-4 rounded-xl bg-raised p-3 text-sm text-muted">{t.noPercent}</div>
+          )}
         </Card>
 
         <div className="mt-6 flex flex-wrap gap-2">

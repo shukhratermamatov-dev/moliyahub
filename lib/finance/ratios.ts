@@ -178,3 +178,51 @@ export function monthlyPayment(principal: number, annualRatePct: number, months:
   const pow = (1 + r) ** months;
   return (principal * r * pow) / (pow - 1);
 }
+
+export type RepaymentMethod = "ANNUITY" | "DIFFERENTIATED";
+
+export type RepaymentScheduleRow = {
+  month: number;
+  payment: number;
+  principalPart: number;
+  interestPart: number;
+  balance: number;
+};
+
+// Полный график платежей по кредиту на весь срок.
+// - ANNUITY: платёж одинаковый каждый месяц, доля процентов/тела внутри
+//   него меняется (стандартная формула аннуитета — см. monthlyPayment).
+// - DIFFERENTIATED: тело кредита делится на равные доли по месяцам,
+//   проценты считаются от оставшегося долга — платёж каждый месяц
+//   уменьшается (первый платёж — самый большой).
+export function buildRepaymentSchedule(
+  principal: number,
+  annualRatePct: number,
+  months: number,
+  method: RepaymentMethod,
+): RepaymentScheduleRow[] {
+  if (principal <= 0 || months <= 0) return [];
+  const r = annualRatePct / 100 / 12;
+  const rows: RepaymentScheduleRow[] = [];
+  let balance = principal;
+
+  if (method === "ANNUITY") {
+    const payment = monthlyPayment(principal, annualRatePct, months);
+    for (let month = 1; month <= months; month++) {
+      const interestPart = balance * r;
+      const principalPart = Math.min(payment - interestPart, balance);
+      balance = Math.max(balance - principalPart, 0);
+      rows.push({ month, payment, principalPart, interestPart, balance });
+    }
+    return rows;
+  }
+
+  const principalPart = principal / months;
+  for (let month = 1; month <= months; month++) {
+    const interestPart = balance * r;
+    const payment = principalPart + interestPart;
+    balance = Math.max(balance - principalPart, 0);
+    rows.push({ month, payment, principalPart, interestPart, balance });
+  }
+  return rows;
+}
