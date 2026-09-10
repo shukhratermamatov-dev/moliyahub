@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,17 @@ export function ProjectDetailClient({ id }: { id: string }) {
   const projects = useAllProjects();
   const project = projects.find((p) => p.id === id);
   const addApplication = useHubStore((s) => s.addApplication);
-  const applications = useHubStore((s) => s.applications.filter((a) => a.projectId === id));
+  // Важно: селектор zustand должен возвращать один и тот же массив, если он
+  // не менялся — s.applications.filter(...) создавал НОВЫЙ массив на каждый
+  // рендер, useSyncExternalStore видел "изменение" на каждой проверке и
+  // рендерил компонент бесконечно (React error #185, вкладка падала на
+  // любой странице проекта). Берём стабильную ссылку из стора и фильтруем
+  // локально через useMemo — пересчитывается только когда реально нужно.
+  const allApplications = useHubStore((s) => s.applications);
+  const applications = useMemo(
+    () => allApplications.filter((a) => a.projectId === id),
+    [allApplications, id],
+  );
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
 
