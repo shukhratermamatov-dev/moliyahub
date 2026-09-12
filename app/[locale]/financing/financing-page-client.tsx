@@ -318,9 +318,14 @@ export function FinancingPageClient() {
           </div>
         </Card>
 
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild>
             <Link href={`/${locale}/projects`}>{t.goToProjects}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a href="https://infokredit.uz/ru" target="_blank" rel="noopener noreferrer">
+              {t.creditCheckButton}
+            </a>
           </Button>
         </div>
       </div>

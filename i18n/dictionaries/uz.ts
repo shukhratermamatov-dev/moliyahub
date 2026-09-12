@@ -28,6 +28,7 @@ const dict: Dictionary = {
       cbu: "Oʻzbekiston Respublikasi Markaziy banki",
       gov: "Davlat xizmatlari portali",
       soliq: "Soliq qoʻmitasi",
+      trk: "Tadbirkorlikni rivojlantirish kompaniyasi (TRK)",
     },
   },
   languageSwitcher: {
@@ -294,6 +295,7 @@ const dict: Dictionary = {
     scheduleInterestHeader: "Foizlar",
     scheduleBalanceHeader: "Qoldiq",
     goToProjects: "Investor loyihalariga oʻtish",
+    creditCheckButton: "Kredit tarixini tekshirish",
     filters: {
       ALL: "Barchasi",
       BANK_LOAN: "Kreditlar",

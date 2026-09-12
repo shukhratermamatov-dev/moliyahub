@@ -26,6 +26,7 @@ const dict = {
       cbu: "Центральный банк РУз",
       gov: "Портал госуслуг",
       soliq: "Налоговый комитет",
+      trk: "АО «Компания по развитию предпринимательства»",
     },
   },
   languageSwitcher: {
@@ -292,6 +293,7 @@ const dict = {
     scheduleInterestHeader: "Проценты",
     scheduleBalanceHeader: "Остаток",
     goToProjects: "Перейти к проектам инвесторов",
+    creditCheckButton: "Проверка кредитной истории",
     filters: {
       ALL: "Все",
       BANK_LOAN: "Кредиты",

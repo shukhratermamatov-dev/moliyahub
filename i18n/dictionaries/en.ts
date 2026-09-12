@@ -28,6 +28,7 @@ const dict: Dictionary = {
       cbu: "Central Bank of Uzbekistan",
       gov: "Government services portal",
       soliq: "Tax Committee",
+      trk: "Entrepreneurship Development Company (TRK)",
     },
   },
   languageSwitcher: {
@@ -294,6 +295,7 @@ const dict: Dictionary = {
     scheduleInterestHeader: "Interest",
     scheduleBalanceHeader: "Balance",
     goToProjects: "Go to investor projects",
+    creditCheckButton: "Check credit history",
     filters: {
       ALL: "All",
       BANK_LOAN: "Loans",

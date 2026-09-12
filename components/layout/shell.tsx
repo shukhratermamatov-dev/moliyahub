@@ -19,6 +19,7 @@ const USEFUL_LINKS = [
   { id: "cbu", url: "https://cbu.uz" },
   { id: "gov", url: "https://my.gov.uz" },
   { id: "soliq", url: "https://soliq.uz" },
+  { id: "trk", url: "https://trk.uz/ru/" },
 ] as const;
 
 export function Shell({ children }: { children: React.ReactNode }) {
