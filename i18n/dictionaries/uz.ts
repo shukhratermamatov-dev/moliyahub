@@ -229,6 +229,26 @@ const dict: Dictionary = {
       netProfit: "Sof foyda",
     },
   },
+  statUz: {
+    sectionHeading: "Oʻzbekiston korxona va tashkilotlari",
+    sectionSubtitle:
+      "Davlat statistika qoʻmitasining rasmiy maʼlumotlari (stat.uz) — yangi maʼlumotlar chiqqanda avtomatik yangilanadi.",
+    sourceLabel: "Manba: stat.uz",
+    seriesRepublic: "Butun Oʻzbekiston boʻyicha",
+    seriesRegions: "Viloyatlar (jami)",
+    seriesTashkent: "Toshkent shahri",
+    seriesKarakalpakstan: "Qoraqalpogʻiston Respublikasi",
+    showTable: "Jadval koʻrinishida",
+    hideTable: "Jadvalni yashirish",
+    yearHeader: "Yil",
+    loadError: "stat.uz maʼlumotlari vaqtincha mavjud emas",
+    indicators: {
+      operating: "Amaldagi korxona va tashkilotlar",
+      registered: "Roʻyxatga olingan korxona va tashkilotlar",
+      newlyCreated: "Yangi tashkil etilgan korxona va tashkilotlar",
+      smallBusinessOperating: "Amaldagi kichik tadbirkorlik subʼyektlari",
+    },
+  },
   financing: {
     title: "Moliyalashtirish",
     subtitle:

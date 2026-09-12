@@ -227,6 +227,26 @@ const dict = {
       netProfit: "Чистая прибыль",
     },
   },
+  statUz: {
+    sectionHeading: "Предприятия и организации Узбекистана",
+    sectionSubtitle:
+      "Официальные данные Государственного комитета по статистике (stat.uz) — обновляются автоматически при выходе новых данных.",
+    sourceLabel: "Источник: stat.uz",
+    seriesRepublic: "Узбекистан в целом",
+    seriesRegions: "Области (сумма)",
+    seriesTashkent: "город Ташкент",
+    seriesKarakalpakstan: "Республика Каракалпакстан",
+    showTable: "Показать таблицей",
+    hideTable: "Скрыть таблицу",
+    yearHeader: "Год",
+    loadError: "Данные stat.uz временно недоступны",
+    indicators: {
+      operating: "Действующие предприятия и организации",
+      registered: "Зарегистрированные предприятия и организации",
+      newlyCreated: "Вновь созданные предприятия и организации",
+      smallBusinessOperating: "Действующие субъекты малого предпринимательства",
+    },
+  },
   financing: {
     title: "Финансирование",
     subtitle:

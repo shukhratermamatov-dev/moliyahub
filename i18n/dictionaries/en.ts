@@ -229,6 +229,26 @@ const dict: Dictionary = {
       netProfit: "Net profit",
     },
   },
+  statUz: {
+    sectionHeading: "Enterprises and organizations in Uzbekistan",
+    sectionSubtitle:
+      "Official data from the State Statistics Committee (stat.uz) — updates automatically as new data is published.",
+    sourceLabel: "Source: stat.uz",
+    seriesRepublic: "Uzbekistan overall",
+    seriesRegions: "Regions (combined)",
+    seriesTashkent: "Tashkent city",
+    seriesKarakalpakstan: "Republic of Karakalpakstan",
+    showTable: "Show as table",
+    hideTable: "Hide table",
+    yearHeader: "Year",
+    loadError: "stat.uz data is temporarily unavailable",
+    indicators: {
+      operating: "Operating enterprises and organizations",
+      registered: "Registered enterprises and organizations",
+      newlyCreated: "Newly created enterprises and organizations",
+      smallBusinessOperating: "Operating small businesses",
+    },
+  },
   financing: {
     title: "Financing",
     subtitle:
