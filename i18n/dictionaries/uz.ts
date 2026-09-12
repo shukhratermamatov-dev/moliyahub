@@ -367,10 +367,11 @@ const dict: Dictionary = {
   businessPlans: {
     title: "Tayyor biznes-reja namunalari",
     subtitle:
-      "«Loyihalar birjasi»dagi har bir soha uchun Excel shabloni: loyiha xulosasi, bozor tahlili, reja va xavflar, formulalar bilan moliyaviy boʻlim. Yuklab oling, oʻz maʼlumotlaringizni kiriting va vazifaga moslang.",
-    downloadButton: "Namunani yuklab olish (.xlsx)",
+      "«Loyihalar birjasi»dagi har bir soha uchun toʻliq texnik-iqtisodiy asoslash (TIA) namunasi: Word hujjati (xulosa, bozor tahlili, raqobatchilar, shtat jadvali, xavflar) va formulalar bilan 16 varaqli Excel moliyaviy modeli. Yuklab oling, oʻylab topilgan maʼlumotlarni oʻzingizniki bilan almashtiring va loyihangizga moslang.",
+    downloadDocx: "Hujjatni yuklab olish (.docx)",
+    downloadXlsx: "Moliyaviy modelni yuklab olish (.xlsx)",
     cardDescription: (industry: string) =>
-      `«${industry}» sohasi uchun shablon: loyiha xulosasi, bozor tahlili, reja va xavflar, formulalar bilan moliyaviy boʻlim.`,
+      `«${industry}» sohasi uchun TIA namunasi: loyiha xulosasi, bozor tahlili, raqobatchilar, shtat jadvali, qoplanish muddati, NPV va break-even nuqtasi bilan moliyaviy model.`,
     aiBanner: {
       title: "Aniq loyiha uchun reja kerakmi?",
       text: "SI gʻoyangiz asosida biznes-reja tuzadi — Oʻzbekiston va bir nechta chet el bozorlarini solishtirgan holda.",

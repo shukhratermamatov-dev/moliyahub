@@ -367,10 +367,11 @@ const dict: Dictionary = {
   businessPlans: {
     title: "Ready-made business plan samples",
     subtitle:
-      "An Excel template for every industry on the Project exchange: executive summary, market analysis, plan and risks, and a financial section with working formulas. Download it, fill in your data, and adapt it to your project.",
-    downloadButton: "Download sample (.xlsx)",
+      "A full feasibility study (TEO) sample for every industry on the Project exchange: a Word document (summary, market analysis, competitors, staffing plan, risks) and a 16-sheet Excel financial model with working formulas. Download it, replace the fictional data with your own, and adapt it to your project.",
+    downloadDocx: "Download document (.docx)",
+    downloadXlsx: "Download financial model (.xlsx)",
     cardDescription: (industry: string) =>
-      `Template for the "${industry}" industry: executive summary, market analysis, plan and risks, financial section with formulas.`,
+      `Feasibility study sample for the "${industry}" industry: executive summary, market analysis, competitors, staffing plan, financial model with payback period, NPV, and break-even point.`,
     aiBanner: {
       title: "Need a plan for a specific project?",
       text: "AI will put together a business plan from your idea — with market analysis of Uzbekistan and a few foreign markets for comparison.",

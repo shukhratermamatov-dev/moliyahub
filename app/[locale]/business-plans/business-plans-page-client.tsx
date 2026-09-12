@@ -41,11 +41,18 @@ export function BusinessPlansPageClient() {
                   <h2 className="font-display text-xl">{name}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{t.cardDescription(name)}</p>
                 </div>
-                <Button asChild variant="outline" className="mt-5 w-full">
-                  <a href={`/business-plans/${ind.id}.xlsx`} download>
-                    <Download className="size-4" /> {t.downloadButton}
-                  </a>
-                </Button>
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                  <Button asChild variant="outline" className="w-full">
+                    <a href={`/business-plans/${ind.id}.docx`} download>
+                      <Download className="size-4" /> {t.downloadDocx}
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <a href={`/business-plans/${ind.id}.xlsx`} download>
+                      <Download className="size-4" /> {t.downloadXlsx}
+                    </a>
+                  </Button>
+                </div>
               </Card>
             );
           })}
