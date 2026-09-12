@@ -16,24 +16,33 @@ const DATASETS = [
 
 export type StatUzIndicatorKey = (typeof DATASETS)[number]["key"];
 
+export type StatUzRegion = {
+  code: string;
+  name: { ru: string; en: string; uz: string };
+  values: number[];
+};
+
 export type StatUzIndicator = {
   key: StatUzIndicatorKey;
   years: number[];
   republic: number[];
-  regions: number[];
-  tashkentCity: number[];
-  karakalpakstan: number[];
+  regions: StatUzRegion[];
 };
 
 type StatUzRow = Record<string, unknown> & {
   Code?: string | number;
   Klassifikator_ru?: string;
+  Klassifikator_en?: string;
+  Klassifikator_uzc?: string;
 };
 
 // Обновляем раз в сутки — наборы данных на стат.уз помечены как «ежегодные»,
 // чаще проверять смысла нет, а сутки достаточно, чтобы новые цифры появились
 // на сайте быстро после публикации.
 export const revalidate = 86400;
+
+// Сколько последних лет показываем на сайте.
+const YEARS_WINDOW = 5;
 
 function toNumber(value: unknown): number {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
@@ -60,8 +69,6 @@ async function fetchIndicator(
     const topLevel = rows.filter((row) => String(row.Code ?? "").trim().length === 4);
 
     let republicRow: StatUzRow | undefined;
-    let karakalpakstanRow: StatUzRow | undefined;
-    let tashkentCityRow: StatUzRow | undefined;
     const regionRows: StatUzRow[] = [];
 
     for (const row of topLevel) {
@@ -69,14 +76,11 @@ async function fetchIndicator(
       if (!name) continue;
       if (/республика узбекистан/i.test(name)) {
         republicRow = row;
-      } else if (/каракалпакстан/i.test(name)) {
-        karakalpakstanRow = row;
-      } else if (/область/i.test(name)) {
-        regionRows.push(row);
       } else {
-        // Единственная строка верхнего уровня, которая не «область», не
-        // Каракалпакстан и не итог по республике, — это г. Ташкент.
-        tashkentCityRow = row;
+        // Всё остальное верхнего уровня — области, г. Ташкент и Республика
+        // Каракалпакстан — показываем как отдельные регионы (без суммирования),
+        // как на приложенном пользователем примере диаграмм.
+        regionRows.push(row);
       }
     }
 
@@ -86,24 +90,31 @@ async function fetchIndicator(
       .filter((k) => /^\d{4}$/.test(k))
       .map(Number)
       .sort((a, b) => a - b)
-      .slice(-10);
+      .slice(-YEARS_WINDOW);
 
     if (years.length === 0) return null;
 
     const seriesFor = (row: StatUzRow | undefined) =>
       years.map((year) => toNumber(row?.[String(year)]));
 
-    const regions = years.map((year) =>
-      regionRows.reduce((sum, row) => sum + toNumber(row[String(year)]), 0),
-    );
+    const regions: StatUzRegion[] = regionRows.map((row) => {
+      const ru = String(row.Klassifikator_ru ?? "").trim();
+      return {
+        code: String(row.Code ?? ""),
+        name: {
+          ru,
+          en: String(row.Klassifikator_en ?? "").trim() || ru,
+          uz: String(row.Klassifikator_uzc ?? "").trim() || ru,
+        },
+        values: seriesFor(row),
+      };
+    });
 
     return {
       key,
       years,
       republic: seriesFor(republicRow),
       regions,
-      tashkentCity: seriesFor(tashkentCityRow),
-      karakalpakstan: seriesFor(karakalpakstanRow),
     };
   } catch {
     return null;
