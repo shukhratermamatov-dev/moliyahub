@@ -61,10 +61,18 @@ export async function signUp(
   }
 
   const supabase = await createClient();
+  const origin = await getOrigin();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName || null } },
+    options: {
+      data: { full_name: fullName || null },
+      // Без этого ссылка в письме ведёт на голый Site URL (домен без пути) —
+      // код подтверждения остаётся необработанным, и пользователь не
+      // авторизуется автоматически. Через /auth/callback код обменивается
+      // на сессию, и пользователь сразу попадает в кабинет.
+      emailRedirectTo: `${origin}/auth/callback?next=/${locale}/cabinet`,
+    },
   });
 
   if (error) {
