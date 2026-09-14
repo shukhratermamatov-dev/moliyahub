@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useI18n } from "@/i18n/provider";
-import { signIn, signUp, type AuthActionState } from "./actions";
+import { signIn, signUp, requestPasswordReset, type AuthActionState, type ResetActionState } from "./actions";
 
 const initialState: AuthActionState = undefined;
+const initialResetState: ResetActionState = undefined;
 
 const inputClass =
   "h-11 w-full rounded-xl bg-raised px-3 text-sm text-fg shadow-[0_0_0_1px_rgba(255,255,255,0.08)] focus:outline-none focus:ring-2 focus:ring-primary/50";
@@ -14,11 +15,12 @@ const buttonClass =
 
 export function LoginPageClient({ next }: { next?: string }) {
   const { locale, dict } = useI18n();
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "reset">("login");
   const [loginState, loginAction, loginPending] = useActionState(signIn, initialState);
   const [registerState, registerAction, registerPending] = useActionState(signUp, initialState);
+  const [resetState, resetAction, resetPending] = useActionState(requestPasswordReset, initialResetState);
 
-  const state = mode === "login" ? loginState : registerState;
+  const state = mode === "login" ? loginState : mode === "register" ? registerState : undefined;
   const errorText =
     state?.status === "error"
       ? {
@@ -41,28 +43,53 @@ export function LoginPageClient({ next }: { next?: string }) {
         </Link>
         <p className="mt-2 text-sm text-muted">{dict.auth.subtitle}</p>
 
-        <div className="mt-6 flex rounded-xl bg-raised p-1 text-sm">
+        {mode === "reset" ? (
           <button
             type="button"
             onClick={() => setMode("login")}
-            className={`flex-1 rounded-lg px-3 py-2 transition-colors ${
-              mode === "login" ? "bg-primary text-primary-fg" : "text-muted"
-            }`}
+            className="mt-6 text-sm text-muted transition-colors hover:text-fg"
           >
-            {dict.auth.loginButton}
+            {dict.auth.backToLogin}
           </button>
-          <button
-            type="button"
-            onClick={() => setMode("register")}
-            className={`flex-1 rounded-lg px-3 py-2 transition-colors ${
-              mode === "register" ? "bg-primary text-primary-fg" : "text-muted"
-            }`}
-          >
-            {dict.auth.registerButton}
-          </button>
-        </div>
+        ) : (
+          <div className="mt-6 flex rounded-xl bg-raised p-1 text-sm">
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className={`flex-1 rounded-lg px-3 py-2 transition-colors ${
+                mode === "login" ? "bg-primary text-primary-fg" : "text-muted"
+              }`}
+            >
+              {dict.auth.loginButton}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("register")}
+              className={`flex-1 rounded-lg px-3 py-2 transition-colors ${
+                mode === "register" ? "bg-primary text-primary-fg" : "text-muted"
+              }`}
+            >
+              {dict.auth.registerButton}
+            </button>
+          </div>
+        )}
 
-        {checkEmail ? (
+        {mode === "reset" ? (
+          resetState?.status === "sent" ? (
+            <p className="mt-4 rounded-xl bg-raised p-4 text-sm text-fg">{dict.auth.resetSent}</p>
+          ) : (
+            <form action={resetAction} className="mt-4 flex flex-col gap-4">
+              <input type="hidden" name="locale" value={locale} />
+              <label className="block text-sm">
+                <span className="mb-1 block text-muted">{dict.auth.emailLabel}</span>
+                <input type="email" name="email" required autoComplete="email" className={inputClass} />
+              </label>
+              <button type="submit" disabled={resetPending} className={buttonClass}>
+                {resetPending ? dict.auth.resetPending : dict.auth.resetButton}
+              </button>
+            </form>
+          )
+        ) : checkEmail ? (
           <p className="mt-6 rounded-xl bg-raised p-4 text-sm text-fg">{dict.auth.checkEmail}</p>
         ) : mode === "login" ? (
           <form action={loginAction} className="mt-6 flex flex-col gap-4">
@@ -82,6 +109,13 @@ export function LoginPageClient({ next }: { next?: string }) {
                 className={inputClass}
               />
             </label>
+            <button
+              type="button"
+              onClick={() => setMode("reset")}
+              className="-mt-2 self-start text-sm text-muted transition-colors hover:text-fg"
+            >
+              {dict.auth.forgotPassword}
+            </button>
             {errorText ? <p className="text-sm text-danger">{errorText}</p> : null}
             <button type="submit" disabled={loginPending} className={buttonClass}>
               {loginPending ? dict.auth.loginPending : dict.auth.loginButton}

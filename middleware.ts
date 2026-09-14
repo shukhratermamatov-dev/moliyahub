@@ -35,6 +35,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // /auth/callback (обмен кода из письма Supabase на сессию) — тоже вне
+  // [locale], без языкового префикса.
+  if (pathname.startsWith("/auth/")) {
+    return NextResponse.next();
+  }
+
   // Статические файлы из public/ (образцы .xlsx, изображения и т.п.) — у них
   // нет языкового префикса и не должно быть: последний сегмент пути с точкой
   // (расширением) — это файл, а не страница. Раньше сюда попадали только
