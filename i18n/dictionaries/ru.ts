@@ -293,6 +293,12 @@ const dict = {
     averageRate: "средняя ставка",
     interestFree: "Без процента",
     monthsShort: "мес.",
+    upToLabel: "до",
+    amountUnknown: "Сумма не указана",
+    bankUzNote:
+      "Кредиты банков — с реальными ставками по данным bank.uz. Остальные варианты (исламское финансирование, лизинг, венчур, краудфандинг, гранты) — иллюстративные примеры, уточняйте условия напрямую.",
+    bankUzUpdatedLabel: (date: string) => `Обновлено: ${date}`,
+    viewOnBankUz: "Смотреть на bank.uz",
     methodAnnuity: "Аннуитетный",
     methodDifferentiated: "Дифференцированный",
     firstPaymentLabel: "Первый платёж",
@@ -323,6 +329,21 @@ const dict = {
     subtitle:
       "Полный список действующих коммерческих банков (по данным реестра ЦБ РУз). Ставки и условия не публикуются в открытых источниках — уточняйте их напрямую в банке.",
     disclaimer: "Условия уточняйте в банке",
+    offersCountLabel: (count: number) => {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+      let word: string;
+      if (mod100 >= 11 && mod100 <= 14) {
+        word = "предложений";
+      } else if (mod10 === 1) {
+        word = "предложение";
+      } else if (mod10 >= 2 && mod10 <= 4) {
+        word = "предложения";
+      } else {
+        word = "предложений";
+      }
+      return `${count} ${word}`;
+    },
     categories: {
       STATE: "Государственные",
       JOINT_STOCK: "Акционерно-коммерческие",

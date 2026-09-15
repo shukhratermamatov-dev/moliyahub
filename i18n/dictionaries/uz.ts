@@ -295,6 +295,12 @@ const dict: Dictionary = {
     averageRate: "oʻrtacha stavka",
     interestFree: "Foizsiz",
     monthsShort: "oy",
+    upToLabel: "gacha",
+    amountUnknown: "Miqdor koʻrsatilmagan",
+    bankUzNote:
+      "Bank kreditlari — bank.uz maʼlumotlariga koʻra real stavkalar bilan. Qolgan variantlar (islomiy moliyalashtirish, lizing, venchur, kraudfanding, grantlar) — namunaviy misollar, shartlarni bevosita aniqlashtiring.",
+    bankUzUpdatedLabel: (date: string) => `Yangilangan: ${date}`,
+    viewOnBankUz: "bank.uz da koʻrish",
     methodAnnuity: "Annuitet",
     methodDifferentiated: "Differensiallangan",
     firstPaymentLabel: "Birinchi toʻlov",
@@ -325,6 +331,7 @@ const dict: Dictionary = {
     subtitle:
       "Amaldagi tijorat banklarining toʻliq roʻyxati (OʻzR MB reestriga koʻra). Stavka va shartlar ochiq manbalarda eʼlon qilinmaydi — bankdan bevosita aniqlashtiring.",
     disclaimer: "Shartlarni bankda aniqlashtiring",
+    offersCountLabel: (count: number) => `${count} ta taklif`,
     categories: {
       STATE: "Davlat banklari",
       JOINT_STOCK: "Aksiyadorlik-tijorat banklari",

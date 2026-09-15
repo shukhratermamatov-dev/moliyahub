@@ -295,6 +295,12 @@ const dict: Dictionary = {
     averageRate: "average rate",
     interestFree: "Interest-free",
     monthsShort: "mo.",
+    upToLabel: "up to",
+    amountUnknown: "Amount not specified",
+    bankUzNote:
+      "Bank loans — with real rates from bank.uz. Other options (Islamic financing, leasing, venture, crowdfunding, grants) are illustrative examples — confirm terms directly.",
+    bankUzUpdatedLabel: (date: string) => `Updated: ${date}`,
+    viewOnBankUz: "View on bank.uz",
     methodAnnuity: "Annuity",
     methodDifferentiated: "Differentiated",
     firstPaymentLabel: "First payment",
@@ -325,6 +331,7 @@ const dict: Dictionary = {
     subtitle:
       "Full list of licensed commercial banks (per the Central Bank of Uzbekistan registry). Rates and terms are not published openly — confirm directly with the bank.",
     disclaimer: "Confirm terms with the bank",
+    offersCountLabel: (count: number) => `${count} offer${count === 1 ? "" : "s"}`,
     categories: {
       STATE: "State-owned",
       JOINT_STOCK: "Joint-stock commercial",
