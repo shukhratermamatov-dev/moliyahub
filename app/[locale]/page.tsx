@@ -34,7 +34,7 @@ export default async function Home({
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(30,168,122,0.16),_transparent_55%)]" />
         <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 md:pt-24">
           <div className="max-w-3xl">
-            <p className="mb-5 inline-flex rounded-full bg-raised px-3 py-1.5 text-sm tracking-wide text-primary md:text-base">
+            <p className="mb-5 inline-flex rounded-full bg-raised px-3 py-1 text-sm tracking-wide text-primary">
               {t.eyebrow}
             </p>
             <h1 className="max-w-3xl font-display text-4xl leading-tight md:text-6xl">
