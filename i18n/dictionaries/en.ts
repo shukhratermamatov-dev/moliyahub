@@ -10,6 +10,7 @@ const dict: Dictionary = {
     home: "Home",
     analyze: "Analysis",
     financing: "Financing",
+    islamicGuide: "Islamic finance guide",
     projects: "Projects",
     businessPlans: "Business plans",
   },
@@ -325,6 +326,10 @@ const dict: Dictionary = {
       CROWDFUNDING: "Crowd",
       GRANT: "Grants",
     },
+    islamicGuideBanner: {
+      text: "Not sure how murabaha differs from ijara? Find out in two minutes.",
+      cta: "Open the Islamic finance guide",
+    },
   },
   bankDirectory: {
     heading: "All banks in Uzbekistan",
@@ -639,6 +644,71 @@ const dict: Dictionary = {
     noBusinessPlans: "No saved business plans yet — create one on the AI business plan builder page.",
     goToBusinessPlanAi: "Go to the AI builder",
     deleteBusinessPlan: "Delete",
+  },
+  islamicGuide: {
+    eyebrow: "Guide",
+    title: "Islamic finance, explained simply",
+    subtitle: "Murabaha, ijara, and musharaka — how they work and how they differ from a regular loan",
+    intro:
+      "Uzbekistan's Islamic banking law took effect on June 29, 2026, and banks are opening \"Islamic windows\" one after another. Behind the unfamiliar terms are mechanisms that are easy to understand — here's how they apply to your business.",
+    quizHeading: "Test yourself",
+    quizScenario:
+      "Scenario: an entrepreneur needs a new machine for their workshop. They're ready to pay in instalments, but want to know the exact markup upfront — no floating interest. Which tool fits best?",
+    quizOptions: [
+      { id: "murabaha", label: "Murabaha" },
+      { id: "ijara", label: "Ijara" },
+      { id: "musharaka", label: "Musharaka" },
+    ],
+    quizCorrectFeedback: "Correct — in murabaha the markup is fixed upfront and never changes until the final payment.",
+    quizIncorrectFeedback:
+      "Not quite. A fixed markup known in advance, with the bank buying the asset from the supplier, is what defines murabaha.",
+    quizRetake: "Try again",
+    conceptsHeading: "Three tools",
+    flipHint: "Tap the card to learn more",
+    differenceLabel: "How it differs from a loan",
+    concepts: [
+      {
+        id: "murabaha",
+        name: "Murabaha",
+        teaser: "The bank buys the asset and sells it to you with a markup",
+        explanation:
+          "The bank buys the goods, materials, or equipment you need from the supplier, then sells them to you in instalments — at a price above the purchase cost. The markup is fixed in advance and doesn't change even if payments stretch out longer than planned.",
+        difference:
+          "In a regular loan, the bank lends you money at interest. In murabaha, the bank buys and resells the asset — you pay for the goods, not for the use of money, and the markup doesn't grow over time.",
+        bestFor: "Buying equipment, vehicles, raw materials, or goods for a specific deal.",
+        hasOffer: true,
+      },
+      {
+        id: "ijara",
+        name: "Ijara",
+        teaser: "A lease with the right to buy — similar to leasing",
+        explanation:
+          "The asset — real estate, machinery, equipment — stays owned by the bank while you use it for a rental payment. At the end of the term, you can buy the asset at a price agreed in advance.",
+        difference:
+          "Unlike a regular lease, an ijara contract is built around renting a real asset: the bank carries part of the ownership risk until the buyout, rather than simply financing a purchase at interest.",
+        bestFor: "Real estate, specialised machinery, and production equipment over a long term.",
+        hasOffer: true,
+      },
+      {
+        id: "musharaka",
+        name: "Musharaka",
+        teaser: "A partnership: the bank and the entrepreneur share profit and risk",
+        explanation:
+          "The bank and the entrepreneur jointly invest capital in a business or project and become partners. Profit is split in a proportion agreed in advance, while losses are shared in proportion to each side's stake.",
+        difference:
+          "There's no interest or fixed markup at all: the bank's return depends on the business's actual results, like a co-investor rather than a lender.",
+        bestFor: "Equity financing for a growing business or a large project.",
+        hasOffer: false,
+        noOfferNote:
+          "Uzbek banks don't yet list ready-made musharaka products on bank.uz — ask banks directly which Islamic windows already offer this format.",
+      },
+    ],
+    ctaViewOffer: "View the offer",
+    ctaAllOffers: "All financing options",
+    backToFinancing: "Back to Financing",
+    disclaimerHeading: "Important",
+    disclaimer:
+      "This material is educational and is not a religious ruling (fatwa). Confirming that a product complies with Sharia is the responsibility of the bank's own Sharia board — check directly with the bank before applying.",
   },
 };
 

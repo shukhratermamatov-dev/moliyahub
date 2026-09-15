@@ -10,6 +10,7 @@ const dict: Dictionary = {
     home: "Bosh sahifa",
     analyze: "Tahlil",
     financing: "Moliyalashtirish",
+    islamicGuide: "Islomiy moliya gidi",
     projects: "Loyihalar",
     businessPlans: "Biznes-rejalar",
   },
@@ -324,6 +325,10 @@ const dict: Dictionary = {
       VENTURE: "Venchur",
       CROWDFUNDING: "Kraud",
       GRANT: "Grantlar",
+    },
+    islamicGuideBanner: {
+      text: "Murobaha va ijara oʻrtasidagi farqga aniqlik kiritmoqchimisiz? Ikki daqiqada tushunib oling.",
+      cta: "Islomiy moliyalashtirish gidini ochish",
     },
   },
   bankDirectory: {
@@ -641,6 +646,71 @@ const dict: Dictionary = {
     noBusinessPlans: "Hali saqlangan biznes-reja yoʻq — «SI yordamida biznes-reja tuzish» sahifasida yarating.",
     goToBusinessPlanAi: "SI generatoriga oʻtish",
     deleteBusinessPlan: "Oʻchirish",
+  },
+  islamicGuide: {
+    eyebrow: "Gid",
+    title: "Islomiy moliyalashtirish sodda tilda",
+    subtitle: "Murobaha, ijara va musharaka — bu qanday ishlaydi va oddiy kreditdan nimasi bilan farq qiladi",
+    intro:
+      "2026-yil 29-iyundan Oʻzbekistonda islomiy banking toʻgʻrisidagi qonun kuchga kirdi va banklar birin-ketin «islomiy oyna»larini ochmoqda. Notanish soʻzlar ortida tushunarli mexanizmlar yotibdi — ularni bizneste qanday qoʻllashni koʻrib chiqamiz.",
+    quizHeading: "Oʻzingizni sinab koʻring",
+    quizScenario:
+      "Vaziyat: tadbirkorga sex uchun yangi stanok kerak. U toʻlovni qismlarga boʻlib toʻlashga tayyor, lekin oʻzgaruvchan foizsiz, aniq ustama miqdorini oldindan bilishni xohlaydi. Qaysi vosita eng mos keladi?",
+    quizOptions: [
+      { id: "murabaha", label: "Murobaha" },
+      { id: "ijara", label: "Ijara" },
+      { id: "musharaka", label: "Musharaka" },
+    ],
+    quizCorrectFeedback: "Toʻgʻri — murobahada ustama darhol belgilanadi va toʻlovlar oxirigacha oʻzgarmaydi.",
+    quizIncorrectFeedback:
+      "Unchalik toʻgʻri emas. Oldindan maʼlum boʻlgan qatʼiy ustama va aktivni bank tomonidan yetkazib beruvchidan sotib olinishi — bu murobahaning belgilari.",
+    quizRetake: "Qayta urinib koʻrish",
+    conceptsHeading: "Uchta vosita",
+    flipHint: "Batafsil bilish uchun kartochkani bosing",
+    differenceLabel: "Kreditdan farqi",
+    concepts: [
+      {
+        id: "murabaha",
+        name: "Murobaha",
+        teaser: "Bank aktivni sotib oladi va sizga ustama bilan sotadi",
+        explanation:
+          "Bank sizga kerakli tovar, xomashyo yoki uskunani yetkazib beruvchidan oʻzi sotib oladi, soʻngra uni sizga boʻlib-boʻlib toʻlash sharti bilan — sotib olish narxidan yuqori narxda — sotadi. Ustama oldindan belgilanadi va toʻlovlar muddati choʻzilsa ham oʻzgarmaydi.",
+        difference:
+          "Oddiy kreditda bank foiz evaziga pul beradi, siz uni qaytarasiz. Murobahada bank aktivni sotib olib, qayta sotadi — siz pulni ishlatganingiz uchun emas, tovar uchun toʻlaysiz, va ustama muddatga bogʻliq emas.",
+        bestFor: "Muayyan bitim uchun uskuna, transport, xomashyo yoki tovar sotib olish.",
+        hasOffer: true,
+      },
+      {
+        id: "ijara",
+        name: "Ijara",
+        teaser: "Sotib olish huquqi bilan ijara — lizingga oʻxshash",
+        explanation:
+          "Aktiv — koʻchmas mulk, texnika, uskuna — bank mulkida qoladi, siz esa undan ijara toʻlovi evaziga foydalanasiz. Muddat tugagach, aktivni oldindan kelishilgan narxda sotib olish mumkin.",
+        difference:
+          "Oddiy lizingdan farqli oʻlaroq, shartnoma real aktivning ijarasiga asoslanadi: bank sotib olinguncha aktivga egalik qilish tavakkalining bir qismini oʻz zimmasiga oladi, shunchaki foiz evaziga xarid moliyalashtirmaydi.",
+        bestFor: "Uzoq muddatga koʻchmas mulk, maxsus texnika va ishlab chiqarish uskunalari.",
+        hasOffer: true,
+      },
+      {
+        id: "musharaka",
+        name: "Musharaka",
+        teaser: "Sheriklik: bank va tadbirkor foyda va tavakkalni boʻlishadi",
+        explanation:
+          "Bank va tadbirkor biznes yoki loyihaga birgalikda kapital kiritib, sheriklarga aylanadi. Foyda oldindan kelishilgan nisbatda boʻlinadi, zarar esa kiritilgan ulushlarga mutanosib ravishda taqsimlanadi.",
+        difference:
+          "Bu yerda na foiz, na qatʼiy ustama mavjud: bank daromadi biznesning real natijasiga bogʻliq — u kreditor emas, hammuassis kabi ishlaydi.",
+        bestFor: "Oʻsib borayotgan biznes yoki yirik loyihani ulushli moliyalashtirish.",
+        hasOffer: false,
+        noOfferNote:
+          "Oʻzbekiston banklari hali musharaka boʻyicha tayyor mahsulotlarni bank.uz saytida eʼlon qilmagan — qaysi islomiy oynalar bu formatda ishlayotganini toʻgʻridan-toʻgʻri soʻrab aniqlashtiring.",
+      },
+    ],
+    ctaViewOffer: "Taklifni koʻrish",
+    ctaAllOffers: "Barcha moliyalashtirish variantlari",
+    backToFinancing: "«Moliyalashtirish» boʻlimiga",
+    disclaimerHeading: "Muhim",
+    disclaimer:
+      "Material taʼlimiy xarakterga ega va diniy xulosa (fatvo) hisoblanmaydi. Mahsulotning shariat meʼyorlariga muvofiqligini bankning oʻz shariat kengashi tasdiqlaydi — rasmiylashtirishdan oldin buni toʻgʻridan-toʻgʻri aniqlashtiring.",
   },
 };
 

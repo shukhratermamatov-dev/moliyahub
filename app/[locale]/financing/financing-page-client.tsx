@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -62,6 +63,7 @@ export function FinancingPageClient() {
   const { locale, dict } = useI18n();
   const t = dict.financing;
   const rawOffers = useVisibleOffers();
+  const searchParams = useSearchParams();
   const [rateOverrides, setRateOverrides] = useState<RateOverrideMap>({});
   // Ставки, загруженные админом через Excel (см. /admin), — публичный
   // эндпоинт отдаёт их всем посетителям, не только с этого устройства.
@@ -175,6 +177,19 @@ export function FinancingPageClient() {
   const [amount, setAmount] = useState(500_000_000);
   const [months, setMonths] = useState(24);
   const [selected, setSelected] = useState<string | null>(null);
+  // Диплинк с гида по исламскому финансированию (?type=ISLAMIC&offer=murabaha) —
+  // открываем нужный фильтр и подсвечиваем конкретное предложение.
+  useEffect(() => {
+    const typeParam = searchParams.get("type");
+    if (typeParam && (FILTER_IDS as string[]).includes(typeParam)) {
+      setType(typeParam as (typeof FILTER_IDS)[number]);
+    }
+    const offerParam = searchParams.get("offer");
+    if (offerParam) {
+      setSelected(offerParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [method, setMethod] = useState<RepaymentMethod>("ANNUITY");
   const [rateOverride, setRateOverride] = useState<number | null>(null);
   const [showSchedule, setShowSchedule] = useState(false);
@@ -360,6 +375,15 @@ export function FinancingPageClient() {
             </button>
           ))}
         </div>
+
+        {type === "ISLAMIC" ? (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-raised p-4">
+            <p className="text-sm text-muted">{t.islamicGuideBanner.text}</p>
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/${locale}/islamic-finance`}>{t.islamicGuideBanner.cta}</Link>
+            </Button>
+          </div>
+        ) : null}
 
         {bankUzUpdatedAt ? (
           <p className="mt-3 text-xs text-muted">

@@ -31,6 +31,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     { href: `/${locale}`, label: dict.nav.home },
     { href: `/${locale}/analyze`, label: dict.nav.analyze },
     { href: `/${locale}/financing`, label: dict.nav.financing },
+    { href: `/${locale}/islamic-finance`, label: dict.nav.islamicGuide },
     { href: `/${locale}/projects`, label: dict.nav.projects },
     { href: `/${locale}/business-plans`, label: dict.nav.businessPlans },
   ];
