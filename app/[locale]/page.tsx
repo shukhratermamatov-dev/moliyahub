@@ -37,7 +37,7 @@ export default async function Home({
             <p className="mb-5 inline-flex rounded-full bg-raised px-3 py-1 text-base tracking-wide text-primary">
               {t.eyebrow}
             </p>
-            <h1 className="max-w-3xl font-display text-4xl leading-tight md:text-6xl">
+            <h1 className="max-w-3xl font-display text-[18px] leading-tight md:text-[30px]">
               {t.h1Line1}
               <span className="block text-primary">{t.h1Line2}</span>
             </h1>
