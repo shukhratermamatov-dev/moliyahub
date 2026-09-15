@@ -59,13 +59,31 @@ export type Recommendation = {
   timeframe: string;
 };
 
+export type BenchmarkComparison = {
+  metric: string;
+  company_value: string;
+  benchmark_value: string;
+  source: string;
+};
+
+export type Benchmark = {
+  available: boolean;
+  note: string;
+  comparisons: BenchmarkComparison[];
+};
+
 export type AiAdvice = {
   summary: string;
   score_comment: string;
   red_flags: RedFlag[];
   strengths: string[];
+  weaknesses: string[];
   recommendations: Recommendation[];
   financing_advice: string;
+  margin_commentary: string;
+  frozen_assets_commentary: string;
+  safety_margin_commentary: string;
+  benchmark: Benchmark;
   source: "ai" | "rules";
 };
 

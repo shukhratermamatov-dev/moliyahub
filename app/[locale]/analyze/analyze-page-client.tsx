@@ -13,6 +13,7 @@ import { useI18n } from "@/i18n/provider";
 import { requestAiAdvice } from "@/lib/ai/analyze";
 import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
 import { buildRuleAdvice } from "@/lib/finance/advice";
+import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import {
   DEMO_FINANCE_DATA,
@@ -68,6 +69,13 @@ export function AnalyzePageClient() {
   const ratios = useMemo(() => calculateRatios(aggregate), [aggregate]);
   const balanceOk = Math.abs(subtotals.balanceDiff) < 1;
 
+  // Доп. срезы (маржа/замороженные активы/запас прочности) — считаются всегда
+  // в коде, не ИИ, чтобы цифры на странице были точными и не зависели от
+  // того, работает ли ИИ; ИИ и правила-фолбэк только комментируют их текстом.
+  const marginBridge = useMemo(() => computeMarginBridge(form), [form]);
+  const frozenAssets = useMemo(() => computeFrozenAssets(form, aggregate.totalAssets), [form, aggregate.totalAssets]);
+  const safetyMargin = useMemo(() => computeRevenueSafetyMargin(form), [form]);
+
   const setField = (key: FinanceFieldKey, n: number) => {
     setForm((prev) => ({ ...prev, [key]: Number.isFinite(n) ? n : 0 }));
   };
@@ -79,7 +87,7 @@ export function AnalyzePageClient() {
   }
 
   const runLocal = () => {
-    const next = buildRuleAdvice(aggregate, ratios, dict, locale);
+    const next = buildRuleAdvice(aggregate, ratios, dict, locale, form);
     setAdvice(next);
     toast.success(t.toastCalculated);
     void persist(next);
@@ -93,7 +101,7 @@ export function AnalyzePageClient() {
       toast.success(next.source === "ai" ? t.toastAiReady : t.toastExpress);
       void persist(next);
     } catch {
-      const next = buildRuleAdvice(aggregate, ratios, dict, locale);
+      const next = buildRuleAdvice(aggregate, ratios, dict, locale, form);
       setAdvice(next);
       toast.error(t.toastAiUnavailable);
     } finally {
@@ -290,7 +298,13 @@ export function AnalyzePageClient() {
           </Card>
 
           <div>
-            <AnalysisPanel ratios={ratios} advice={advice} />
+            <AnalysisPanel
+              ratios={ratios}
+              advice={advice}
+              marginBridge={marginBridge}
+              frozenAssets={frozenAssets}
+              safetyMargin={safetyMargin}
+            />
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild variant="outline">
                 <Link href={`/${locale}/financing`}>{t.compareLoans}</Link>

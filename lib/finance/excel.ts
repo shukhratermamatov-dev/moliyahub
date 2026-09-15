@@ -198,10 +198,39 @@ export function addAdviceSheet(workbook: ExcelJS.Workbook, dict: Dictionary, adv
     sheet.addRow({});
   }
 
+  if (advice.weaknesses.length > 0) {
+    sheet.addRow({ text: dict.panel.weaknesses }).font = { bold: true };
+    for (const s of advice.weaknesses) sheet.addRow({ text: s });
+    sheet.addRow({});
+  }
+
   sheet.addRow({ text: dict.panel.whatToDo }).font = { bold: true };
   for (const r of advice.recommendations) {
     sheet.addRow({ text: `${r.title}: ${r.description} (${dict.panel.effectPrefix}${r.expected_effect})` });
   }
+  sheet.addRow({});
+
+  sheet.addRow({ text: dict.panel.marginBridgeHeading }).font = { bold: true };
+  sheet.addRow({ text: advice.margin_commentary });
+  sheet.addRow({});
+
+  sheet.addRow({ text: dict.panel.frozenAssetsHeading }).font = { bold: true };
+  sheet.addRow({ text: advice.frozen_assets_commentary });
+  sheet.addRow({});
+
+  sheet.addRow({ text: dict.panel.safetyMarginHeading }).font = { bold: true };
+  sheet.addRow({ text: advice.safety_margin_commentary });
+  sheet.addRow({});
+
+  sheet.addRow({ text: dict.panel.benchmarkHeading }).font = { bold: true };
+  if (advice.benchmark.available && advice.benchmark.comparisons.length > 0) {
+    for (const c of advice.benchmark.comparisons) {
+      sheet.addRow({
+        text: `${c.metric}: ${c.company_value} / ${c.benchmark_value} (${dict.panel.benchmarkSourceLabel} ${c.source})`,
+      });
+    }
+  }
+  sheet.addRow({ text: advice.benchmark.note || dict.panel.benchmarkUnavailable });
   sheet.addRow({});
 
   sheet.addRow({ text: dict.panel.financingHeading }).font = { bold: true };

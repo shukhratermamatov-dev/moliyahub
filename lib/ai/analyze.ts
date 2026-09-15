@@ -4,6 +4,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/config";
 import { deriveAggregates } from "@/lib/finance/aggregate";
 import { buildRuleAdvice } from "@/lib/finance/advice";
+import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import type { AiAdvice, FinanceData } from "@/lib/finance/types";
 
@@ -21,20 +22,50 @@ const LANGUAGE_NAME: Record<Locale, string> = {
 };
 
 const RESPONSE_SCHEMA =
-  '{"summary":"","score_comment":"","red_flags":[{"indicator":"","value":"","why_critical":"","priority":1}],' +
-  '"strengths":[""],"recommendations":[{"title":"","description":"","expected_effect":"","priority":1,"difficulty":"low","timeframe":""}],' +
-  '"financing_advice":""}';
+  '{"summary":"","score_comment":"",' +
+  '"red_flags":[{"indicator":"","value":"","why_critical":"","priority":1}],' +
+  '"strengths":[""],"weaknesses":[""],' +
+  '"recommendations":[{"title":"","description":"","expected_effect":"","priority":1,"difficulty":"low","timeframe":""}],' +
+  '"financing_advice":"","margin_commentary":"","frozen_assets_commentary":"","safety_margin_commentary":"",' +
+  '"benchmark":{"available":false,"note":"","comparisons":[{"metric":"","company_value":"","benchmark_value":"","source":""}]}}';
 
-// ИИ-анализ через Anthropic (Claude). Раньше здесь был xAI Grok — переключено
-// по решению пользователя. Ключ ANTHROPIC_API_KEY добавляется в Vercel самим
-// пользователем (мы его туда не вводим); если ключа нет или вызов не удался —
-// используется тот же локальный разбор по правилам (buildRuleAdvice), что и
-// раньше — сайт никогда не остаётся без ответа.
+type AnthropicTextBlock = { type: "text"; text: string };
+
+// Извлекает JSON-объект из финального текстового ответа модели — на случай,
+// если модель обернула его в ```json fences вопреки инструкции. Тот же приём,
+// что в lib/ai/business-plan.ts (нужен, когда включён server tool веб-поиска —
+// тогда старая "затравка" ассистента символом "{" не работает: с
+// инструментами Anthropic не разрешает предзаполнять ответ ассистента).
+function extractJson(text: string): unknown | null {
+  const withoutFence = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  const start = withoutFence.indexOf("{");
+  const end = withoutFence.lastIndexOf("}");
+  if (start === -1 || end === -1 || end < start) return null;
+  try {
+    return JSON.parse(withoutFence.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+// ИИ-анализ через Anthropic (Claude), с включённым веб-поиском (server tool)
+// для отраслевого бенчмаркинга — модель ищет реальные публикуемые показатели
+// и обязана честно писать benchmark.available=false, если ничего надёжного не
+// нашла, а не выдумывать цифры. Числовые срезы (структура маржи, замороженные
+// активы, запас прочности по выручке) считаются в коде (lib/finance/insights.ts)
+// и передаются модели уже готовыми — она их комментирует, а не пересчитывает,
+// так что итоговые цифры на странице и в тексте ИИ всегда совпадают.
+// Ключ ANTHROPIC_API_KEY добавляется в Vercel самим пользователем; если ключа
+// нет или вызов не удался — используется локальный разбор по правилам
+// (buildRuleAdvice), сайт никогда не остаётся без ответа.
 export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> {
   const dict = await getDictionary(payload.locale);
   const aggregate = deriveAggregates(payload.data);
   const ratios = calculateRatios(aggregate);
-  const fallback = buildRuleAdvice(aggregate, ratios, dict, payload.locale);
+  const marginBridge = computeMarginBridge(payload.data);
+  const frozenAssets = computeFrozenAssets(payload.data, aggregate.totalAssets);
+  const safetyMargin = computeRevenueSafetyMargin(payload.data);
+  const fallback = buildRuleAdvice(aggregate, ratios, dict, payload.locale, payload.data);
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fallback;
@@ -49,7 +80,24 @@ ${JSON.stringify(payload.data)}
 Рассчитанные финансовые коэффициенты (JSON):
 ${JSON.stringify(ratios)}
 
-Дай развёрнутый разбор, опираясь на ВСЕ приведённые статьи баланса и ОПУ, а не только на итоговые коэффициенты — учитывай структуру активов, состав капитала и обязательств, статьи расходов периода и их влияние на прибыль. Верни ТОЛЬКО валидный JSON без markdown и без пояснений вокруг него, строго по схеме:
+Уже посчитанная структура маржи — себестоимость и статьи ОПУ как доля от выручки, и какая статья сильнее всего "съедает" маржу после себестоимости (JSON, не пересчитывай эти числа заново, используй как есть):
+${JSON.stringify(marginBridge)}
+
+Уже посчитанный разбор, какие активы замораживают свободные деньги (топ статей по сумме, доля от суммарных активов, дни оборота запасов и дебиторки) (JSON):
+${JSON.stringify(frozenAssets)}
+
+Уже посчитанный запас прочности по выручке — на сколько можно упасть в выручке до выхода в операционный убыток (JSON, поле status: "ok" — есть запас, "already_at_or_below_breakeven" — уже на грани или за гранью безубыточности, "loses_on_every_sale" — себестоимость съедает всю выручку, запаса не существует в принципе, "insufficient_data" — выручка нулевая):
+${JSON.stringify(safetyMargin)}
+
+Задача — развёрнутый разбор для предпринимателя МСБ Узбекистана. Обязательно включи:
+1. Сильные и слабые стороны (weaknesses — это более широкий список, чем red_flags: red_flags только для по-настоящему критичных проблем с приоритетом и объяснением почему критично; weaknesses — более мягкие моменты, на которые стоит обратить внимание, но без паники).
+2. Рекомендации (recommendations), ориентированные конкретно на отрасль "${payload.industry || "не указана"}" — не общие фразы "сократите расходы", а то, что реально применимо в этой отрасли в Узбекистане.
+3. margin_commentary — простыми словами объясни, где компания теряет маржинальность, опираясь на переданную структуру маржи (marginBridge) и её biggestDrag.
+4. frozen_assets_commentary — объясни, в каких активах заморожены деньги, опираясь на переданный разбор (frozenAssets), включая дни оборота запасов/дебиторки, если они посчитаны.
+5. safety_margin_commentary — объясни человеческим языком безопасный порог снижения выручки, опираясь на переданный расчёт (safetyMargin): на сколько % может упасть выручка до операционного убытка, и что произойдёт, если status не "ok".
+6. benchmark — воспользуйся веб-поиском, чтобы найти РЕАЛЬНЫЕ публикуемые средние показатели по отрасли "${payload.industry || "не указана"}" (в Узбекистане, а если не нашлось — в Центральной Азии или в целом по развивающимся рынкам, явно уточнив это в note). Сравнивай с показателями, где сравнение осмысленно (рентабельность, оборачиваемость, автономия). Если ничего достоверного с указанием источника не нашлось — верни available:false и честно объясни в note, что открытых отраслевых данных по коэффициентам для Узбекистана нет; НИКОГДА не выдумывай цифры и не выдавай примерную оценку за подтверждённый факт.
+
+Дай развёрнутый разбор, опираясь на ВСЕ приведённые статьи баланса и ОПУ, а не только на итоговые коэффициенты. Когда данных для веб-поиска достаточно (или сразу, если он не даёт результата за 2-3 запроса), дай финальный ответ — он должен содержать ТОЛЬКО один валидный JSON-объект, без markdown-обёртки и без пояснений до или после, строго по схеме:
 ${RESPONSE_SCHEMA}`;
 
   try {
@@ -62,29 +110,46 @@ ${RESPONSE_SCHEMA}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-5",
-        max_tokens: 1400,
-        system: `Ты финансовый консультант по МСБ Узбекистана. Отвечай только валидным JSON без markdown и без пояснений вокруг него. Весь текст внутри JSON — на ${LANGUAGE_NAME[payload.locale] ?? "русском"} языке.`,
-        messages: [
-          { role: "user", content: userContent },
-          // "Затравка" ассистента символом "{" — стандартный приём, чтобы
-          // модель продолжила строго с валидного JSON (у Anthropic нет
-          // отдельного параметра response_format: json_object, как у xAI).
-          { role: "assistant", content: "{" },
-        ],
+        max_tokens: 3500,
+        system: `Ты финансовый консультант по МСБ Узбекистана. Когда данных для ответа достаточно, финальный ответ должен содержать ТОЛЬКО один валидный JSON-объект без markdown-обёртки и без пояснений вокруг него. Весь текст внутри JSON — на ${LANGUAGE_NAME[payload.locale] ?? "русском"} языке.`,
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
+        messages: [{ role: "user", content: userContent }],
       }),
     });
 
     if (!res.ok) return fallback;
 
-    const body = (await res.json()) as { content?: { type: string; text?: string }[] };
-    const textPart = body.content?.find((c) => c.type === "text")?.text;
-    if (!textPart) return fallback;
+    const body = (await res.json()) as { content?: AnthropicTextBlock[] };
+    const textBlocks = (body.content ?? []).filter((c) => c.type === "text");
+    if (textBlocks.length === 0) return fallback;
 
-    const jsonText = textPart.trimStart().startsWith("{") ? textPart : `{${textPart}`;
-    const parsed = JSON.parse(jsonText) as AiAdvice;
-    if (!parsed.summary || !Array.isArray(parsed.recommendations)) return fallback;
+    const fullText = textBlocks.map((b) => b.text).join("\n");
+    const parsed = extractJson(fullText) as Partial<AiAdvice> | null;
+    if (!parsed || !parsed.summary || !Array.isArray(parsed.recommendations)) return fallback;
 
-    return { ...parsed, source: "ai" };
+    const advice: AiAdvice = {
+      summary: parsed.summary,
+      score_comment: parsed.score_comment ?? "",
+      red_flags: Array.isArray(parsed.red_flags) ? parsed.red_flags : [],
+      strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+      weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses : [],
+      recommendations: parsed.recommendations,
+      financing_advice: parsed.financing_advice ?? "",
+      margin_commentary: parsed.margin_commentary ?? "",
+      frozen_assets_commentary: parsed.frozen_assets_commentary ?? "",
+      safety_margin_commentary: parsed.safety_margin_commentary ?? "",
+      benchmark:
+        parsed.benchmark && typeof parsed.benchmark === "object"
+          ? {
+              available: !!parsed.benchmark.available,
+              note: parsed.benchmark.note ?? "",
+              comparisons: Array.isArray(parsed.benchmark.comparisons) ? parsed.benchmark.comparisons : [],
+            }
+          : { available: false, note: "", comparisons: [] },
+      source: "ai",
+    };
+
+    return advice;
   } catch {
     return fallback;
   }

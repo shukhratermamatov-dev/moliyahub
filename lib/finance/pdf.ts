@@ -186,6 +186,11 @@ export async function buildAnalysisPdf(params: {
       content.push({ ul: advice.strengths, margin: [0, 2, 0, 10] });
     }
 
+    if (advice.weaknesses.length > 0) {
+      content.push({ text: dict.panel.weaknesses, style: "h3" });
+      content.push({ ul: advice.weaknesses, margin: [0, 2, 0, 10] });
+    }
+
     content.push({ text: dict.panel.whatToDo, style: "h3" });
     content.push({
       ol: advice.recommendations.map(
@@ -193,6 +198,26 @@ export async function buildAnalysisPdf(params: {
       ),
       margin: [0, 2, 0, 10],
     });
+
+    content.push({ text: dict.panel.marginBridgeHeading, style: "h3" });
+    content.push({ text: advice.margin_commentary, margin: [0, 2, 0, 10] });
+
+    content.push({ text: dict.panel.frozenAssetsHeading, style: "h3" });
+    content.push({ text: advice.frozen_assets_commentary, margin: [0, 2, 0, 10] });
+
+    content.push({ text: dict.panel.safetyMarginHeading, style: "h3" });
+    content.push({ text: advice.safety_margin_commentary, margin: [0, 2, 0, 10] });
+
+    content.push({ text: dict.panel.benchmarkHeading, style: "h3" });
+    if (advice.benchmark.available && advice.benchmark.comparisons.length > 0) {
+      content.push({
+        ul: advice.benchmark.comparisons.map(
+          (c) => `${c.metric}: ${c.company_value} / ${c.benchmark_value} (${dict.panel.benchmarkSourceLabel} ${c.source})`,
+        ),
+        margin: [0, 2, 0, 4],
+      });
+    }
+    content.push({ text: advice.benchmark.note || dict.panel.benchmarkUnavailable, margin: [0, 0, 0, 10] });
 
     content.push({ text: dict.panel.financingHeading, style: "h3" });
     content.push({ text: advice.financing_advice });

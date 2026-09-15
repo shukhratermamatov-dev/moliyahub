@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
+import { AlertTriangle, BarChart3, CheckCircle2, Gauge, Lock, Sparkles, TrendingDown } from "lucide-react";
 import { ScoreRing } from "@/components/finance/score-ring";
 import { Card } from "@/components/ui/card";
 import { useI18n } from "@/i18n/provider";
+import type { FrozenAssetsAnalysis, MarginBridge, RevenueSafetyMargin } from "@/lib/finance/insights";
 import type { AiAdvice, FinancialRatios } from "@/lib/finance/types";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
 
@@ -29,9 +30,15 @@ const RATIO_ROW_KEYS: { key: RatioRowKey; kind: "ratio" | "pct" | "money" }[] = 
 export function AnalysisPanel({
   ratios,
   advice,
+  marginBridge,
+  frozenAssets,
+  safetyMargin,
 }: {
   ratios: FinancialRatios;
   advice: AiAdvice | null;
+  marginBridge: MarginBridge;
+  frozenAssets: FrozenAssetsAnalysis;
+  safetyMargin: RevenueSafetyMargin;
 }) {
   const { locale, dict } = useI18n();
   const t = dict.panel;
@@ -49,6 +56,15 @@ export function AnalysisPanel({
     [t.scoreDetails.stability, ratios.scoreDetails.stability],
     [t.scoreDetails.efficiency, ratios.scoreDetails.efficiency],
   ] as const;
+
+  const dragRows: { key: string; label: string; ratio: number | null }[] = [
+    { key: "costOfSales", label: t.marginRows.costOfSales, ratio: marginBridge.costOfSalesRatio },
+    { key: "distributionCosts", label: dict.financeFields.labels.distributionCosts, ratio: marginBridge.distributionCostsRatio },
+    { key: "adminExpenses", label: dict.financeFields.labels.adminExpenses, ratio: marginBridge.adminExpensesRatio },
+    { key: "otherOperatingExpenses", label: dict.financeFields.labels.otherOperatingExpenses, ratio: marginBridge.otherOperatingNetRatio },
+    { key: "interestExpense", label: dict.financeFields.labels.interestExpense, ratio: marginBridge.interestNetRatio },
+    { key: "incomeTax", label: dict.financeFields.labels.incomeTax, ratio: marginBridge.taxRatio },
+  ];
 
   return (
     <div className="space-y-5">
@@ -75,6 +91,69 @@ export function AnalysisPanel({
           </div>
         ))}
       </div>
+
+      {/* Где теряется маржа — считается всегда, не только после ИИ/правил. */}
+      <Card className="space-y-3">
+        <h3 className="flex items-center gap-2 font-display text-lg">
+          <TrendingDown className="size-5 text-gold" /> {t.marginBridgeHeading}
+        </h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {dragRows.map((row) => (
+            <div key={row.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+              <span className="text-muted">{row.label}</span>
+              <span className="tabular-nums">{formatPct(row.ratio)}</span>
+            </div>
+          ))}
+        </div>
+        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.margin_commentary}</p> : null}
+      </Card>
+
+      {/* Где заморожены деньги — топ статей, дни оборота запасов/дебиторки. */}
+      <Card className="space-y-3">
+        <h3 className="flex items-center gap-2 font-display text-lg">
+          <Lock className="size-5 text-gold" /> {t.frozenAssetsHeading}
+        </h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {frozenAssets.items.map((item) => (
+            <div key={item.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+              <span className="text-muted">{dict.financeFields.labels[item.key]}</span>
+              <span className="tabular-nums">
+                {formatMoney(item.amount, locale)} · {formatPct(item.shareOfAssets)}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-4 text-sm text-muted">
+          <span>
+            {t.inventoryDaysLabel}: {frozenAssets.inventoryDays !== null ? Math.round(frozenAssets.inventoryDays) : "—"}
+          </span>
+          <span>
+            {t.receivablesDaysLabel}:{" "}
+            {frozenAssets.receivablesDays !== null ? Math.round(frozenAssets.receivablesDays) : "—"}
+          </span>
+        </div>
+        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.frozen_assets_commentary}</p> : null}
+      </Card>
+
+      {/* Безопасный порог снижения выручки — запас прочности до операционного убытка. */}
+      <Card className="space-y-3">
+        <h3 className="flex items-center gap-2 font-display text-lg">
+          <Gauge className="size-5 text-gold" /> {t.safetyMarginHeading}
+        </h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+            <span className="text-muted">{t.breakEvenRevenueLabel}</span>
+            <span className="tabular-nums">
+              {safetyMargin.breakEvenRevenue !== null ? formatMoney(safetyMargin.breakEvenRevenue, locale) : "—"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+            <span className="text-muted">{t.safeDeclineLabel}</span>
+            <span className="tabular-nums">{formatPct(safetyMargin.safeDeclinePct)}</span>
+          </div>
+        </div>
+        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.safety_margin_commentary}</p> : null}
+      </Card>
 
       {advice ? (
         <div className="space-y-4">
@@ -116,6 +195,19 @@ export function AnalysisPanel({
             </Card>
           ) : null}
 
+          {advice.weaknesses.length > 0 ? (
+            <Card>
+              <h3 className="mb-2 flex items-center gap-2 font-display text-lg text-gold">
+                <TrendingDown className="size-5" /> {t.weaknesses}
+              </h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
+                {advice.weaknesses.map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
+
           <Card className="space-y-4">
             <h3 className="font-display text-lg">{t.whatToDo}</h3>
             {advice.recommendations.map((rec) => (
@@ -134,6 +226,32 @@ export function AnalysisPanel({
                 </p>
               </div>
             ))}
+          </Card>
+
+          <Card>
+            <h3 className="mb-2 flex items-center gap-2 font-display text-lg">
+              <BarChart3 className="size-5 text-gold" /> {t.benchmarkHeading}
+            </h3>
+            {advice.benchmark.available && advice.benchmark.comparisons.length > 0 ? (
+              <div className="space-y-2">
+                {advice.benchmark.comparisons.map((c) => (
+                  <div key={c.metric} className="rounded-xl bg-raised p-3 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-medium">{c.metric}</span>
+                      <span className="tabular-nums text-muted">
+                        {c.company_value} / {c.benchmark_value}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      {t.benchmarkSourceLabel} {c.source}
+                    </p>
+                  </div>
+                ))}
+                {advice.benchmark.note ? <p className="text-sm text-muted">{advice.benchmark.note}</p> : null}
+              </div>
+            ) : (
+              <p className="text-sm text-muted">{advice.benchmark.note || t.benchmarkUnavailable}</p>
+            )}
           </Card>
 
           <Card>

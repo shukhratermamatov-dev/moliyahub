@@ -138,9 +138,23 @@ const dict: Dictionary = {
     expressRecommendations: "Express recommendations",
     redFlags: "Red flags",
     strengths: "Strengths",
+    weaknesses: "Weaknesses",
     whatToDo: "What to do",
     effectPrefix: "Effect: ",
     financingHeading: "Financing",
+    marginBridgeHeading: "Where margin is lost",
+    marginRows: {
+      costOfSales: "Cost of sales",
+    },
+    frozenAssetsHeading: "Where cash is frozen",
+    inventoryDaysLabel: "Inventory days",
+    receivablesDaysLabel: "Receivables days",
+    safetyMarginHeading: "Revenue safety margin",
+    breakEvenRevenueLabel: "Break-even revenue",
+    safeDeclineLabel: "Safe revenue decline",
+    benchmarkHeading: "Industry comparison",
+    benchmarkSourceLabel: "Source:",
+    benchmarkUnavailable: "No reliable open data on industry benchmarks was found.",
     difficulty: {
       low: "low",
       medium: "medium",
@@ -483,6 +497,46 @@ const dict: Dictionary = {
     },
     goodRos: "Return on sales is at a healthy level for an SME.",
     goodWorkingCapital: "Net working capital is positive.",
+    lowInterestCoverage: {
+      indicator: "Interest coverage",
+      whyCritical: "Operating profit barely covers (or doesn't cover) interest payments on loans.",
+      recTitle: "Reduce interest burden",
+      recDescription:
+        "Avoid taking on new interest-bearing debt until coverage improves. Consider refinancing at a lower rate or a partial early repayment from free cash flow.",
+      recEffect: "Interest coverage above 2",
+      recTimeframe: "3–6 months",
+    },
+    goodInterestCoverage: "Interest payments are covered by operating profit with a large margin.",
+    shortTermHeavyDebt: (pct: string) =>
+      `Short-term liabilities make up ${pct} of total debt. Debt this short-dated needs frequent refinancing and creates cash-gap risk.`,
+    weakProfitability: (pct: string) =>
+      `Return on assets is barely above zero (${pct}) — profit generates almost no return on the assets invested.`,
+    lowAssetTurnover: (ratio: string) =>
+      `Assets are used inefficiently — asset turnover (${ratio}) is low for the amount of capital tied up.`,
+    slowReceivables: (days: number) =>
+      `Receivables turn over slowly (${days} days on average) — customer payments take a long time to reach the company.`,
+    highFrozenShare: (pct: string) =>
+      `A significant share of assets (${pct}) is frozen in inventory, receivables and long-term investments instead of working as free cash.`,
+    thinSafetyMargin: {
+      indicator: "Revenue safety margin",
+      whyCritical: "Even a small revenue drop risks an operating loss.",
+    },
+    goodSafetyMargin: (pct: string) =>
+      `Good safety margin — revenue can drop by ${pct} before the company slips into an operating loss.`,
+    marginCommentaryTemplate: (label: string, pct: string) =>
+      `The biggest drag on margin is "${label}" — ${pct} of revenue. That's the first place to look for profit reserves.`,
+    marginCommentaryNone: "No single line item stands out as eating into margin beyond cost of sales — the cost structure is balanced.",
+    frozenAssetsCommentaryTemplate: (sharePct: string, invDays: string, recvDays: string) =>
+      `${sharePct} of total assets is frozen in illiquid items (inventory, receivables, work in progress). Inventory turns over in ${invDays} days on average, receivables in ${recvDays} days.`,
+    safetyMarginOkTemplate: (pct: string) =>
+      `Revenue can drop by ${pct} before the company slips into an operating loss — that's the safe decline threshold.`,
+    safetyMarginBreakEven:
+      "The company is already at or below its operating break-even point — almost any further revenue drop will cause an operating loss.",
+    safetyMarginLoss:
+      "Cost of sales eats up all of revenue or more — the company loses money on every sale regardless of volume until pricing or the cost structure changes.",
+    safetyMarginInsufficient: "Not enough revenue data to calculate the safety margin.",
+    benchmarkRulesNote:
+      "Industry comparison relies on web search and is only available in AI-analysis mode — the local rules-based breakdown doesn't do this.",
     defaultRecommendation: {
       recTitle: "Lock in financial discipline",
       recDescription: "Keep a monthly cash-gap report and compare ratios against the previous period.",

@@ -138,9 +138,23 @@ const dict: Dictionary = {
     expressRecommendations: "Ekspress-tavsiyalar",
     redFlags: "Xavf belgilari",
     strengths: "Kuchli tomonlar",
+    weaknesses: "Zaif tomonlar",
     whatToDo: "Nima qilish kerak",
     effectPrefix: "Samara: ",
     financingHeading: "Moliyalashtirish",
+    marginBridgeHeading: "Marja qayerda yo'qolmoqda",
+    marginRows: {
+      costOfSales: "Tannarx",
+    },
+    frozenAssetsHeading: "Pul qayerda muzlagan",
+    inventoryDaysLabel: "Zaxira aylanishi, kun",
+    receivablesDaysLabel: "Debitorlik aylanishi, kun",
+    safetyMarginHeading: "Tushum bo'yicha xavfsizlik zaxirasi",
+    breakEvenRevenueLabel: "Zararsizlik tushumi",
+    safeDeclineLabel: "Xavfsiz tushum pasayishi",
+    benchmarkHeading: "Soha bilan taqqoslash",
+    benchmarkSourceLabel: "Manba:",
+    benchmarkUnavailable: "Soha koʻrsatkichlari boʻyicha ishonchli ochiq maʼlumot topilmadi.",
     difficulty: {
       low: "past",
       medium: "oʻrta",
@@ -484,6 +498,47 @@ const dict: Dictionary = {
     },
     goodRos: "Savdo rentabelligi KOB uchun sogʻlom darajada.",
     goodWorkingCapital: "Sof aylanma kapital musbat.",
+    lowInterestCoverage: {
+      indicator: "Foizlarni qoplash",
+      whyCritical: "Operatsion foyda kreditlar boʻyicha foizlarni toʻlashga zoʻrgʻa yetadi (yoki yetmaydi).",
+      recTitle: "Foiz yukini kamaytirish",
+      recDescription:
+        "Qoplash koʻrsatkichi oʻsmaguncha yangi foizli kredit olmang. Pastroq stavkaga refinansirlashni yoki erkin pul oqimidan muddatidan oldin qisman toʻlashni koʻrib chiqing.",
+      recEffect: "Foizlarni qoplash 2 dan yuqori",
+      recTimeframe: "3–6 oy",
+    },
+    goodInterestCoverage: "Kreditlar boʻyicha foizlar operatsion foyda bilan katta zaxira bilan qoplanadi.",
+    shortTermHeavyDebt: (pct: string) =>
+      `Qisqa muddatli majburiyatlar — jami qarzning ${pct}. Bunday qarz tez-tez refinansirlashni talab qiladi va kassa uzilishi xavfini tugʻdiradi.`,
+    weakProfitability: (pct: string) =>
+      `Aktivlar rentabelligi deyarli nolga yaqin (${pct}) — foyda investitsiya qilingan aktivlardan deyarli samara bermayapti.`,
+    lowAssetTurnover: (ratio: string) =>
+      `Aktivlar samarasiz ishlatilmoqda — aylanma koʻrsatkichi (${ratio}) jalb qilingan mablagʻ hajmiga nisbatan past.`,
+    slowReceivables: (days: number) =>
+      `Debitorlik qarzi sekin aylanmoqda (oʻrtacha ${days} kun) — mijozlar puli kompaniyaga uzoq vaqt yetib kelmaydi.`,
+    highFrozenShare: (pct: string) =>
+      `Aktivlarning katta qismi (${pct}) zaxiralarda, debitorlikda va uzoq muddatli qoʻyilmalarda muzlab qolgan, erkin pul sifatida ishlamayapti.`,
+    thinSafetyMargin: {
+      indicator: "Tushum boʻyicha xavfsizlik zaxirasi",
+      whyCritical: "Tushumning kichik pasayishi ham operatsion zararga olib kelishi mumkin.",
+    },
+    goodSafetyMargin: (pct: string) =>
+      `Yaxshi xavfsizlik zaxirasi — kompaniya operatsion zararga tushishidan oldin tushum ${pct} ga pasayishi mumkin.`,
+    marginCommentaryTemplate: (label: string, pct: string) =>
+      `Marjani eng koʻp yeydigan moddasi — «${label}»: tushumning ${pct}. Foyda zaxiralarini qidirishda birinchi navbatda shu moddaga eʼtibor bering.`,
+    marginCommentaryNone:
+      "Tannarxdan tashqari marjani sezilarli darajada yeyayotgan modda aniqlanmadi — xarajatlar tuzilishi muvozanatli.",
+    frozenAssetsCommentaryTemplate: (sharePct: string, invDays: string, recvDays: string) =>
+      `Likvid boʻlmagan aktivlarda (zaxiralar, debitorlik, tugallanmagan qoʻyilmalar) kompaniya aktivlarining ${sharePct} muzlab qolgan. Zaxiralar oʻrtacha ${invDays} kunda, debitorlik qarzi ${recvDays} kunda aylanadi.`,
+    safetyMarginOkTemplate: (pct: string) =>
+      `Kompaniya operatsion zararga tushishidan oldin tushum ${pct} ga pasayishi mumkin — bu xavfsiz pasayish chegarasidir.`,
+    safetyMarginBreakEven:
+      "Kompaniya allaqachon operatsion zararsizlik chegarasida yoki undan pastda — tushumning deyarli har qanday keyingi pasayishi operatsion zararga olib keladi.",
+    safetyMarginLoss:
+      "Tannarx tushumning barchasini yoki undan koʻpini yeb qoʻymoqda — narx yoki xarajatlar tuzilishi oʻzgarmaguncha kompaniya har bir sotuvda hajmidan qatʼi nazar zarar koʻradi.",
+    safetyMarginInsufficient: "Xavfsizlik zaxirasini hisoblash uchun tushum boʻyicha maʼlumot yetarli emas.",
+    benchmarkRulesNote:
+      "Soha bilan taqqoslash veb-qidiruvga asoslanadi va faqat SI-tahlil rejimida mavjud — qoidalar asosidagi mahalliy taqqoslash buni bajarmaydi.",
     defaultRecommendation: {
       recTitle: "Moliyaviy intizomni mustahkamlash",
       recDescription: "Har oy pul boʻshligʻi hisobotini yuriting va koeffitsientlarni oldingi davr bilan solishtiring.",
