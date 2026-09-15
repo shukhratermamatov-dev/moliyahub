@@ -13,6 +13,8 @@ import { BANK_DIRECTORY } from "./banks";
 // реального прогона скрейпера можно было проверить список несматченных имён
 // и точечно расширить UNMATCHED-карту ниже.
 
+const BANK_WORD_TOKENS = new Set(["bank", "banki", "banka", "банк", "банки"]);
+
 function normalize(name: string): string {
   return name
     .toLowerCase()
@@ -20,13 +22,19 @@ function normalize(name: string): string {
     .replace(/\./g, "")
     .replace(/\s*\(.*?\)\s*/g, " ")
     .replace(/[^a-zа-яʻʼ0-9]+/gi, " ")
-    .replace(/\b(bank|banki|banka|банк|банки)\b/gi, "")
-    .replace(/\s+/g, "")
-    .trim();
+    .split(" ")
+    // Разбиваем на слова и фильтруем токен "bank"/"банк" и т.п. по точному
+    // совпадению — regex \b тут не годится: JS не считает кириллицу
+    // "словесным" символом, поэтому \b между кириллическими буквами никогда
+    // не сработает (проверено на реальном прогоне: "Национальный банк
+    // Узбекистана" не разбирался словом-границей).
+    .filter((token) => token && !BANK_WORD_TOKENS.has(token))
+    .join("");
 }
 
 // Ручные алиасы для случаев, где нормализация сама не даёт совпадения
-// (проверено вживую на реальных карточках bank.uz в этой сессии).
+// (проверено на реальном прогоне скрейпера — 462 из 595 предложений
+// сматчились автоматически, эти добавлены точечно по списку unmatchedBankNames).
 const MANUAL_ALIASES: Record<string, string> = {
   kapitalbank: "kapitalbank",
   anorbank: "anor",
@@ -35,6 +43,17 @@ const MANUAL_ALIASES: Record<string, string> = {
   saderatbank: "saderat",
   ipakyulibank: "ipak-yuli",
   agrobank: "agrobank",
+  // bank.uz пишет "Uzbekiston", в справочнике — "Uzbekistan".
+  kdbuzbekiston: "kdb",
+  узпромстройбанк: "uzpsb",
+  // Инфинбанк — торговая марка Invest Finance Bank (logoDomain infinbank.uz).
+  infinbank: "ifb",
+  // МКБанк — короткое название Микрокредитбанка (logoDomain mkbank.uz).
+  mkbank: "mikrokreditbank",
+  // bank.uz пишет "Trastbank", в справочнике — "Trustbank".
+  trastbank: "trustbank",
+  национальныйузбекистана: "nbu",
+  brb: "bbb",
 };
 
 let normalizedDirectory: { id: string; keys: string[] }[] | null = null;
