@@ -36,8 +36,8 @@ const dict: Dictionary = {
   },
   home: {
     eyebrow: "A platform for Uzbekistan entrepreneurs",
-    h1Line1: "Count your finances.",
-    h1Line2: "Find money to grow.",
+    h1Line1: "Analyze your financial metrics.",
+    h1Line2: "Find financing sources to grow your business.",
     subtitle:
       "MoliyaHub calculates your metrics from the balance sheet and P&L, tells you what to fix, and shows where to get financing — from a bank, an investor, or Islamic finance instruments.",
     ctaPrimary: "Calculate metrics",
