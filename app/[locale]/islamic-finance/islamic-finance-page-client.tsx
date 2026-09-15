@@ -9,7 +9,20 @@ import { Card } from "@/components/ui/card";
 import { useI18n } from "@/i18n/provider";
 import type { Dictionary } from "@/i18n/get-dictionary";
 
-type Concept = Dictionary["islamicGuide"]["concepts"][number];
+// Определён вручную (а не через Dictionary["islamicGuide"]["concepts"][number]):
+// у объекта "мушарака" в словаре есть доп. поле noOfferNote, которого нет у
+// остальных двух, поэтому TS выводит для массива concepts тип-объединение,
+// и доступ к noOfferNote без явного сужения не скомпилируется.
+type Concept = {
+  id: string;
+  name: string;
+  teaser: string;
+  explanation: string;
+  difference: string;
+  bestFor: string;
+  hasOffer: boolean;
+  noOfferNote?: string;
+};
 
 function ConceptCard({
   concept,
