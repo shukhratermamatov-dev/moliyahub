@@ -31,6 +31,17 @@ const dict: Dictionary = {
       soliq: "Soliq qoʻmitasi",
       trk: "Tadbirkorlikni rivojlantirish kompaniyasi (TRK)",
     },
+    footerMainLabel: "Bosh sahifa",
+    footerMainLinks: {
+      about: "Kompaniya haqida",
+      partners: "Hamkorlar",
+      news: "Yangiliklar",
+    },
+    footerServicesLabel: "Xizmatlar",
+    footerServicesLinks: {
+      consulting: "Konsalting",
+      advice: "Tadbirkorlar uchun maslahatlar",
+    },
   },
   languageSwitcher: {
     label: "Til",
@@ -711,6 +722,100 @@ const dict: Dictionary = {
     disclaimerHeading: "Muhim",
     disclaimer:
       "Material taʼlimiy xarakterga ega va diniy xulosa (fatvo) hisoblanmaydi. Mahsulotning shariat meʼyorlariga muvofiqligini bankning oʻz shariat kengashi tasdiqlaydi — rasmiylashtirishdan oldin buni toʻgʻridan-toʻgʻri aniqlashtiring.",
+  },
+  about: {
+    eyebrow: "Biz haqimizda",
+    title: "Kompaniya haqida",
+    intro:
+      "MoliyaHub — Oʻzbekiston tadbirkorlari uchun moliyaviy platforma: moliyaviy koʻrsatkichlarni hisoblaydi, qayerdan moliyalashtirish olish mumkinligini aytadi va biznes-rejani tayyor hujjatga aylantirishga yordam beradi. Platforma ortida moliya, byudjetlashtirish va boshqaruv sohasida koʻp yillik tajribaga ega jamoa turibdi.",
+    teamHeading: "Jamoa",
+    team: [
+      {
+        id: "ermamatov",
+        name: "Эрмаматов Шухрат Абдурахманович",
+        role: "Rahbar",
+        bio: "Moliya va boshqaruv sohasidagi tajribasi — 25 yildan ortiq.",
+      },
+      {
+        id: "turgunov",
+        name: "Тургунов Джамшед Пулатович",
+        role: "Bosh ekspert",
+        bio: "Moliya sohasidagi (byudjetlashtirish, moliyaviy-iqtisodiy modellashtirish, kalendar rejalashtirish) va boshqaruv tajribasi — 20 yildan ortiq.",
+      },
+      {
+        id: "khalilov",
+        name: "Халилов Абдурасул",
+        role: "Bosh ekspert",
+        bio: "Moliya sohasidagi (byudjetlashtirish, moliyaviy-iqtisodiy modellashtirish, moliyaviy tahlil) va boshqaruv tajribasi — 20 yildan ortiq. Sertifikatlar: CFA, IFRS.",
+      },
+    ],
+    photoComingSoon: "Surat tez orada qoʻshiladi",
+  },
+  partners: {
+    title: "Hamkorlar",
+    comingSoon: "Hamkorlar roʻyxati tez orada shu yerda paydo boʻladi.",
+  },
+  news: {
+    title: "Yangiliklar",
+    comingSoon: "Yangiliklar tez orada shu yerda paydo boʻladi.",
+  },
+  consulting: {
+    eyebrow: "Xizmatlar",
+    title: "Konsalting",
+    subtitle:
+      "Moliya, byudjetlashtirish va boshqaruv boʻyicha ekspert yordami — bir martalik konsultatsiyadan tizimni noldan yoʻlga qoʻyishgacha.",
+    services: [
+      {
+        id: "budgeting",
+        title: "Byudjetlashtirish",
+        description: "",
+      },
+      {
+        id: "fem",
+        title: "Moliyaviy-iqtisodiy modellashtirish",
+        description: "Loyihani amalga oshirishning turli stsenariylarini baholash uchun model ishlab chiqish va yuritish.",
+      },
+      {
+        id: "analysis",
+        title: "Moliyaviy-xoʻjalik faoliyatini tahlil qilish",
+        description: "",
+      },
+      {
+        id: "businessPlans",
+        title: "Biznes-rejalar va TIA",
+        description: "Biznes-rejalar va texnik-iqtisodiy asoslar (TIA) ishlab chiqish.",
+      },
+      {
+        id: "budgetControl",
+        title: "Byudjet nazorati va hisobot tizimi",
+        description: "Byudjet nazorati va hisobot tizimini noldan ishlab chiqish.",
+      },
+      {
+        id: "cashFlow",
+        title: "Pul oqimlarini modellashtirish",
+        description:
+          "Kelajakdagi pul oqimlari va boshqa asosiy moliyaviy-iqtisodiy koʻrsatkichlarni modellashtirish: prognoz hisobot shakllarini — buxgalteriya balansi, foyda va zarar toʻgʻrisidagi hisobot, pul mablagʻlari harakati toʻgʻrisidagi hisobotni — tayyorlash.",
+      },
+      {
+        id: "scheduling",
+        title: "Loyihalarni kalendar rejalashtirish xizmatlari",
+        description: "",
+      },
+      {
+        id: "kaizen",
+        title: "Kaydzen",
+        description:
+          "«Yaxshi tomonga oʻzgarish» — ishlab chiqarish, ishlanma, yordamchi biznes-jarayonlar va boshqaruvni biznesning barcha sohalarida (boshqaruv, ishlab chiqarish, sotuv va boshqalar) uzluksiz takomillashtirish.",
+      },
+      {
+        id: "itSolutions",
+        title: "Boshqaruv va nazorat uchun IT-yechimlar",
+        description: "Boshqaruv va nazorat uchun IT-yechimlar ishlab chiqish.",
+      },
+    ],
+    ctaHeading: "Vazifani muhokama qilish",
+    ctaEmailLabel: "Pochtaga yozish",
+    ctaPhoneLabel: "Qoʻngʻiroq qilish",
   },
 };
 

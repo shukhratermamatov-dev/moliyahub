@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Mail, Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -108,36 +108,94 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main>{children}</main>
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col flex-wrap gap-x-8 gap-y-6 px-4 py-10 text-sm text-muted md:flex-row md:items-start md:justify-between">
-          <div className="flex flex-col gap-2">
-            <p>{dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}</p>
-            <p>{dict.shell.footerLine2}</p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.usefulLinksLabel}</span>
-            <div className="flex flex-wrap gap-2">
-              {USEFUL_LINKS.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="whitespace-nowrap rounded-full border border-line bg-raised px-3 py-1.5 text-xs text-muted transition-colors hover:border-primary/50 hover:text-fg"
-                >
-                  {dict.shell.usefulLinks[link.id]}
-                </a>
-              ))}
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="col-span-2 sm:col-span-3 lg:col-span-1">
+              <Link href={`/${locale}`} className="flex items-center gap-2.5">
+                <span className="grid size-8 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-fg">
+                  M
+                </span>
+                <span className="font-display text-lg tracking-tight">MoliyaHub</span>
+              </Link>
+              <p className="mt-4 text-sm text-muted">
+                {dict.shell.footerLine1.replace("{year}", String(new Date().getFullYear()))}
+              </p>
+              <p className="mt-2 text-xs text-muted/70">{dict.shell.footerLine2}</p>
             </div>
-          </div>
-          <div className="flex flex-col gap-2 md:items-end">
-            <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.contactsLabel}</span>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-              <a href="tel:+998909300330" className="whitespace-nowrap transition-colors hover:text-fg">
-                +998 90 930 03 30
-              </a>
-              <a href="mailto:info@moliyahub.uz" className="whitespace-nowrap transition-colors hover:text-fg">
-                info@moliyahub.uz
-              </a>
+
+            <div>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.footerMainLabel}</span>
+              <ul className="mt-3 flex flex-col gap-2.5 text-sm">
+                <li>
+                  <Link href={`/${locale}/about`} className="text-muted transition-colors hover:text-fg">
+                    {dict.shell.footerMainLinks.about}
+                  </Link>
+                </li>
+                <li>
+                  <Link href={`/${locale}/partners`} className="text-muted transition-colors hover:text-fg">
+                    {dict.shell.footerMainLinks.partners}
+                  </Link>
+                </li>
+                <li>
+                  <Link href={`/${locale}/news`} className="text-muted transition-colors hover:text-fg">
+                    {dict.shell.footerMainLinks.news}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.footerServicesLabel}</span>
+              <ul className="mt-3 flex flex-col gap-2.5 text-sm">
+                <li>
+                  <Link href={`/${locale}/consulting`} className="text-muted transition-colors hover:text-fg">
+                    {dict.shell.footerServicesLinks.consulting}
+                  </Link>
+                </li>
+                <li className="text-muted/50">{dict.shell.footerServicesLinks.advice}</li>
+              </ul>
+            </div>
+
+            <div>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.usefulLinksLabel}</span>
+              <ul className="mt-3 flex flex-col gap-2.5 text-sm">
+                {USEFUL_LINKS.map((link) => (
+                  <li key={link.id}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted transition-colors hover:text-fg"
+                    >
+                      {dict.shell.usefulLinks[link.id]}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <span className="text-xs uppercase tracking-wide text-muted/70">{dict.shell.contactsLabel}</span>
+              <ul className="mt-3 flex flex-col gap-2.5 text-sm">
+                <li>
+                  <a
+                    href="tel:+998909300330"
+                    className="flex items-center gap-2 text-muted transition-colors hover:text-fg"
+                  >
+                    <Phone className="size-4 shrink-0" aria-hidden="true" />
+                    <span className="whitespace-nowrap">+998 90 930 03 30</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:info@moliyahub.uz"
+                    className="flex items-center gap-2 text-muted transition-colors hover:text-fg"
+                  >
+                    <Mail className="size-4 shrink-0" aria-hidden="true" />
+                    <span className="whitespace-nowrap">info@moliyahub.uz</span>
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>

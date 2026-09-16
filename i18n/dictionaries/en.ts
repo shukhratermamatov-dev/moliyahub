@@ -31,6 +31,17 @@ const dict: Dictionary = {
       soliq: "Tax Committee",
       trk: "Entrepreneurship Development Company (TRK)",
     },
+    footerMainLabel: "Home",
+    footerMainLinks: {
+      about: "About the company",
+      partners: "Partners",
+      news: "News",
+    },
+    footerServicesLabel: "Services",
+    footerServicesLinks: {
+      consulting: "Consulting",
+      advice: "Advice for entrepreneurs",
+    },
   },
   languageSwitcher: {
     label: "Language",
@@ -709,6 +720,100 @@ const dict: Dictionary = {
     disclaimerHeading: "Important",
     disclaimer:
       "This material is educational and is not a religious ruling (fatwa). Confirming that a product complies with Sharia is the responsibility of the bank's own Sharia board — check directly with the bank before applying.",
+  },
+  about: {
+    eyebrow: "About us",
+    title: "About the company",
+    intro:
+      "MoliyaHub is a financial platform for Uzbekistan entrepreneurs: it calculates financial ratios, points to where to get financing, and helps turn a business plan into a finished document. Behind the platform is a team with many years of experience in finance, budgeting, and management.",
+    teamHeading: "Team",
+    team: [
+      {
+        id: "ermamatov",
+        name: "Эрмаматов Шухрат Абдурахманович",
+        role: "Head",
+        bio: "Over 25 years of experience in finance and management.",
+      },
+      {
+        id: "turgunov",
+        name: "Тургунов Джамшед Пулатович",
+        role: "Chief Expert",
+        bio: "Over 20 years of experience in finance (budgeting, financial and economic modelling, scheduling) and management.",
+      },
+      {
+        id: "khalilov",
+        name: "Халилов Абдурасул",
+        role: "Chief Expert",
+        bio: "Over 20 years of experience in finance (budgeting, financial and economic modelling, financial analysis) and management. Certifications: CFA, IFRS.",
+      },
+    ],
+    photoComingSoon: "Photo coming soon",
+  },
+  partners: {
+    title: "Partners",
+    comingSoon: "The list of partners will appear here soon.",
+  },
+  news: {
+    title: "News",
+    comingSoon: "News will appear here soon.",
+  },
+  consulting: {
+    eyebrow: "Services",
+    title: "Consulting",
+    subtitle:
+      "Expert support in finance, budgeting, and management — from a one-off consultation to building a system from scratch.",
+    services: [
+      {
+        id: "budgeting",
+        title: "Budgeting",
+        description: "",
+      },
+      {
+        id: "fem",
+        title: "Financial and economic modelling",
+        description: "Building and maintaining a model to evaluate different project implementation scenarios.",
+      },
+      {
+        id: "analysis",
+        title: "Financial and business activity analysis",
+        description: "",
+      },
+      {
+        id: "businessPlans",
+        title: "Business plans and feasibility studies",
+        description: "Developing business plans and feasibility studies (TEO).",
+      },
+      {
+        id: "budgetControl",
+        title: "Budget control and reporting system",
+        description: "Building a budget control and reporting system from scratch.",
+      },
+      {
+        id: "cashFlow",
+        title: "Cash flow modelling",
+        description:
+          "Modelling future cash flows and other key financial and economic indicators: preparing forecast statements — balance sheet, profit and loss statement, and cash flow statement.",
+      },
+      {
+        id: "scheduling",
+        title: "Project scheduling services",
+        description: "",
+      },
+      {
+        id: "kaizen",
+        title: "Kaizen",
+        description:
+          "“Change for the better” — continuous improvement of production, development, supporting business processes, and management across every area of the business: management, production, sales, and more.",
+      },
+      {
+        id: "itSolutions",
+        title: "IT solutions for management and control",
+        description: "Developing IT solutions for management and control.",
+      },
+    ],
+    ctaHeading: "Discuss your task",
+    ctaEmailLabel: "Email us",
+    ctaPhoneLabel: "Call us",
   },
 };
 
