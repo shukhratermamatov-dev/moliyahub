@@ -30,7 +30,7 @@ export default async function CabinetPage({
 
   const { data: analyses } = await supabase
     .from("analyses")
-    .select("id, industry, region, data, ratios, advice, created_at")
+    .select("id, companyName:company_name, industry, region, data, ratios, advice, periods, created_at")
     .order("created_at", { ascending: false })
     .limit(30);
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { AnalysisPanel } from "@/components/finance/analysis-panel";
+import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,7 +25,12 @@ import {
   type FinanceData,
   type FinanceFieldKey,
   type FinanceGroupKey,
+  type FinancePeriod,
 } from "@/lib/finance/types";
+import { computeVariance } from "@/lib/finance/variance";
+import { INDUSTRIES } from "@/lib/data/industries";
+import { REGIONS } from "@/lib/data/regions";
+import { pickText } from "@/lib/i18n-text";
 import { createClient } from "@/lib/supabase/client";
 import { formatMoney } from "@/lib/utils";
 import { saveAnalysisAction } from "./actions";
@@ -37,23 +43,153 @@ const BALANCE_GROUPS: FinanceGroupKey[] = [
   "currentLiabilities",
 ];
 
+const selectClass = "h-11 w-full rounded-xl bg-raised px-3 text-sm";
+
 function groupFields(key: FinanceGroupKey): FinanceFieldKey[] {
   return FINANCE_GROUPS.find((g) => g.key === key)?.fields ?? [];
+}
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 16 }, (_, i) => CURRENT_YEAR - i);
+
+type ComputedPeriod = {
+  year: number;
+  data: FinanceData;
+  aggregate: ReturnType<typeof deriveAggregates>;
+  subtotals: ReturnType<typeof computeSubtotals>;
+  ratios: ReturnType<typeof calculateRatios>;
+};
+
+// Один блок «Баланс + ОПУ» для одного отчётного периода — используется дважды
+// (период 1 всегда, период 2 — если пользователь его добавил), чтобы не
+// дублировать разметку полей.
+function PeriodFieldsCard({
+  periodIndex,
+  period,
+  yearLabel,
+  removable,
+  onYearChange,
+  onFieldChange,
+  onRemove,
+  removeLabel,
+  dict,
+  locale,
+  t,
+}: {
+  periodIndex: number;
+  period: ComputedPeriod;
+  yearLabel: string;
+  removable: boolean;
+  onYearChange: (year: number) => void;
+  onFieldChange: (key: FinanceFieldKey, n: number) => void;
+  onRemove: () => void;
+  removeLabel: string;
+  dict: ReturnType<typeof useI18n>["dict"];
+  locale: ReturnType<typeof useI18n>["locale"];
+  t: ReturnType<typeof useI18n>["dict"]["analyze"];
+}) {
+  const balanceOk = Math.abs(period.subtotals.balanceDiff) < 1;
+
+  return (
+    <div className={periodIndex > 0 ? "mt-8 border-t border-line/60 pt-6" : undefined}>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <label className="text-sm">
+          <span className="mb-1 block text-muted">{yearLabel}</span>
+          <select
+            className={selectClass}
+            value={period.year}
+            onChange={(e) => onYearChange(Number(e.target.value))}
+          >
+            {YEAR_OPTIONS.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </label>
+        {removable ? (
+          <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
+            {removeLabel}
+          </Button>
+        ) : null}
+      </div>
+
+      <h2 className="mb-3 font-display text-xl">{t.balanceSectionTitle}</h2>
+      {BALANCE_GROUPS.map((groupKey) => (
+        <div key={groupKey} className="mb-5">
+          <h3 className="mb-2 text-sm font-semibold text-gold">{dict.financeFields.groups[groupKey]}</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {groupFields(groupKey).map((key) => (
+              <label key={key} className="text-sm">
+                <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
+                <NumberField allowNegative value={period.data[key]} onValueChange={(n) => onFieldChange(key, n)} />
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div className="mb-6 grid gap-2 rounded-xl bg-raised p-4 text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-muted">{dict.financeFields.totals.totalAssets}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.totalAssets, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted">{dict.financeFields.totals.totalLiabilitiesAndEquity}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.totalLiabilitiesAndEquity, locale)}</span>
+        </div>
+        <div className={`mt-1 text-xs ${balanceOk ? "text-ok" : "text-danger"}`}>
+          {balanceOk
+            ? t.balanceOkLabel
+            : `${t.balanceMismatchLabel} ${formatMoney(Math.abs(period.subtotals.balanceDiff), locale)}`}
+        </div>
+      </div>
+
+      <h2 className="mb-3 font-display text-xl">{t.pnlSectionTitle}</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {groupFields("pnl").map((key) => (
+          <label key={key} className="text-sm">
+            <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
+            <NumberField allowNegative value={period.data[key]} onValueChange={(n) => onFieldChange(key, n)} />
+          </label>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-2 rounded-xl bg-raised p-4 text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-muted">{dict.financeFields.totals.grossProfit}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.grossProfit, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted">{dict.financeFields.totals.operatingProfit}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.operatingProfit, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted">{dict.financeFields.totals.profitBeforeTax}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.profitBeforeTax, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between font-medium">
+          <span>{dict.financeFields.totals.netProfit}</span>
+          <span className="tabular-nums">{formatMoney(period.subtotals.netProfit, locale)}</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function AnalyzePageClient() {
   const { locale, dict } = useI18n();
   const t = dict.analyze;
-  const [form, setForm] = useState<FinanceData>({ ...DEMO_FINANCE_DATA });
-  const [industry, setIndustry] = useState("Текстиль");
-  const [region, setRegion] = useState("Навоийская область");
+  const [companyName, setCompanyName] = useState("");
+  const [industry, setIndustry] = useState<string>(INDUSTRIES[0]?.id ?? "");
+  const [region, setRegion] = useState<string>(REGIONS[0]?.id ?? "");
+  const [periods, setPeriods] = useState<FinancePeriod[]>([{ year: CURRENT_YEAR, data: { ...DEMO_FINANCE_DATA } }]);
   const [advice, setAdvice] = useState<AiAdvice | null>(null);
   const [loading, setLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [uploading, setUploading] = useState(false);
   const [exporting, setExporting] = useState<"xlsx" | "pdf" | null>(null);
 
-  // Незалогиненные пользователи: form/advice живут только в этом React-состоянии —
+  // Незалогиненные пользователи: periods/advice живут только в этом React-состоянии —
   // никакого localStorage/БД, всё исчезает при закрытии/обновлении страницы.
   useEffect(() => {
     const supabase = createClient();
@@ -64,44 +200,95 @@ export function AnalyzePageClient() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const aggregate = useMemo(() => deriveAggregates(form), [form]);
-  const subtotals = useMemo(() => computeSubtotals(form), [form]);
-  const ratios = useMemo(() => calculateRatios(aggregate), [aggregate]);
-  const balanceOk = Math.abs(subtotals.balanceDiff) < 1;
+  const computedPeriods = useMemo<ComputedPeriod[]>(
+    () =>
+      periods.map((p) => {
+        const aggregate = deriveAggregates(p.data);
+        return {
+          year: p.year,
+          data: p.data,
+          aggregate,
+          subtotals: computeSubtotals(p.data),
+          ratios: calculateRatios(aggregate),
+        };
+      }),
+    [periods],
+  );
+  const primary = computedPeriods[0];
+  const second = computedPeriods[1];
+  const yearsConflict = periods.length === 2 && periods[0].year === periods[1].year;
 
   // Доп. срезы (маржа/замороженные активы/запас прочности) — считаются всегда
   // в коде, не ИИ, чтобы цифры на странице были точными и не зависели от
   // того, работает ли ИИ; ИИ и правила-фолбэк только комментируют их текстом.
-  const marginBridge = useMemo(() => computeMarginBridge(form), [form]);
-  const frozenAssets = useMemo(() => computeFrozenAssets(form, aggregate.totalAssets), [form, aggregate.totalAssets]);
-  const safetyMargin = useMemo(() => computeRevenueSafetyMargin(form), [form]);
+  // Считаются на основном (первом) периоде — как и раньше, когда период был один.
+  const marginBridge = useMemo(() => computeMarginBridge(primary.data), [primary.data]);
+  const frozenAssets = useMemo(
+    () => computeFrozenAssets(primary.data, primary.aggregate.totalAssets),
+    [primary.data, primary.aggregate.totalAssets],
+  );
+  const safetyMargin = useMemo(() => computeRevenueSafetyMargin(primary.data), [primary.data]);
 
-  const setField = (key: FinanceFieldKey, n: number) => {
-    setForm((prev) => ({ ...prev, [key]: Number.isFinite(n) ? n : 0 }));
+  const setPeriodField = (periodIndex: number, key: FinanceFieldKey, n: number) => {
+    setPeriods((prev) =>
+      prev.map((p, i) => (i === periodIndex ? { ...p, data: { ...p.data, [key]: Number.isFinite(n) ? n : 0 } } : p)),
+    );
+  };
+
+  const setPeriodYear = (periodIndex: number, year: number) => {
+    setPeriods((prev) => prev.map((p, i) => (i === periodIndex ? { ...p, year } : p)));
+  };
+
+  const addSecondPeriod = () => {
+    setPeriods((prev) =>
+      prev.length === 2 ? prev : [...prev, { year: prev[0].year - 1, data: { ...EMPTY_FINANCE_DATA } }],
+    );
+  };
+
+  const removeSecondPeriod = () => {
+    setPeriods((prev) => prev.slice(0, 1));
+    setAdvice(null);
   };
 
   async function persist(nextAdvice: AiAdvice) {
     if (!loggedIn) return;
-    const res = await saveAnalysisAction({ industry, region, data: form, ratios, advice: nextAdvice });
+    const res = await saveAnalysisAction({
+      companyName,
+      industry,
+      region,
+      periods,
+      ratios: primary.ratios,
+      advice: nextAdvice,
+    });
     if (res.ok) toast.success(t.savedNotice);
   }
 
   const runLocal = () => {
-    const next = buildRuleAdvice(aggregate, ratios, dict, locale, form);
+    if (yearsConflict) {
+      toast.error(t.yearsMustDifferError);
+      return;
+    }
+    const next = buildRuleAdvice(primary.aggregate, primary.ratios, dict, locale, primary.data);
+    if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
     setAdvice(next);
     toast.success(t.toastCalculated);
     void persist(next);
   };
 
   const runAi = async () => {
+    if (yearsConflict) {
+      toast.error(t.yearsMustDifferError);
+      return;
+    }
     setLoading(true);
     try {
-      const next = await requestAiAdvice({ data: form, industry, region, locale });
+      const next = await requestAiAdvice({ periods, industry, region, locale });
       setAdvice(next);
       toast.success(next.source === "ai" ? t.toastAiReady : t.toastExpress);
       void persist(next);
     } catch {
-      const next = buildRuleAdvice(aggregate, ratios, dict, locale, form);
+      const next = buildRuleAdvice(primary.aggregate, primary.ratios, dict, locale, primary.data);
+      if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
       setAdvice(next);
       toast.error(t.toastAiUnavailable);
     } finally {
@@ -110,7 +297,7 @@ export function AnalyzePageClient() {
   };
 
   const resetTo = (data: FinanceData) => {
-    setForm({ ...data });
+    setPeriods((prev) => [{ ...prev[0], data: { ...data } }, ...prev.slice(1)]);
     setAdvice(null);
   };
 
@@ -137,7 +324,17 @@ export function AnalyzePageClient() {
     try {
       await downloadBlob(
         `/api/finance/export/${kind}`,
-        { locale, industry, region, data: form, ratios, advice },
+        {
+          locale,
+          industry,
+          region,
+          companyName,
+          year: primary.year,
+          data: primary.data,
+          ratios: primary.ratios,
+          advice,
+          secondPeriod: second ? { year: second.year, data: second.data } : null,
+        },
         `moliyahub-analysis.${kind}`,
       );
     } catch {
@@ -155,7 +352,7 @@ export function AnalyzePageClient() {
       const res = await fetch("/api/finance/import", { method: "POST", body: fd });
       if (!res.ok) throw new Error("bad_file");
       const json = (await res.json()) as Partial<FinanceData>;
-      setForm((prev) => ({ ...prev, ...json }));
+      setPeriods((prev) => [{ ...prev[0], data: { ...prev[0].data, ...json } }, ...prev.slice(1)]);
       setAdvice(null);
       toast.success(t.uploadSuccess);
     } catch {
@@ -217,80 +414,75 @@ export function AnalyzePageClient() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <Card>
             <div className="mb-4 grid gap-3 sm:grid-cols-2">
+              <label className="text-sm sm:col-span-2">
+                <span className="mb-1 block text-muted">{t.companyNameLabel}</span>
+                <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+              </label>
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.industryLabel}</span>
-                <Input value={industry} onChange={(e) => setIndustry(e.target.value)} />
+                <select className={selectClass} value={industry} onChange={(e) => setIndustry(e.target.value)}>
+                  {INDUSTRIES.map((ind) => (
+                    <option key={ind.id} value={ind.id}>
+                      {pickText(ind.name, locale)}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.regionLabel}</span>
-                <Input value={region} onChange={(e) => setRegion(e.target.value)} />
+                <select className={selectClass} value={region} onChange={(e) => setRegion(e.target.value)}>
+                  {REGIONS.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {pickText(r.name, locale)}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
 
-            <h2 className="mb-3 font-display text-xl">{t.balanceSectionTitle}</h2>
-            {BALANCE_GROUPS.map((groupKey) => (
-              <div key={groupKey} className="mb-5">
-                <h3 className="mb-2 text-sm font-semibold text-gold">{dict.financeFields.groups[groupKey]}</h3>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {groupFields(groupKey).map((key) => (
-                    <label key={key} className="text-sm">
-                      <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
-                      <NumberField allowNegative value={form[key]} onValueChange={(n) => setField(key, n)} />
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
+            <PeriodFieldsCard
+              periodIndex={0}
+              period={primary}
+              yearLabel={t.periodLabel.replace("{n}", "1") + " · " + t.reportingYearLabel}
+              removable={false}
+              onYearChange={(y) => setPeriodYear(0, y)}
+              onFieldChange={(key, n) => setPeriodField(0, key, n)}
+              onRemove={() => {}}
+              removeLabel=""
+              dict={dict}
+              locale={locale}
+              t={t}
+            />
 
-            <div className="mb-6 grid gap-2 rounded-xl bg-raised p-4 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{dict.financeFields.totals.totalAssets}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.totalAssets, locale)}</span>
+            {second ? (
+              <PeriodFieldsCard
+                periodIndex={1}
+                period={second}
+                yearLabel={t.periodLabel.replace("{n}", "2") + " · " + t.reportingYearLabel}
+                removable
+                onYearChange={(y) => setPeriodYear(1, y)}
+                onFieldChange={(key, n) => setPeriodField(1, key, n)}
+                onRemove={removeSecondPeriod}
+                removeLabel={t.removeSecondYearLabel}
+                dict={dict}
+                locale={locale}
+                t={t}
+              />
+            ) : (
+              <div className="mt-6">
+                <Button type="button" variant="outline" onClick={addSecondPeriod}>
+                  {t.addSecondYearLabel}
+                </Button>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{dict.financeFields.totals.totalLiabilitiesAndEquity}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.totalLiabilitiesAndEquity, locale)}</span>
-              </div>
-              <div className={`mt-1 text-xs ${balanceOk ? "text-ok" : "text-danger"}`}>
-                {balanceOk
-                  ? t.balanceOkLabel
-                  : `${t.balanceMismatchLabel} ${formatMoney(Math.abs(subtotals.balanceDiff), locale)}`}
-              </div>
-            </div>
+            )}
 
-            <h2 className="mb-3 font-display text-xl">{t.pnlSectionTitle}</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {groupFields("pnl").map((key) => (
-                <label key={key} className="text-sm">
-                  <span className="mb-1 block text-muted">{dict.financeFields.labels[key]}</span>
-                  <NumberField allowNegative value={form[key]} onValueChange={(n) => setField(key, n)} />
-                </label>
-              ))}
-            </div>
-            <div className="mt-4 grid gap-2 rounded-xl bg-raised p-4 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{dict.financeFields.totals.grossProfit}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.grossProfit, locale)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{dict.financeFields.totals.operatingProfit}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.operatingProfit, locale)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{dict.financeFields.totals.profitBeforeTax}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.profitBeforeTax, locale)}</span>
-              </div>
-              <div className="flex items-center justify-between font-medium">
-                <span>{dict.financeFields.totals.netProfit}</span>
-                <span className="tabular-nums">{formatMoney(subtotals.netProfit, locale)}</span>
-              </div>
-            </div>
+            {yearsConflict ? <p className="mt-4 text-sm text-danger">{t.yearsMustDifferError}</p> : null}
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button type="button" onClick={runLocal}>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <Button type="button" disabled={yearsConflict} onClick={runLocal}>
                 {t.calcNow}
               </Button>
-              <Button type="button" variant="gold" disabled={loading} onClick={runAi}>
+              <Button type="button" variant="gold" disabled={loading || yearsConflict} onClick={runAi}>
                 {loading ? t.loadingAi : t.getAi}
               </Button>
             </div>
@@ -299,12 +491,23 @@ export function AnalyzePageClient() {
 
           <div>
             <AnalysisPanel
-              ratios={ratios}
+              ratios={primary.ratios}
               advice={advice}
               marginBridge={marginBridge}
               frozenAssets={frozenAssets}
               safetyMargin={safetyMargin}
             />
+
+            {second && advice ? (
+              <VarianceDashboard
+                period1={{ year: primary.year, ratios: primary.ratios, aggregates: primary.aggregate }}
+                period2={{ year: second.year, ratios: second.ratios, aggregates: second.aggregate }}
+                narrative={advice.variance?.narrative || undefined}
+              />
+            ) : null}
+
+            <p className="mt-6 text-xs leading-relaxed text-muted">{t.disclaimer}</p>
+
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild variant="outline">
                 <Link href={`/${locale}/financing`}>{t.compareLoans}</Link>

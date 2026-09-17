@@ -6,6 +6,9 @@ import { buildAnalysisPdf } from "@/lib/finance/pdf";
 import { calculateRatios } from "@/lib/finance/ratios";
 import { sanitizeFinanceData } from "@/lib/finance/sanitize";
 import type { AiAdvice } from "@/lib/finance/types";
+import { findIndustry } from "@/lib/data/industries";
+import { findRegion } from "@/lib/data/regions";
+import { pickText } from "@/lib/i18n-text";
 
 // Экспорт текущего анализа в PDF. Как и .xlsx-экспорт, ничего не сохраняет —
 // файл собирается на лету и сразу отдаётся в ответе.
@@ -14,8 +17,11 @@ export async function POST(request: Request) {
     locale?: string;
     industry?: string;
     region?: string;
+    companyName?: string;
+    year?: number;
     data?: unknown;
     advice?: AiAdvice | null;
+    secondPeriod?: { year: number; data: unknown } | null;
   };
   try {
     body = await request.json();
@@ -28,15 +34,29 @@ export async function POST(request: Request) {
   const data = sanitizeFinanceData(body.data);
   const ratios = calculateRatios(deriveAggregates(data));
 
+  // industry/region приходят как id из справочников (lib/data/industries,
+  // lib/data/regions) — резолвим в человекочитаемую подпись на нужной
+  // локали; если id не нашёлся (например, старый свободный текст) — просто
+  // показываем как есть.
+  const industryLabel = body.industry ? pickText(findIndustry(body.industry)?.name ?? { ru: body.industry, uz: body.industry, en: body.industry }, locale) : "";
+  const regionLabel = body.region ? pickText(findRegion(body.region)?.name ?? { ru: body.region, uz: body.region, en: body.region }, locale) : "";
+
+  const secondPeriod = body.secondPeriod
+    ? { year: body.secondPeriod.year, data: sanitizeFinanceData(body.secondPeriod.data) }
+    : null;
+
   let buffer: Buffer;
   try {
     buffer = await buildAnalysisPdf({
       dict,
-      industry: body.industry ?? "",
-      region: body.region ?? "",
+      industry: industryLabel,
+      region: regionLabel,
+      companyName: body.companyName,
+      year: body.year,
       data,
       ratios,
       advice: body.advice ?? null,
+      secondPeriod,
     });
   } catch (err) {
     console.error("PDF export failed", err);

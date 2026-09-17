@@ -3,9 +3,15 @@
 import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import { NumberField } from "@/components/ui/number-input";
+import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { useI18n } from "@/i18n/provider";
-import type { AiAdvice, FinanceData, FinancialRatios } from "@/lib/finance/types";
+import { deriveAggregates } from "@/lib/finance/aggregate";
+import { calculateRatios } from "@/lib/finance/ratios";
+import type { AiAdvice, FinanceData, FinancePeriod, FinancialRatios } from "@/lib/finance/types";
 import type { BusinessPlan } from "@/lib/business-plan/types";
+import { findIndustry } from "@/lib/data/industries";
+import { findRegion } from "@/lib/data/regions";
+import { pickText } from "@/lib/i18n-text";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
 import { signOut } from "../login/actions";
 import { addProject, deleteAnalysis, deleteBusinessPlan, deleteProject, type ProjectFormState } from "./actions";
@@ -22,11 +28,13 @@ export type ProjectRow = {
 
 export type AnalysisRow = {
   id: string;
+  companyName: string | null;
   industry: string | null;
   region: string | null;
   data: FinanceData | null;
   ratios: FinancialRatios | null;
   advice: AiAdvice | null;
+  periods: FinancePeriod[] | null;
   created_at: string;
 };
 
@@ -89,6 +97,7 @@ export function CabinetClient({
   const [state, formAction, pending] = useActionState(boundAddProject, initialState);
   const [projectAmount, setProjectAmount] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [exportingPlanId, setExportingPlanId] = useState<string | null>(null);
 
   const toggleSelected = (id: string) => {
@@ -116,6 +125,19 @@ export function CabinetClient({
     if (kind === "money") return formatMoney(value, locale);
     if (kind === "score") return `${value} / 100`;
     return formatRatio(value);
+  }
+
+  // Отрасль/регион теперь хранятся как id из справочников (lib/data/industries,
+  // lib/data/regions) — резолвим в подпись на нужной локали. У старых записей
+  // (до этого расширения) это был свободный текст, который не найдётся в
+  // справочнике — тогда просто показываем как есть, ничего не теряем.
+  function resolveIndustryLabel(id: string | null): string {
+    if (!id) return "—";
+    return findIndustry(id) ? pickText(findIndustry(id)!.name, locale) : id;
+  }
+  function resolveRegionLabel(id: string | null): string {
+    if (!id) return "—";
+    return findRegion(id) ? pickText(findRegion(id)!.name, locale) : id;
   }
 
   const exportPlan = async (row: BusinessPlanRow, kind: "xlsx" | "pdf") => {
@@ -237,41 +259,69 @@ export function CabinetClient({
           <>
             <p className="mt-2 text-xs text-muted">{dict.cabinet.selectToCompare}</p>
             <ul className="mt-3 flex flex-col gap-3">
-              {analyses.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-start gap-3 rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
-                >
-                  <input
-                    type="checkbox"
-                    className="mt-1 size-4"
-                    checked={selected.includes(a.id)}
-                    onChange={() => toggleSelected(a.id)}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium">
-                        {a.industry || "—"} · {a.region || "—"}
-                      </p>
-                      <span className="font-display text-lg tabular-nums">
-                        {a.ratios ? `${a.ratios.score} / 100` : "—"}
-                      </span>
+              {analyses.map((a) => {
+                const hasTwoPeriods = (a.periods?.length ?? 0) === 2;
+                const isExpanded = expandedId === a.id;
+                return (
+                  <li
+                    key={a.id}
+                    className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 size-4"
+                        checked={selected.includes(a.id)}
+                        onChange={() => toggleSelected(a.id)}
+                      />
+                      <button
+                        type="button"
+                        className="flex-1 text-left"
+                        onClick={() => setExpandedId(isExpanded ? null : a.id)}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-medium">
+                            {a.companyName || `${resolveIndustryLabel(a.industry)} · ${resolveRegionLabel(a.region)}`}
+                          </p>
+                          <span className="font-display text-lg tabular-nums">
+                            {a.ratios ? `${a.ratios.score} / 100` : "—"}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted">
+                          {a.companyName ? `${resolveIndustryLabel(a.industry)} · ${resolveRegionLabel(a.region)} · ` : ""}
+                          {new Date(a.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
+                        </p>
+                      </button>
+                      <form action={deleteAnalysis.bind(null, locale, a.id)}>
+                        <button
+                          type="submit"
+                          className="text-xs text-muted transition-colors hover:text-danger"
+                        >
+                          {dict.cabinet.deleteAnalysis}
+                        </button>
+                      </form>
                     </div>
-                    <p className="mt-1 text-xs text-muted">
-                      {new Date(a.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
-                    </p>
-                  </div>
-                  <form action={deleteAnalysis.bind(null, locale, a.id)}>
-                    <button
-                      type="submit"
-                      className="text-xs text-muted transition-colors hover:text-danger"
-                    >
-                      {dict.cabinet.deleteAnalysis}
-                    </button>
-                  </form>
-                </li>
-              ))}
+
+                    {isExpanded && hasTwoPeriods && a.periods ? (
+                      <VarianceDashboard
+                        period1={{
+                          year: a.periods[0].year,
+                          ratios: calculateRatios(deriveAggregates(a.periods[0].data)),
+                          aggregates: deriveAggregates(a.periods[0].data),
+                        }}
+                        period2={{
+                          year: a.periods[1].year,
+                          ratios: calculateRatios(deriveAggregates(a.periods[1].data)),
+                          aggregates: deriveAggregates(a.periods[1].data),
+                        }}
+                        narrative={a.advice?.variance?.narrative || undefined}
+                      />
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{dict.analyze.disclaimer}</p>
 
             {comparePair ? (
               <div className="mt-6 rounded-2xl bg-surface p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">

@@ -6,10 +6,14 @@ import { deriveAggregates } from "@/lib/finance/aggregate";
 import { buildRuleAdvice } from "@/lib/finance/advice";
 import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
-import type { AiAdvice, FinanceData } from "@/lib/finance/types";
+import { computeVariance } from "@/lib/finance/variance";
+import type { AiAdvice, FinancePeriod } from "@/lib/finance/types";
 
 type AnalyzeInput = {
-  data: FinanceData;
+  // periods[0] — основной (последний/единственный) отчётный период, на нём
+  // считаются все показатели, как и раньше; periods[1] — необязательный
+  // второй год для сравнения (появляется только если пользователь его добавил).
+  periods: FinancePeriod[];
   industry?: string;
   region?: string;
   locale: Locale;
@@ -21,13 +25,15 @@ const LANGUAGE_NAME: Record<Locale, string> = {
   en: "английском",
 };
 
-const RESPONSE_SCHEMA =
-  '{"summary":"","score_comment":"",' +
+const BASE_SCHEMA_FIELDS =
+  '"summary":"","score_comment":"",' +
   '"red_flags":[{"indicator":"","value":"","why_critical":"","priority":1}],' +
   '"strengths":[""],"weaknesses":[""],' +
   '"recommendations":[{"title":"","description":"","expected_effect":"","priority":1,"difficulty":"low","timeframe":""}],' +
   '"financing_advice":"","margin_commentary":"","frozen_assets_commentary":"","safety_margin_commentary":"",' +
-  '"benchmark":{"available":false,"note":"","comparisons":[{"metric":"","company_value":"","benchmark_value":"","source":""}]}}';
+  '"benchmark":{"available":false,"note":"","comparisons":[{"metric":"","company_value":"","benchmark_value":"","source":""}]}';
+
+const VARIANCE_SCHEMA_FIELD = ',"variance":{"narrative":""}';
 
 type AnthropicTextBlock = { type: "text"; text: string };
 
@@ -58,24 +64,56 @@ function extractJson(text: string): unknown | null {
 // Ключ ANTHROPIC_API_KEY добавляется в Vercel самим пользователем; если ключа
 // нет или вызов не удался — используется локальный разбор по правилам
 // (buildRuleAdvice), сайт никогда не остаётся без ответа.
+//
+// Если передан второй период (periods[1]) — scoreDelta/ratioDeltas между двумя
+// годами считаются локально через computeVariance() и НЕ зависят от ИИ (значит,
+// дашборд отклонений работает даже без ключа Anthropic); у ИИ дополнительно
+// просим короткий текстовый комментарий variance.narrative — если ключа нет
+// или ответ не распарсился, narrative остаётся пустой строкой, а числа всё
+// равно на месте.
 export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> {
   const dict = await getDictionary(payload.locale);
-  const aggregate = deriveAggregates(payload.data);
+  const primary = payload.periods[0];
+  const second = payload.periods[1];
+
+  const aggregate = deriveAggregates(primary.data);
   const ratios = calculateRatios(aggregate);
-  const marginBridge = computeMarginBridge(payload.data);
-  const frozenAssets = computeFrozenAssets(payload.data, aggregate.totalAssets);
-  const safetyMargin = computeRevenueSafetyMargin(payload.data);
-  const fallback = buildRuleAdvice(aggregate, ratios, dict, payload.locale, payload.data);
+  const marginBridge = computeMarginBridge(primary.data);
+  const frozenAssets = computeFrozenAssets(primary.data, aggregate.totalAssets);
+  const safetyMargin = computeRevenueSafetyMargin(primary.data);
+  const fallback = buildRuleAdvice(aggregate, ratios, dict, payload.locale, primary.data);
+
+  if (second) {
+    const aggregate2 = deriveAggregates(second.data);
+    const ratios2 = calculateRatios(aggregate2);
+    fallback.variance = { ...computeVariance(ratios, ratios2), narrative: "" };
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fallback;
 
+  const secondPeriodBlock = second
+    ? `
+
+Второй отчётный период для сравнения — год ${second.year} (первый — год ${primary.year}). Полный баланс и ОПУ этого периода (JSON):
+${JSON.stringify(second.data)}
+
+Рассчитанные коэффициенты второго периода (JSON):
+${JSON.stringify(calculateRatios(deriveAggregates(second.data)))}`
+    : "";
+
+  const varianceTask = second
+    ? `\n7. variance.narrative — короткий (2-4 предложения) человеческим языком комментарий, что изменилось между годом ${primary.year} и годом ${second.year}: какие показатели улучшились/ухудшились и что это значит для бизнеса. Не пересчитывай дельты сам — просто прокомментируй направление и масштаб изменений по переданным данным обоих периодов.`
+    : "";
+
+  const responseSchema = `{${BASE_SCHEMA_FIELDS}${second ? VARIANCE_SCHEMA_FIELD : ""}}`;
+
   const userContent = `Отрасль: ${payload.industry || "не указана"}
 Регион: ${payload.region || "не указан"}
-Балл: ${ratios.score}/100
+Основной отчётный период — год ${primary.year}. Балл: ${ratios.score}/100
 
 Полный баланс и отчёт о финансовых результатах предприятия, укрупнённые статьи, в сумах (JSON):
-${JSON.stringify(payload.data)}
+${JSON.stringify(primary.data)}
 
 Рассчитанные финансовые коэффициенты (JSON):
 ${JSON.stringify(ratios)}
@@ -87,7 +125,7 @@ ${JSON.stringify(marginBridge)}
 ${JSON.stringify(frozenAssets)}
 
 Уже посчитанный запас прочности по выручке — на сколько можно упасть в выручке до выхода в операционный убыток (JSON, поле status: "ok" — есть запас, "already_at_or_below_breakeven" — уже на грани или за гранью безубыточности, "loses_on_every_sale" — себестоимость съедает всю выручку, запаса не существует в принципе, "insufficient_data" — выручка нулевая):
-${JSON.stringify(safetyMargin)}
+${JSON.stringify(safetyMargin)}${secondPeriodBlock}
 
 Задача — развёрнутый разбор для предпринимателя МСБ Узбекистана. Обязательно включи:
 1. Сильные и слабые стороны (weaknesses — это более широкий список, чем red_flags: red_flags только для по-настоящему критичных проблем с приоритетом и объяснением почему критично; weaknesses — более мягкие моменты, на которые стоит обратить внимание, но без паники).
@@ -95,10 +133,10 @@ ${JSON.stringify(safetyMargin)}
 3. margin_commentary — простыми словами объясни, где компания теряет маржинальность, опираясь на переданную структуру маржи (marginBridge) и её biggestDrag.
 4. frozen_assets_commentary — объясни, в каких активах заморожены деньги, опираясь на переданный разбор (frozenAssets), включая дни оборота запасов/дебиторки, если они посчитаны.
 5. safety_margin_commentary — объясни человеческим языком безопасный порог снижения выручки, опираясь на переданный расчёт (safetyMargin): на сколько % может упасть выручка до операционного убытка, и что произойдёт, если status не "ok".
-6. benchmark — воспользуйся веб-поиском, чтобы найти РЕАЛЬНЫЕ публикуемые средние показатели по отрасли "${payload.industry || "не указана"}" (в Узбекистане, а если не нашлось — в Центральной Азии или в целом по развивающимся рынкам, явно уточнив это в note). Сравнивай с показателями, где сравнение осмысленно (рентабельность, оборачиваемость, автономия). Если ничего достоверного с указанием источника не нашлось — верни available:false и честно объясни в note, что открытых отраслевых данных по коэффициентам для Узбекистана нет; НИКОГДА не выдумывай цифры и не выдавай примерную оценку за подтверждённый факт.
+6. benchmark — воспользуйся веб-поиском, чтобы найти РЕАЛЬНЫЕ публикуемые средние показатели по отрасли "${payload.industry || "не указана"}" (в Узбекистане, а если не нашлось — в Центральной Азии или в целом по развивающимся рынкам, явно уточнив это в note). Сравнивай с показателями, где сравнение осмысленно (рентабельность, оборачиваемость, автономия). Если ничего достоверного с указанием источника не нашлось — верни available:false и честно объясни в note, что открытых отраслевых данных по коэффициентам для Узбекистана нет; НИКОГДА не выдумывай цифры и не выдавай примерную оценку за подтверждённый факт.${varianceTask}
 
 Дай развёрнутый разбор, опираясь на ВСЕ приведённые статьи баланса и ОПУ, а не только на итоговые коэффициенты. Когда данных для веб-поиска достаточно (или сразу, если он не даёт результата за 2-3 запроса), дай финальный ответ — он должен содержать ТОЛЬКО один валидный JSON-объект, без markdown-обёртки и без пояснений до или после, строго по схеме:
-${RESPONSE_SCHEMA}`;
+${responseSchema}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -124,7 +162,7 @@ ${RESPONSE_SCHEMA}`;
     if (textBlocks.length === 0) return fallback;
 
     const fullText = textBlocks.map((b) => b.text).join("\n");
-    const parsed = extractJson(fullText) as Partial<AiAdvice> | null;
+    const parsed = extractJson(fullText) as (Partial<AiAdvice> & { variance?: { narrative?: string } }) | null;
     if (!parsed || !parsed.summary || !Array.isArray(parsed.recommendations)) return fallback;
 
     const advice: AiAdvice = {
@@ -148,6 +186,12 @@ ${RESPONSE_SCHEMA}`;
           : { available: false, note: "", comparisons: [] },
       source: "ai",
     };
+
+    if (second) {
+      const aggregate2 = deriveAggregates(second.data);
+      const ratios2 = calculateRatios(aggregate2);
+      advice.variance = { ...computeVariance(ratios, ratios2), narrative: parsed.variance?.narrative ?? "" };
+    }
 
     return advice;
   } catch {

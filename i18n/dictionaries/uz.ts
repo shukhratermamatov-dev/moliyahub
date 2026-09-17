@@ -142,7 +142,25 @@ const dict: Dictionary = {
     guestNotice:
       "Siz tizimga kirmagansiz: hisob-kitoblar faqat shu sahifada koʻrinadi va uni yopgach saqlanmaydi. Tarixni saqlash va davrlarni solishtirish uchun tizimga kiring yoki roʻyxatdan oʻting.",
     savedNotice: "Tahlil shaxsiy kabinetga saqlandi",
+    companyNameLabel: "Kompaniya nomi",
+    addSecondYearLabel: "Ikkinchi yilni qo'shish",
+    removeSecondYearLabel: "Ikkinchi yilni olib tashlash",
+    reportingYearLabel: "Hisobot yili",
+    periodLabel: "Davr {n}",
+    yearsMustDifferError: "Ikki davr yillari bir xil bo'lmasligi kerak",
+    disclaimer:
+      "Moliyaviy tahlil MoliyaHub platformasi orqali amalga oshirildi va faqat tavsiya (konsultatsion) xarakteriga ega. Yakuniy qarorni foydalanuvchi mustaqil qabul qiladi.",
     clearForm: "Formani tozalash",
+  },
+  varianceDashboard: {
+    ratiosChartTitle: "Asosiy koeffitsientlar: 1-davr va 2-davr",
+    balanceChartTitle: "Balans yakunlari: 1-davr va 2-davr",
+    scoreDeltaLabel: "Umumiy ball o'zgarishi",
+    narrativeHeading: "Sun'iy intellektning og'ishlar bo'yicha izohi",
+    metricHeader: "Ko'rsatkich",
+    valueHeader: "Qiymat",
+    showTable: "Jadvalni ko'rsatish",
+    hideTable: "Jadvalni yashirish",
   },
   panel: {
     outOf100: "100 dan",

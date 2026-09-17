@@ -1,8 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import type { AiAdvice, FinancialRatios } from "@/lib/finance/types";
-import type { FinanceData } from "@/lib/finance/types";
+import type { AiAdvice, FinancePeriod, FinancialRatios } from "@/lib/finance/types";
 
 export type SaveAnalysisResult =
   | { ok: true }
@@ -11,10 +10,17 @@ export type SaveAnalysisResult =
 // Сохраняет анализ в Supabase (таблица analyses, RLS: только свои строки).
 // Вызывается только для залогиненных пользователей — гостям функция
 // возвращает not_authenticated, и клиент ничего никуда не пишет.
+//
+// data/ratios/advice (существующие колонки) продолжают хранить период 1, как
+// и раньше, — их не переименовываем, чтобы не сломать существующую фичу
+// кабинета «сравнить 2 сохранённых анализа» (она читает именно data/ratios
+// каждой строки). Новая колонка periods хранит весь массив периодов (1 или 2)
+// для новой внутри-анализа фичи 2 периодов и дашборда отклонений.
 export async function saveAnalysisAction(payload: {
+  companyName: string;
   industry: string;
   region: string;
-  data: FinanceData;
+  periods: FinancePeriod[];
   ratios: FinancialRatios;
   advice: AiAdvice | null;
 }): Promise<SaveAnalysisResult> {
@@ -29,11 +35,13 @@ export async function saveAnalysisAction(payload: {
 
   const { error } = await supabase.from("analyses").insert({
     user_id: user.id,
+    company_name: payload.companyName || null,
     industry: payload.industry,
     region: payload.region,
-    data: payload.data,
+    data: payload.periods[0]?.data ?? null,
     ratios: payload.ratios,
     advice: payload.advice,
+    periods: payload.periods,
   });
 
   if (error) {

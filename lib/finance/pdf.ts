@@ -39,72 +39,125 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   });
 }
 
-function balanceTableBody(dict: Dictionary, data: FinanceData): Cell[][] {
+// secondHeader задан — значит есть второй отчётный период, и в каждую
+// строку добавляется третья колонка с его суммой (или «—», если поле не
+// пришло). Без secondHeader таблицы выглядят ровно как раньше (2 колонки).
+function balanceTableBody(
+  dict: Dictionary,
+  data: FinanceData,
+  secondData?: FinanceData,
+  secondHeader?: string,
+): Cell[][] {
   const s = computeSubtotals(data);
-  const rows: Cell[][] = [[{ text: "Статья", bold: true }, { text: "Сумма, сум", bold: true }]];
+  const s2 = secondData ? computeSubtotals(secondData) : null;
 
-  const group = (key: FinanceGroupKey, totalLabel: string, totalValue: number) => {
-    rows.push([{ text: dict.financeFields.groups[key], bold: true }, { text: "" }]);
+  const header: Cell[] = [{ text: "Статья", bold: true }, { text: "Сумма, сум", bold: true }];
+  if (secondHeader) header.push({ text: secondHeader, bold: true });
+  const rows: Cell[][] = [header];
+
+  const group = (key: FinanceGroupKey, totalLabel: string, totalValue: number, totalValue2?: number) => {
+    const sectionCells: Cell[] = [{ text: dict.financeFields.groups[key], bold: true }, { text: "" }];
+    if (secondHeader) sectionCells.push({ text: "" });
+    rows.push(sectionCells);
+
     for (const field of fieldsOf(key)) {
-      rows.push([dict.financeFields.labels[field], fmtMoney(data[field])]);
+      const row: Cell[] = [dict.financeFields.labels[field], fmtMoney(data[field])];
+      if (secondHeader) row.push(secondData ? fmtMoney(secondData[field]) : "—");
+      rows.push(row);
     }
-    rows.push([
+
+    const totalCells: Cell[] = [
       { text: totalLabel, bold: true, italics: true },
       { text: fmtMoney(totalValue), bold: true, italics: true },
-    ]);
+    ];
+    if (secondHeader) {
+      totalCells.push({ text: totalValue2 !== undefined ? fmtMoney(totalValue2) : "—", bold: true, italics: true });
+    }
+    rows.push(totalCells);
   };
 
-  group("longTermAssets", dict.financeFields.totals.longTermAssetsTotal, s.longTermAssetsTotal);
-  group("currentAssets", dict.financeFields.totals.currentAssetsTotal, s.currentAssetsTotal);
-  rows.push([
+  group("longTermAssets", dict.financeFields.totals.longTermAssetsTotal, s.longTermAssetsTotal, s2?.longTermAssetsTotal);
+  group("currentAssets", dict.financeFields.totals.currentAssetsTotal, s.currentAssetsTotal, s2?.currentAssetsTotal);
+
+  const totalAssetsRow: Cell[] = [
     { text: dict.financeFields.totals.totalAssets, bold: true },
     { text: fmtMoney(s.totalAssets), bold: true },
-  ]);
+  ];
+  if (secondHeader) totalAssetsRow.push({ text: s2 ? fmtMoney(s2.totalAssets) : "—", bold: true });
+  rows.push(totalAssetsRow);
 
-  group("equity", dict.financeFields.totals.equityTotal, s.equityTotal);
-  group("longTermLiabilities", dict.financeFields.totals.longTermLiabilitiesTotal, s.longTermLiabilitiesTotal);
-  group("currentLiabilities", dict.financeFields.totals.currentLiabilitiesTotal, s.currentLiabilitiesTotal);
-  rows.push([
+  group("equity", dict.financeFields.totals.equityTotal, s.equityTotal, s2?.equityTotal);
+  group(
+    "longTermLiabilities",
+    dict.financeFields.totals.longTermLiabilitiesTotal,
+    s.longTermLiabilitiesTotal,
+    s2?.longTermLiabilitiesTotal,
+  );
+  group(
+    "currentLiabilities",
+    dict.financeFields.totals.currentLiabilitiesTotal,
+    s.currentLiabilitiesTotal,
+    s2?.currentLiabilitiesTotal,
+  );
+
+  const totalLiabRow: Cell[] = [
     { text: dict.financeFields.totals.totalLiabilitiesAndEquity, bold: true },
     { text: fmtMoney(s.totalLiabilitiesAndEquity), bold: true },
-  ]);
+  ];
+  if (secondHeader) {
+    totalLiabRow.push({ text: s2 ? fmtMoney(s2.totalLiabilitiesAndEquity) : "—", bold: true });
+  }
+  rows.push(totalLiabRow);
 
   return rows;
 }
 
-function pnlTableBody(dict: Dictionary, data: FinanceData): Cell[][] {
+function pnlTableBody(
+  dict: Dictionary,
+  data: FinanceData,
+  secondData?: FinanceData,
+  secondHeader?: string,
+): Cell[][] {
   const s = computeSubtotals(data);
-  const rows: Cell[][] = [[{ text: "Статья", bold: true }, { text: "Сумма, сум", bold: true }]];
+  const s2 = secondData ? computeSubtotals(secondData) : null;
 
-  for (const key of ["revenue", "costOfSales"] as const) {
-    rows.push([dict.financeFields.labels[key], fmtMoney(data[key])]);
-  }
-  rows.push([
-    { text: dict.financeFields.totals.grossProfit, bold: true, italics: true },
-    { text: fmtMoney(s.grossProfit), bold: true, italics: true },
-  ]);
+  const header: Cell[] = [{ text: "Статья", bold: true }, { text: "Сумма, сум", bold: true }];
+  if (secondHeader) header.push({ text: secondHeader, bold: true });
+  const rows: Cell[][] = [header];
+
+  const line = (field: keyof FinanceData) => {
+    const row: Cell[] = [dict.financeFields.labels[field], fmtMoney(data[field])];
+    if (secondHeader) row.push(secondData ? fmtMoney(secondData[field]) : "—");
+    rows.push(row);
+  };
+  const totalLine = (label: string, value: number, value2?: number) => {
+    const row: Cell[] = [
+      { text: label, bold: true, italics: true },
+      { text: fmtMoney(value), bold: true, italics: true },
+    ];
+    if (secondHeader) row.push({ text: value2 !== undefined ? fmtMoney(value2) : "—", bold: true, italics: true });
+    rows.push(row);
+  };
+
+  for (const key of ["revenue", "costOfSales"] as const) line(key);
+  totalLine(dict.financeFields.totals.grossProfit, s.grossProfit, s2?.grossProfit);
 
   for (const key of ["distributionCosts", "adminExpenses", "otherOperatingIncome", "otherOperatingExpenses"] as const) {
-    rows.push([dict.financeFields.labels[key], fmtMoney(data[key])]);
+    line(key);
   }
-  rows.push([
-    { text: dict.financeFields.totals.operatingProfit, bold: true, italics: true },
-    { text: fmtMoney(s.operatingProfit), bold: true, italics: true },
-  ]);
+  totalLine(dict.financeFields.totals.operatingProfit, s.operatingProfit, s2?.operatingProfit);
 
-  for (const key of ["financialIncome", "interestExpense"] as const) {
-    rows.push([dict.financeFields.labels[key], fmtMoney(data[key])]);
-  }
-  rows.push([
-    { text: dict.financeFields.totals.profitBeforeTax, bold: true, italics: true },
-    { text: fmtMoney(s.profitBeforeTax), bold: true, italics: true },
-  ]);
+  for (const key of ["financialIncome", "interestExpense"] as const) line(key);
+  totalLine(dict.financeFields.totals.profitBeforeTax, s.profitBeforeTax, s2?.profitBeforeTax);
 
-  rows.push([dict.financeFields.labels.incomeTax, fmtMoney(data.incomeTax)]);
-  rows.push([
+  line("incomeTax");
+
+  const netRow: Cell[] = [
     { text: dict.financeFields.totals.netProfit, bold: true },
     { text: fmtMoney(s.netProfit), bold: true },
-  ]);
+  ];
+  if (secondHeader) netRow.push({ text: s2 ? fmtMoney(s2.netProfit) : "—", bold: true });
+  rows.push(netRow);
 
   return rows;
 }
@@ -128,24 +181,36 @@ export async function buildAnalysisPdf(params: {
   dict: Dictionary;
   industry: string;
   region: string;
+  companyName?: string;
+  year?: number;
   data: FinanceData;
   ratios: FinancialRatios;
   advice: AiAdvice | null;
+  secondPeriod?: { year: number; data: FinanceData } | null;
 }): Promise<Buffer> {
-  const { dict, industry, region, data, ratios, advice } = params;
+  const { dict, industry, region, companyName, year, data, ratios, advice, secondPeriod } = params;
   const printer = new PdfPrinter(fonts);
+
+  const secondHeader = secondPeriod ? `${dict.analyze.reportingYearLabel} ${secondPeriod.year}` : undefined;
+  const tableWidths = secondHeader ? ["*", 90, 90] : ["*", 120];
+
+  const infoLine = [
+    companyName ? `${dict.analyze.companyNameLabel}: ${companyName}` : null,
+    year ? `${dict.analyze.reportingYearLabel}: ${year}${secondPeriod ? `, ${secondPeriod.year}` : ""}` : null,
+    `${dict.analyze.industryLabel}: ${industry || "—"}`,
+    `${dict.analyze.regionLabel}: ${region || "—"}`,
+  ]
+    .filter(Boolean)
+    .join("    ");
 
   const content: Record<string, unknown>[] = [
     { text: dict.analyze.title, style: "h1" },
-    {
-      text: `${dict.analyze.industryLabel}: ${industry || "—"}    ${dict.analyze.regionLabel}: ${region || "—"}`,
-      margin: [0, 4, 0, 0],
-    },
+    { text: infoLine, margin: [0, 4, 0, 0] },
     { text: `${dict.panel.outOf100}: ${ratios.score} / 100`, style: "scoreLine", margin: [0, 8, 0, 12] },
 
     { text: dict.analyze.balanceSectionTitle, style: "h2" },
     {
-      table: { headerRows: 1, widths: ["*", 120], body: balanceTableBody(dict, data) },
+      table: { headerRows: 1, widths: tableWidths, body: balanceTableBody(dict, data, secondPeriod?.data, secondHeader) },
       layout: "lightHorizontalLines",
       fontSize: 9,
       margin: [0, 4, 0, 14],
@@ -153,7 +218,7 @@ export async function buildAnalysisPdf(params: {
 
     { text: dict.analyze.pnlSectionTitle, style: "h2" },
     {
-      table: { headerRows: 1, widths: ["*", 120], body: pnlTableBody(dict, data) },
+      table: { headerRows: 1, widths: tableWidths, body: pnlTableBody(dict, data, secondPeriod?.data, secondHeader) },
       layout: "lightHorizontalLines",
       fontSize: 9,
       margin: [0, 4, 0, 14],
@@ -219,9 +284,16 @@ export async function buildAnalysisPdf(params: {
     }
     content.push({ text: advice.benchmark.note || dict.panel.benchmarkUnavailable, margin: [0, 0, 0, 10] });
 
+    if (advice.variance?.narrative) {
+      content.push({ text: dict.varianceDashboard.narrativeHeading, style: "h3" });
+      content.push({ text: advice.variance.narrative, margin: [0, 2, 0, 10] });
+    }
+
     content.push({ text: dict.panel.financingHeading, style: "h3" });
     content.push({ text: advice.financing_advice });
   }
+
+  content.push({ text: dict.analyze.disclaimer, italics: true, fontSize: 8, margin: [0, 16, 0, 0], color: "#64748b" });
 
   const docDefinition = {
     content,

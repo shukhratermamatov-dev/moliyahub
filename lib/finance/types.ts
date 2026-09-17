@@ -85,6 +85,16 @@ export type AiAdvice = {
   safety_margin_commentary: string;
   benchmark: Benchmark;
   source: "ai" | "rules";
+  // Отклонения между 2 отчётными периодами (только когда пользователь ввёл
+  // второй год) — scoreDelta/ratioDeltas считаются локально через
+  // computeVariance() и не зависят от ИИ; narrative — короткий комментарий,
+  // который добавляет модель при ai-анализе (source: "ai"), либо не
+  // заполняется при рассчёте по правилам.
+  variance?: {
+    scoreDelta: number;
+    ratioDeltas: Partial<Record<keyof FinancialRatios, number>>;
+    narrative: string;
+  };
 };
 
 export const EMPTY_FINANCE: MinimalFinanceData = {
@@ -217,6 +227,14 @@ export type FinanceData = {
 };
 
 export type FinanceFieldKey = keyof FinanceData;
+
+// Один отчётный период (год + полный набор статей баланса/ОПУ). Форма
+// анализа работает с массивом из 1 или 2 таких периодов — второй год
+// опционален (см. claude/finansovyj-analiz-rasshirenie-status.md).
+export type FinancePeriod = {
+  year: number;
+  data: FinanceData;
+};
 
 export type FinanceGroupKey =
   | "longTermAssets"

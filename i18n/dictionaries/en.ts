@@ -142,7 +142,25 @@ const dict: Dictionary = {
     guestNotice:
       "You're not signed in: results are only visible on this page and won't be saved once you close it. Sign in or register to keep history and compare periods.",
     savedNotice: "Analysis saved to your cabinet",
+    companyNameLabel: "Company name",
+    addSecondYearLabel: "Add second year",
+    removeSecondYearLabel: "Remove second year",
+    reportingYearLabel: "Reporting year",
+    periodLabel: "Period {n}",
+    yearsMustDifferError: "The two period years must differ",
+    disclaimer:
+      "This financial analysis was performed via the MoliyaHub platform and is advisory in nature only. The final decision rests with the user.",
     clearForm: "Clear form",
+  },
+  varianceDashboard: {
+    ratiosChartTitle: "Key ratios: period 1 vs period 2",
+    balanceChartTitle: "Balance sheet totals: period 1 vs period 2",
+    scoreDeltaLabel: "Overall score change",
+    narrativeHeading: "AI commentary on deviations",
+    metricHeader: "Metric",
+    valueHeader: "Value",
+    showTable: "Show table",
+    hideTable: "Hide table",
   },
   panel: {
     outOf100: "out of 100",
