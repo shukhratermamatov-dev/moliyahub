@@ -68,6 +68,7 @@ function PeriodFieldsCard({
   period,
   yearLabel,
   removable,
+  sideBySide,
   onYearChange,
   onFieldChange,
   onRemove,
@@ -80,6 +81,7 @@ function PeriodFieldsCard({
   period: ComputedPeriod;
   yearLabel: string;
   removable: boolean;
+  sideBySide: boolean;
   onYearChange: (year: number) => void;
   onFieldChange: (key: FinanceFieldKey, n: number) => void;
   onRemove: () => void;
@@ -90,8 +92,14 @@ function PeriodFieldsCard({
 }) {
   const balanceOk = Math.abs(period.subtotals.balanceDiff) < 1;
 
+  const wrapperClass = sideBySide
+    ? "rounded-xl border border-line/60 bg-raised/30 p-4"
+    : periodIndex > 0
+      ? "mt-8 border-t border-line/60 pt-6"
+      : undefined;
+
   return (
-    <div className={periodIndex > 0 ? "mt-8 border-t border-line/60 pt-6" : undefined}>
+    <div className={wrapperClass}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <label className="text-sm">
           <span className="mb-1 block text-muted">{yearLabel}</span>
@@ -460,41 +468,47 @@ export function AnalyzePageClient() {
               </label>
             </div>
 
-            <PeriodFieldsCard
-              periodIndex={0}
-              period={primary}
-              yearLabel={t.periodLabel.replace("{n}", "1") + " · " + t.reportingYearLabel}
-              removable={false}
-              onYearChange={(y) => setPeriodYear(0, y)}
-              onFieldChange={(key, n) => setPeriodField(0, key, n)}
-              onRemove={() => {}}
-              removeLabel=""
-              dict={dict}
-              locale={locale}
-              t={t}
-            />
-
-            {second ? (
+            <div className={second ? "grid gap-6 lg:grid-cols-2 lg:items-start" : undefined}>
               <PeriodFieldsCard
-                periodIndex={1}
-                period={second}
-                yearLabel={t.periodLabel.replace("{n}", "2") + " · " + t.reportingYearLabel}
-                removable
-                onYearChange={(y) => setPeriodYear(1, y)}
-                onFieldChange={(key, n) => setPeriodField(1, key, n)}
-                onRemove={removeSecondPeriod}
-                removeLabel={t.removeSecondYearLabel}
+                periodIndex={0}
+                period={primary}
+                yearLabel={t.periodLabel.replace("{n}", "1") + " · " + t.reportingYearLabel}
+                removable={false}
+                sideBySide={!!second}
+                onYearChange={(y) => setPeriodYear(0, y)}
+                onFieldChange={(key, n) => setPeriodField(0, key, n)}
+                onRemove={() => {}}
+                removeLabel=""
                 dict={dict}
                 locale={locale}
                 t={t}
               />
-            ) : (
+
+              {second ? (
+                <PeriodFieldsCard
+                  periodIndex={1}
+                  period={second}
+                  yearLabel={t.periodLabel.replace("{n}", "2") + " · " + t.reportingYearLabel}
+                  removable
+                  sideBySide
+                  onYearChange={(y) => setPeriodYear(1, y)}
+                  onFieldChange={(key, n) => setPeriodField(1, key, n)}
+                  onRemove={removeSecondPeriod}
+                  removeLabel={t.removeSecondYearLabel}
+                  dict={dict}
+                  locale={locale}
+                  t={t}
+                />
+              ) : null}
+            </div>
+
+            {!second ? (
               <div className="mt-6">
                 <Button type="button" variant="outline" onClick={addSecondPeriod}>
                   {t.addSecondYearLabel}
                 </Button>
               </div>
-            )}
+            ) : null}
 
             {yearsConflict ? <p className="mt-4 text-sm text-danger">{t.yearsMustDifferError}</p> : null}
 
