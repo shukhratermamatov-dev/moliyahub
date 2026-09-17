@@ -351,8 +351,26 @@ export function AnalyzePageClient() {
       fd.append("file", file);
       const res = await fetch("/api/finance/import", { method: "POST", body: fd });
       if (!res.ok) throw new Error("bad_file");
-      const json = (await res.json()) as Partial<FinanceData>;
-      setPeriods((prev) => [{ ...prev[0], data: { ...prev[0].data, ...json } }, ...prev.slice(1)]);
+      const json = (await res.json()) as {
+        period1: Partial<FinanceData>;
+        period2: Partial<FinanceData> | null;
+      };
+      // Один и тот же шаблон читается одинаково для 1 и 2 периодов: если в
+      // файле нашлась колонка второго года (D) — заполняем существующий
+      // второй период или заводим его (год по умолчанию — предыдущий год от
+      // первого периода, как и при ручном добавлении кнопкой).
+      setPeriods((prev) => {
+        const next = [...prev];
+        next[0] = { ...next[0], data: { ...next[0].data, ...json.period1 } };
+        if (json.period2) {
+          if (next.length === 2) {
+            next[1] = { ...next[1], data: { ...next[1].data, ...json.period2 } };
+          } else {
+            next.push({ year: next[0].year - 1, data: { ...EMPTY_FINANCE_DATA, ...json.period2 } });
+          }
+        }
+        return next;
+      });
       setAdvice(null);
       toast.success(t.uploadSuccess);
     } catch {
@@ -387,7 +405,9 @@ export function AnalyzePageClient() {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Button type="button" variant="outline" asChild>
-            <a href={`/api/finance/template?locale=${locale}`}>{t.downloadTemplate}</a>
+            <a href={`/api/finance/template?locale=${locale}${second ? `&year2=${second.year}` : ""}`}>
+              {t.downloadTemplate}
+            </a>
           </Button>
           <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-raised px-4 text-sm font-medium text-fg shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-colors hover:bg-line">
             {uploading ? t.uploadingExcel : t.uploadExcel}

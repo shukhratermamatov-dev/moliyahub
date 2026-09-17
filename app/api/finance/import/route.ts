@@ -22,9 +22,13 @@ function cellToNumber(value: ExcelJS.CellValue): number | null {
 }
 
 // Читает загруженный пользователем .xlsx (ожидается наш шаблон — колонка A
-// содержит машинный код статьи, колонка C — сумму) и возвращает частичный
-// FinanceData. Ничего не сохраняется на сервере — файл разбирается в памяти
-// одного запроса и сразу забывается.
+// содержит машинный код статьи, колонка C — сумму первого периода, и,
+// если пользователь скачивал шаблон уже с добавленным вторым годом —
+// колонка D содержит сумму второго периода). Возвращает { period1, period2 }:
+// period2 не null, только если хотя бы в одной строке нашлось число в
+// колонке D — так один и тот же файл одинаково хорошо читается и для
+// однопериодного, и для двухпериодного шаблона. Ничего не сохраняется на
+// сервере — файл разбирается в памяти одного запроса и сразу забывается.
 export async function POST(request: Request) {
   let formData: FormData;
   try {
@@ -52,23 +56,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "bad_file" }, { status: 400 });
   }
 
-  const result: Partial<Record<keyof FinanceData, number>> = {};
+  const period1: Partial<Record<keyof FinanceData, number>> = {};
+  const period2: Partial<Record<keyof FinanceData, number>> = {};
+  let hasSecond = false;
 
   workbook.eachSheet((sheet) => {
     sheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
       if (rowNumber === 1) return; // заголовок
       const code = String(row.getCell(1).value ?? "").trim();
       if (!code || !VALID_KEYS.has(code)) return;
-      const num = cellToNumber(row.getCell(3).value);
-      if (num !== null) {
-        result[code as keyof FinanceData] = num;
+
+      const num1 = cellToNumber(row.getCell(3).value);
+      if (num1 !== null) period1[code as keyof FinanceData] = num1;
+
+      const num2 = cellToNumber(row.getCell(4).value);
+      if (num2 !== null) {
+        period2[code as keyof FinanceData] = num2;
+        hasSecond = true;
       }
     });
   });
 
-  if (Object.keys(result).length === 0) {
+  if (Object.keys(period1).length === 0 && !hasSecond) {
     return NextResponse.json({ error: "no_data" }, { status: 400 });
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json({ period1, period2: hasSecond ? period2 : null });
 }
