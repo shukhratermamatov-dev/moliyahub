@@ -153,8 +153,10 @@ const dict: Dictionary = {
     clearForm: "Clear form",
   },
   varianceDashboard: {
-    ratiosChartTitle: "Key ratios: period 1 vs period 2",
+    ratiosChartTitle: "Ratios (%): period 1 vs period 2",
+    ratiosTimesChartTitle: "Ratios (multiples, turnover): period 1 vs period 2",
     balanceChartTitle: "Balance sheet totals: period 1 vs period 2",
+    pnlChartTitle: "Income statement: period 1 vs period 2",
     scoreDeltaLabel: "Overall score change",
     narrativeHeading: "AI commentary on deviations",
     metricHeader: "Metric",

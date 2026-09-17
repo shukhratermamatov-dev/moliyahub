@@ -520,8 +520,8 @@ export function AnalyzePageClient() {
 
             {second && advice ? (
               <VarianceDashboard
-                period1={{ year: primary.year, ratios: primary.ratios, aggregates: primary.aggregate }}
-                period2={{ year: second.year, ratios: second.ratios, aggregates: second.aggregate }}
+                period1={{ year: primary.year, data: primary.data, subtotals: primary.subtotals, ratios: primary.ratios }}
+                period2={{ year: second.year, data: second.data, subtotals: second.subtotals, ratios: second.ratios }}
                 narrative={advice.variance?.narrative || undefined}
               />
             ) : null}

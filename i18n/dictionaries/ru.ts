@@ -151,8 +151,10 @@ const dict = {
     clearForm: "Очистить форму",
   },
   varianceDashboard: {
-    ratiosChartTitle: "Ключевые коэффициенты: период 1 vs период 2",
+    ratiosChartTitle: "Коэффициенты (%): период 1 vs период 2",
+    ratiosTimesChartTitle: "Коэффициенты (кратные, обороты): период 1 vs период 2",
     balanceChartTitle: "Итоги баланса: период 1 vs период 2",
+    pnlChartTitle: "Отчёт о финансовых результатах: период 1 vs период 2",
     scoreDeltaLabel: "Изменение общего балла",
     narrativeHeading: "Комментарий ИИ к отклонениям",
     metricHeader: "Показатель",

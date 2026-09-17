@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     ? { year: body.secondPeriod.year, data: sanitizeFinanceData(body.secondPeriod.data) }
     : null;
   const secondValueHeader = secondPeriod ? `${dict.analyze.reportingYearLabel} ${secondPeriod.year}` : undefined;
+  const secondRatios = secondPeriod ? calculateRatios(deriveAggregates(secondPeriod.data)) : undefined;
 
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "MoliyaHub";
@@ -53,7 +54,18 @@ export async function POST(request: Request) {
 
   addBalanceSheet(workbook, dict, data, secondPeriod?.data, secondValueHeader);
   addPnlSheet(workbook, dict, data, secondPeriod?.data, secondValueHeader);
-  addRatiosSheet(workbook, dict, ratios, industryLabel, regionLabel, body.companyName, body.year);
+  addRatiosSheet(
+    workbook,
+    dict,
+    ratios,
+    industryLabel,
+    regionLabel,
+    body.companyName,
+    body.year,
+    secondRatios,
+    secondValueHeader,
+    secondPeriod?.year,
+  );
   addAdviceSheet(workbook, dict, body.advice ?? null);
 
   const buffer = await workbook.xlsx.writeBuffer();

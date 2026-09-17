@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   const secondPeriod = body.secondPeriod
     ? { year: body.secondPeriod.year, data: sanitizeFinanceData(body.secondPeriod.data) }
     : null;
+  const secondRatios = secondPeriod ? calculateRatios(deriveAggregates(secondPeriod.data)) : null;
 
   let buffer: Buffer;
   try {
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
       year: body.year,
       data,
       ratios,
+      secondRatios,
       advice: body.advice ?? null,
       secondPeriod,
     });

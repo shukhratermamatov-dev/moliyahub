@@ -153,8 +153,10 @@ const dict: Dictionary = {
     clearForm: "Formani tozalash",
   },
   varianceDashboard: {
-    ratiosChartTitle: "Asosiy koeffitsientlar: 1-davr va 2-davr",
+    ratiosChartTitle: "Koeffitsientlar (%): 1-davr va 2-davr",
+    ratiosTimesChartTitle: "Koeffitsientlar (karrali, aylanma): 1-davr va 2-davr",
     balanceChartTitle: "Balans yakunlari: 1-davr va 2-davr",
+    pnlChartTitle: "Moliyaviy natijalar: 1-davr va 2-davr",
     scoreDeltaLabel: "Umumiy ball o'zgarishi",
     narrativeHeading: "Sun'iy intellektning og'ishlar bo'yicha izohi",
     metricHeader: "Ko'rsatkich",

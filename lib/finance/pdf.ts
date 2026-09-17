@@ -162,18 +162,36 @@ function pnlTableBody(
   return rows;
 }
 
-function ratiosTableBody(dict: Dictionary, ratios: FinancialRatios): Cell[][] {
+function ratiosTableBody(
+  dict: Dictionary,
+  ratios: FinancialRatios,
+  secondRatios?: FinancialRatios,
+  secondHeader?: string,
+): Cell[][] {
   const ratioKeys = ["currentRatio", "quickRatio", "absoluteLiquidity", "assetTurnover", "inventoryTurnover", "interestCoverage"] as const;
   const pctKeys = ["roa", "roe", "ros", "grossMargin", "operatingMargin", "autonomyRatio", "debtRatio"] as const;
 
-  const rows: Cell[][] = [[{ text: "Показатель", bold: true }, { text: "Значение", bold: true }]];
+  const header: Cell[] = [{ text: "Показатель", bold: true }, { text: "Значение", bold: true }];
+  if (secondHeader) header.push({ text: secondHeader, bold: true });
+  const rows: Cell[][] = [header];
+
+  const line = (label: string, value: string, value2?: string) => {
+    const row: Cell[] = [label, value];
+    if (secondHeader) row.push(value2 ?? "—");
+    rows.push(row);
+  };
+
   for (const key of ratioKeys) {
-    rows.push([dict.panel.ratioRows[key], formatRatio(ratios[key])]);
+    line(dict.panel.ratioRows[key], formatRatio(ratios[key]), secondRatios ? formatRatio(secondRatios[key]) : undefined);
   }
   for (const key of pctKeys) {
-    rows.push([dict.panel.ratioRows[key], formatPct(ratios[key])]);
+    line(dict.panel.ratioRows[key], formatPct(ratios[key]), secondRatios ? formatPct(secondRatios[key]) : undefined);
   }
-  rows.push([dict.panel.ratioRows.workingCapital, fmtMoney(ratios.workingCapital)]);
+  line(
+    dict.panel.ratioRows.workingCapital,
+    fmtMoney(ratios.workingCapital),
+    secondRatios ? fmtMoney(secondRatios.workingCapital) : undefined,
+  );
   return rows;
 }
 
@@ -185,10 +203,11 @@ export async function buildAnalysisPdf(params: {
   year?: number;
   data: FinanceData;
   ratios: FinancialRatios;
+  secondRatios?: FinancialRatios | null;
   advice: AiAdvice | null;
   secondPeriod?: { year: number; data: FinanceData } | null;
 }): Promise<Buffer> {
-  const { dict, industry, region, companyName, year, data, ratios, advice, secondPeriod } = params;
+  const { dict, industry, region, companyName, year, data, ratios, secondRatios, advice, secondPeriod } = params;
   const printer = new PdfPrinter(fonts);
 
   const secondHeader = secondPeriod ? `${dict.analyze.reportingYearLabel} ${secondPeriod.year}` : undefined;
@@ -227,7 +246,11 @@ export async function buildAnalysisPdf(params: {
     { text: "Финансовые показатели", style: "h2" },
   ];
   content.push({
-    table: { headerRows: 1, widths: ["*", 100], body: ratiosTableBody(dict, ratios) },
+    table: {
+      headerRows: 1,
+      widths: secondHeader ? ["*", 90, 90] : ["*", 100],
+      body: ratiosTableBody(dict, ratios, secondRatios ?? undefined, secondHeader),
+    },
     layout: "lightHorizontalLines",
     fontSize: 9,
     margin: [0, 4, 0, 14],

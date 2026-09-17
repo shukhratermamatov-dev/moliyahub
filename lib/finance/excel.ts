@@ -270,51 +270,75 @@ export function addRatiosSheet(
   region: string,
   companyName?: string,
   year?: number,
+  secondRatios?: FinancialRatios,
+  secondValueHeader?: string,
+  secondYear?: number,
 ) {
   const sheet = workbook.addWorksheet(sheetName("Показатели"));
-  sheet.columns = [
+  const hasSecond = secondRatios !== undefined && secondValueHeader !== undefined;
+  const columns: Partial<ExcelJS.Column>[] = [
     { header: "Показатель", key: "label", width: 40 },
     { header: "Значение", key: "value", width: 20 },
   ];
+  if (hasSecond) columns.push({ header: secondValueHeader, key: "value2", width: 20 });
+  sheet.columns = columns;
   const header = sheet.getRow(1);
   header.font = { bold: true, color: { argb: "FFFFFFFF" } };
   header.fill = HEADER_FILL;
+  const infoSpan = hasSecond ? "C" : "B";
 
-  if (companyName) sheet.addRow({ label: dict.analyze.companyNameLabel, value: companyName });
-  if (year) sheet.addRow({ label: dict.analyze.reportingYearLabel, value: year });
-  sheet.addRow({ label: dict.analyze.industryLabel, value: industry });
-  sheet.addRow({ label: dict.analyze.regionLabel, value: region });
+  if (companyName) {
+    const row = sheet.addRow({ label: dict.analyze.companyNameLabel, value: companyName });
+    sheet.mergeCells(`B${row.number}:${infoSpan}${row.number}`);
+  }
+  if (year) {
+    const row = sheet.addRow({
+      label: dict.analyze.reportingYearLabel,
+      value: hasSecond && secondYear ? `${year}, ${secondYear}` : year,
+    });
+    sheet.mergeCells(`B${row.number}:${infoSpan}${row.number}`);
+  }
+  let row = sheet.addRow({ label: dict.analyze.industryLabel, value: industry });
+  sheet.mergeCells(`B${row.number}:${infoSpan}${row.number}`);
+  row = sheet.addRow({ label: dict.analyze.regionLabel, value: region });
+  sheet.mergeCells(`B${row.number}:${infoSpan}${row.number}`);
   sheet.addRow({});
-  sheet.addRow({ label: dict.panel.outOf100, value: ratios.score });
+  sheet.addRow(hasSecond ? { label: dict.panel.outOf100, value: ratios.score, value2: secondRatios.score } : { label: dict.panel.outOf100, value: ratios.score });
 
-  const rows: [string, number | null, "ratio" | "pct" | "money"][] = [
-    [dict.panel.ratioRows.currentRatio, ratios.currentRatio, "ratio"],
-    [dict.panel.ratioRows.quickRatio, ratios.quickRatio, "ratio"],
-    [dict.panel.ratioRows.absoluteLiquidity, ratios.absoluteLiquidity, "ratio"],
-    [dict.panel.ratioRows.roa, ratios.roa, "pct"],
-    [dict.panel.ratioRows.roe, ratios.roe, "pct"],
-    [dict.panel.ratioRows.ros, ratios.ros, "pct"],
-    [dict.panel.ratioRows.grossMargin, ratios.grossMargin, "pct"],
-    [dict.panel.ratioRows.operatingMargin, ratios.operatingMargin, "pct"],
-    [dict.panel.ratioRows.autonomyRatio, ratios.autonomyRatio, "pct"],
-    [dict.panel.ratioRows.debtRatio, ratios.debtRatio, "pct"],
-    [dict.panel.ratioRows.assetTurnover, ratios.assetTurnover, "ratio"],
-    [dict.panel.ratioRows.inventoryTurnover, ratios.inventoryTurnover, "ratio"],
-    [dict.panel.ratioRows.interestCoverage, ratios.interestCoverage, "ratio"],
-    [dict.panel.ratioRows.workingCapital, ratios.workingCapital, "money"],
+  const rows: [string, number | null, number | null | undefined, "ratio" | "pct" | "money"][] = [
+    [dict.panel.ratioRows.currentRatio, ratios.currentRatio, secondRatios?.currentRatio, "ratio"],
+    [dict.panel.ratioRows.quickRatio, ratios.quickRatio, secondRatios?.quickRatio, "ratio"],
+    [dict.panel.ratioRows.absoluteLiquidity, ratios.absoluteLiquidity, secondRatios?.absoluteLiquidity, "ratio"],
+    [dict.panel.ratioRows.roa, ratios.roa, secondRatios?.roa, "pct"],
+    [dict.panel.ratioRows.roe, ratios.roe, secondRatios?.roe, "pct"],
+    [dict.panel.ratioRows.ros, ratios.ros, secondRatios?.ros, "pct"],
+    [dict.panel.ratioRows.grossMargin, ratios.grossMargin, secondRatios?.grossMargin, "pct"],
+    [dict.panel.ratioRows.operatingMargin, ratios.operatingMargin, secondRatios?.operatingMargin, "pct"],
+    [dict.panel.ratioRows.autonomyRatio, ratios.autonomyRatio, secondRatios?.autonomyRatio, "pct"],
+    [dict.panel.ratioRows.debtRatio, ratios.debtRatio, secondRatios?.debtRatio, "pct"],
+    [dict.panel.ratioRows.assetTurnover, ratios.assetTurnover, secondRatios?.assetTurnover, "ratio"],
+    [dict.panel.ratioRows.inventoryTurnover, ratios.inventoryTurnover, secondRatios?.inventoryTurnover, "ratio"],
+    [dict.panel.ratioRows.interestCoverage, ratios.interestCoverage, secondRatios?.interestCoverage, "ratio"],
+    [dict.panel.ratioRows.workingCapital, ratios.workingCapital, secondRatios?.workingCapital, "money"],
   ];
-  for (const [label, value, kind] of rows) {
-    const row = sheet.addRow({ label, value });
+  for (const [label, value, value2, kind] of rows) {
+    const row = sheet.addRow(hasSecond ? { label, value, value2: value2 ?? null } : { label, value });
     const cell = row.getCell("value");
     if (kind === "pct") cell.numFmt = "0.0%";
     else if (kind === "money") cell.numFmt = MONEY_FMT;
     else cell.numFmt = "0.00";
+    if (hasSecond) {
+      const cell2 = row.getCell("value2");
+      if (kind === "pct") cell2.numFmt = "0.0%";
+      else if (kind === "money") cell2.numFmt = MONEY_FMT;
+      else cell2.numFmt = "0.00";
+    }
   }
 
   sheet.addRow({});
   const disclaimerRow = sheet.addRow({ label: dict.analyze.disclaimer });
   disclaimerRow.font = { italic: true, color: { argb: "FF64748B" } };
-  sheet.mergeCells(`A${disclaimerRow.number}:B${disclaimerRow.number}`);
+  sheet.mergeCells(`A${disclaimerRow.number}:${infoSpan}${disclaimerRow.number}`);
   disclaimerRow.getCell("label").alignment = { wrapText: true };
 
   return sheet;

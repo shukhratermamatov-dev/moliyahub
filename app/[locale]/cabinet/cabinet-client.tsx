@@ -5,7 +5,7 @@ import { useActionState, useMemo, useState } from "react";
 import { NumberField } from "@/components/ui/number-input";
 import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { useI18n } from "@/i18n/provider";
-import { deriveAggregates } from "@/lib/finance/aggregate";
+import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
 import { calculateRatios } from "@/lib/finance/ratios";
 import type { AiAdvice, FinanceData, FinancePeriod, FinancialRatios } from "@/lib/finance/types";
 import type { BusinessPlan } from "@/lib/business-plan/types";
@@ -306,13 +306,15 @@ export function CabinetClient({
                       <VarianceDashboard
                         period1={{
                           year: a.periods[0].year,
+                          data: a.periods[0].data,
+                          subtotals: computeSubtotals(a.periods[0].data),
                           ratios: calculateRatios(deriveAggregates(a.periods[0].data)),
-                          aggregates: deriveAggregates(a.periods[0].data),
                         }}
                         period2={{
                           year: a.periods[1].year,
+                          data: a.periods[1].data,
+                          subtotals: computeSubtotals(a.periods[1].data),
                           ratios: calculateRatios(deriveAggregates(a.periods[1].data)),
-                          aggregates: deriveAggregates(a.periods[1].data),
                         }}
                         narrative={a.advice?.variance?.narrative || undefined}
                       />
