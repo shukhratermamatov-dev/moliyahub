@@ -883,7 +883,19 @@ const dict: Dictionary = {
   },
   partners: {
     title: "Partners",
-    comingSoon: "The list of partners will appear here soon.",
+    eyebrow: "Partnership",
+    intro: "Companies and organizations that MoliyaHub partners with.",
+    visitSite: "Visit website",
+    categoryLabels: {
+      DISTRIBUTION: "Distribution company",
+      BANK: "Bank",
+      GOVERNMENT: "Government body",
+      ASSOCIATION: "Association",
+      MEDIA: "Media partner",
+      CONSULTING: "Consulting",
+    },
+    becomePartnerHeading: "Want to become a partner?",
+    becomePartnerText: "Reach out to us if your company is interested in partnering with MoliyaHub.",
   },
   news: {
     title: "News",

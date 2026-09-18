@@ -897,7 +897,19 @@ const dict = {
   },
   partners: {
     title: "Партнёры",
-    comingSoon: "Список партнёров появится здесь совсем скоро.",
+    eyebrow: "Партнёрство",
+    intro: "Компании и организации, с которыми сотрудничает MoliyaHub.",
+    visitSite: "Перейти на сайт",
+    categoryLabels: {
+      DISTRIBUTION: "Дистрибьюторская компания",
+      BANK: "Банк",
+      GOVERNMENT: "Государственный орган",
+      ASSOCIATION: "Ассоциация / объединение",
+      MEDIA: "Информационный партнёр",
+      CONSULTING: "Консалтинг",
+    },
+    becomePartnerHeading: "Хотите стать партнёром?",
+    becomePartnerText: "Напишите нам, если ваша компания заинтересована в сотрудничестве с MoliyaHub.",
   },
   news: {
     title: "Новости",

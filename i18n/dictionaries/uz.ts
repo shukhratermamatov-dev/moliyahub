@@ -885,7 +885,19 @@ const dict: Dictionary = {
   },
   partners: {
     title: "Hamkorlar",
-    comingSoon: "Hamkorlar roʻyxati tez orada shu yerda paydo boʻladi.",
+    eyebrow: "Hamkorlik",
+    intro: "MoliyaHub hamkorlik qiladigan kompaniyalar va tashkilotlar.",
+    visitSite: "Saytga o'tish",
+    categoryLabels: {
+      DISTRIBUTION: "Distribyutorlik kompaniyasi",
+      BANK: "Bank",
+      GOVERNMENT: "Davlat organi",
+      ASSOCIATION: "Assotsiatsiya / uyushma",
+      MEDIA: "Axborot hamkori",
+      CONSULTING: "Konsalting",
+    },
+    becomePartnerHeading: "Hamkor bo'lishni xohlaysizmi?",
+    becomePartnerText: "Agar kompaniyangiz MoliyaHub bilan hamkorlikka qiziqsa, bizga yozing.",
   },
   news: {
     title: "Yangiliklar",
