@@ -743,6 +743,118 @@ const dict: Dictionary = {
     disclaimer:
       "Material taʼlimiy xarakterga ega va diniy xulosa (fatvo) hisoblanmaydi. Mahsulotning shariat meʼyorlariga muvofiqligini bankning oʻz shariat kengashi tasdiqlaydi — rasmiylashtirishdan oldin buni toʻgʻridan-toʻgʻri aniqlashtiring.",
   },
+  advicePage: {
+    backHome: "← Bosh sahifa",
+    eyebrow: "Maslahatlar",
+    title: "Tadbirkorlar uchun maslahatlar",
+    subtitle: "Gʻoyani tekshirishdan moliyaviy intizomgacha — 16 ta amaliy maslahat",
+    intro:
+      "Biznesning turli bosqichlarida — birinchi gipotezadan kengaytirishgacha — foydali boʻladigan qisqa va aniq maslahatlarni toʻpladik. Toʻliq oʻqish uchun kartochkani bosing.",
+    tipsHeading: "16 ta maslahat",
+    flipHint: "Batafsil oʻqish uchun kartochkani bosing",
+    tips: [
+      {
+        id: "mvp",
+        title: "Gipotezani tekshirish (MVP)",
+        teaser: "Hammasini qurishdan oldin minimal versiyani sinab koʻring",
+        text: "Darhol mukammal mahsulot qurmang — minimal ishlaydigan versiyasini (MVP, Minimum Viable Product) yarating, uni real mijozlarda sinab koʻring va butun byudjetni ishlab chiqishga sarflashdan oldin fikr-mulohaza toʻplang.",
+      },
+      {
+        id: "customerFirst",
+        title: "Mijoz markazda",
+        teaser: "Mahsulot asoschisi uchun emas, mijoz uchun yaratiladi",
+        text: "Muntazam ravishda mijozlar bilan suhbat (customer development) oʻtkazing, ularning muammolarini oʻrganing va mahsulotni xayoliy emas, real talabga moslashtiring.",
+      },
+      {
+        id: "bookkeeping",
+        title: "Birinchi kundanoq moliyaviy hisob yuriting",
+        teaser: "Oddiy daromad-xarajat jadvali «hammasi xayolda» boʻlishidan yaxshiroq",
+        text: "Hisobni boshidanoq yuriting — aks holda biznes real foyda keltiryaptimi yoki shunchaki aylanma koʻrinishini yaratyaptimi, bilib boʻlmaydi.",
+      },
+      {
+        id: "cashFlow",
+        title: "Pul oqimi qogʻozdagi foydadan muhimroq",
+        teaser: "Kassa uzilishlari oʻsib borayotgan biznesni ham toʻxtatadi",
+        text: "Pul harakatini (Cash Flow) hisobotdagi foydadan kam boʻlmagan darajada kuzatib boring — kassa uzilishi rasman foydali kompaniyani ham toʻxtatib qoʻyishi mumkin.",
+      },
+      {
+        id: "reserve",
+        title: "Moliyaviy zaxira",
+        teaser: "Ehtiyot uchun 3–6 oylik xarajat",
+        text: "Toʻlovlar kechikishi, kutilmagan inqirozlar yoki savdo pasayishi uchun 3–6 oylik operatsion xarajatlarga teng zaxira saqlang.",
+      },
+      {
+        id: "separateFinances",
+        title: "Shaxsiy va biznes moliyasini ajrating",
+        teaser: "Oʻz hamyoningiz va kompaniya kassasini aralashtirmang",
+        text: "Alohida hisob yuriting va nima «oʻzingiz uchun» olinganini, nima qayta investitsiya qilinganini aniq belgilang — bu hisobotda vaqtingizni va asablaringizni tejaydi hamda real holatni koʻrsatadi.",
+      },
+      {
+        id: "financingSources",
+        title: "Moliyalashtirish manbalarini oldindan oʻrganing",
+        teaser: "Kreditni faqat aniq qoplash hisobi asosida oling",
+        text: "Bank krediti, lizing, islomiy moliyalashtirish, KOʻB uchun grantlar — har birining oʻz muddati va talablari bor. Aniq qaytarish rejasisiz qarz — investitsiya emas, balki pul oqimiga qoʻshimcha yuk.",
+      },
+      {
+        id: "counterparties",
+        title: "Kontragentlarni tekshiring",
+        teaser: "Kelishuvlarni yozma ravishda mustahkamlang",
+        text: "Ogʻzaki kelishuvlar, ayniqsa yetkazib beruvchilar va pudratchilar bilan, koʻpincha yoʻqotishlarga sabab boʻladi. Kontragentlarni tekshiring va shartlarni shartnomada mustahkamlang.",
+      },
+      {
+        id: "turnover",
+        title: "Zaxiralar va debitorlik aylanmasi",
+        teaser: "Omborda qolgan tovar va qarzdorlardagi pul hisobotda koʻrinmaydi",
+        text: "Zaxiralar va debitorlik qarzi qanchalik tez aylanishini hisoblang — omborda qolgan tovar va qarzdorlardagi pul, hisobot yaxshi koʻrinsa ham, muzlatilgan pul hisoblanadi.",
+      },
+      {
+        id: "diversify",
+        title: "Xavflarni diversifikatsiya qiling",
+        teaser: "Barcha tuxumni bitta savatga solmang",
+        text: "Bitta trafik manbai yoki bitta asosiy kontragent oʻrniga muqobil yetkazib beruvchilar va bir nechta mijoz jalb qilish kanallariga ega boʻling.",
+      },
+      {
+        id: "team",
+        title: "Kuchli jamoa",
+        teaser: "Dalada yolgʻiz turib boʻlmaydi",
+        text: "Oʻzingizdan tor yoʻnalishlarda — huquqshunoslik, marketing, buxgalteriya — kuchliroq mutaxassislar bilan oʻralib oling va strategiya uchun vaqt boʻshatish uchun operatsion vazifalarni topshiring.",
+      },
+      {
+        id: "automation",
+        title: "Rutinani avtomatlashtiring",
+        teaser: "CRM, analitika, bulutli buxgalteriya, chat-botlar",
+        text: "Zamonaviy vositalarni joriy qiling — CRM (mijozlar bilan munosabatlarni boshqarish tizimi), analitika, bulutli buxgalteriya, chat-botlar. Avtomatlashtirish inson omili xavfini kamaytiradi va jamoa vaqtini boʻshatadi.",
+      },
+      {
+        id: "marketing",
+        title: "Marketing va brend",
+        teaser: "Eng yaxshi mahsulot ham oʻzini oʻzi sotmaydi",
+        text: "Auditoriya bilan uzoq muddatli aloqa quring, brendga ishonch shakllantiring va oʻlchanadigan samaradorlik (ROI — investitsiyalar qaytimi) bilan yangi kanallarni sinab koʻring.",
+      },
+      {
+        id: "pivot",
+        title: "Yoʻnalishni oʻzgartirishga tayyor boʻling",
+        teaser: "Model ishlamay qolsa — kursni oʻzgartiring",
+        text: "Agar eski biznes-model foyda keltirishni toʻxtatsa — eskirgan gʻoyaga hissiy jihatdan bogʻlanib qolmasdan, yoʻnalishni tezda oʻzgartirishga tayyor boʻling.",
+      },
+      {
+        id: "burnout",
+        title: "Oʻz resursingizni boshqaring",
+        teaser: "Biznes oʻz asoschisidan tezroq rivojlana olmaydi",
+        text: "Tadbirkorning his-quvvati tugashi (burnout) biznes turgʻunligining tez-tez uchraydigan sababi. Vazifalarni topshira oling, dam olishni rejalashtiring va muvozanatni saqlang.",
+      },
+      {
+        id: "kaizen",
+        title: "Kaydzen — uzluksiz takomillashtirish",
+        teaser: "Bozor har kuni oʻzgaradi — u bilan birga rivojlaning",
+        text: "Biznes adabiyotini oʻqing, raqobatchilar tajribasini oʻrganing va kompaniya faoliyatining har bosqichida jarayonlarni uzluksiz takomillashtirish falsafasini (yapon tilida Kaydzen — «yaxshi tomonga oʻzgarish») joriy qiling.",
+      },
+    ],
+    disclaimerHeading: "Muhim",
+    disclaimer:
+      "Maslahatlar umumiy, maʼlumot xarakteriga ega va sizning aniq vaziyatingiz boʻyicha huquqshunos, buxgalter yoki moliyaviy maslahatchi konsultatsiyasini almashtirmaydi.",
+    ctaAnalyze: "Biznes koʻrsatkichlarini hisoblash",
+  },
   about: {
     eyebrow: "Biz haqimizda",
     title: "Kompaniya haqida",

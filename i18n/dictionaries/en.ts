@@ -741,6 +741,118 @@ const dict: Dictionary = {
     disclaimer:
       "This material is educational and is not a religious ruling (fatwa). Confirming that a product complies with Sharia is the responsibility of the bank's own Sharia board — check directly with the bank before applying.",
   },
+  advicePage: {
+    backHome: "← Home",
+    eyebrow: "Advice",
+    title: "Advice for entrepreneurs",
+    subtitle: "16 practical tips — from validating an idea to financial discipline",
+    intro:
+      "A collection of short, concrete tips useful at different stages of a business — from the first hypothesis to scaling up. Click a card to read the full tip.",
+    tipsHeading: "16 tips",
+    flipHint: "Click a card to read more",
+    tips: [
+      {
+        id: "mvp",
+        title: "Validate the hypothesis (MVP)",
+        teaser: "Test a minimal version before building everything",
+        text: "Don't build the perfect product right away — create a Minimum Viable Product (MVP), test it with real customers, and gather feedback before spending your whole budget on development.",
+      },
+      {
+        id: "customerFirst",
+        title: "Put the customer at the center",
+        teaser: "The product exists for the customer, not the founder",
+        text: "Run customer development interviews regularly, learn their pain points, and adapt the product to real demand instead of an imagined one.",
+      },
+      {
+        id: "bookkeeping",
+        title: "Keep financial records from day one",
+        teaser: "A simple income/expense sheet beats \"it's all in my head\"",
+        text: "Start bookkeeping from the very beginning — without it, there's no way to tell whether the business generates real profit or just creates the appearance of turnover.",
+      },
+      {
+        id: "cashFlow",
+        title: "Cash flow matters more than paper profit",
+        teaser: "Cash gaps can stop even a growing business",
+        text: "Watch cash flow at least as closely as the profit shown in reports — a cash gap can halt operations even at a company that's formally profitable.",
+      },
+      {
+        id: "reserve",
+        title: "Keep a financial cushion",
+        teaser: "3–6 months of expenses in reserve",
+        text: "Keep a reserve equal to 3–6 months of operating expenses in case of delayed payments, unexpected crises, or a drop in sales.",
+      },
+      {
+        id: "separateFinances",
+        title: "Separate personal and business finances",
+        teaser: "Don't mix your wallet with the company's cash",
+        text: "Use a separate account and clearly track what was taken out for personal use versus what was reinvested — this saves headaches at reporting time and gives you an honest picture of the business.",
+      },
+      {
+        id: "financingSources",
+        title: "Research financing sources ahead of time",
+        teaser: "Only take a loan with a clear payback calculation",
+        text: "Bank loans, leasing, Islamic financing, grants for small business — each has its own timeline and requirements. A loan without a clear repayment model isn't an investment, it's just a burden on cash flow.",
+      },
+      {
+        id: "counterparties",
+        title: "Vet your counterparties",
+        teaser: "Put agreements in writing",
+        text: "Verbal agreements are a common source of losses, especially with suppliers and contractors. Check counterparties and lock in terms with a written contract.",
+      },
+      {
+        id: "turnover",
+        title: "Track inventory and receivables turnover",
+        teaser: "Stuck stock and overdue payments don't show up in the profit line",
+        text: "Track how quickly inventory and accounts receivable turn over — stock sitting in a warehouse and money stuck with debtors is frozen cash, even if the report looks fine.",
+      },
+      {
+        id: "diversify",
+        title: "Diversify your risks",
+        teaser: "Don't put all your eggs in one basket",
+        text: "Have backup suppliers and several customer acquisition channels rather than relying on a single traffic source or one key counterparty.",
+      },
+      {
+        id: "team",
+        title: "Build a strong team",
+        teaser: "One person alone isn't a business",
+        text: "Surround yourself with people stronger than you in specific areas — law, marketing, accounting — and delegate operational tasks to free up time for strategy.",
+      },
+      {
+        id: "automation",
+        title: "Automate routine work",
+        teaser: "CRM, analytics, cloud accounting, chatbots",
+        text: "Adopt modern tools — a CRM (customer relationship management system), analytics, cloud accounting, chatbots. Automation reduces the risk of human error and frees up your team's time.",
+      },
+      {
+        id: "marketing",
+        title: "Invest in marketing and brand",
+        teaser: "Even the best product doesn't sell itself",
+        text: "Build long-term communication with your audience, earn trust in your brand, and test new channels with measurable ROI (return on investment).",
+      },
+      {
+        id: "pivot",
+        title: "Be ready to change direction",
+        teaser: "Shift course when the model stops working",
+        text: "If the old business model stops generating profit, be ready to change direction quickly instead of holding on emotionally to an outdated idea.",
+      },
+      {
+        id: "burnout",
+        title: "Manage your own energy",
+        teaser: "A business can't grow faster than its founder",
+        text: "Founder burnout is a common cause of business stagnation. Learn to delegate, plan time off, and maintain balance.",
+      },
+      {
+        id: "kaizen",
+        title: "Kaizen — continuous improvement",
+        teaser: "The market changes daily — improve along with it",
+        text: "Read business literature, study your competitors, and apply the philosophy of continuous process improvement (Japanese: Kaizen — 'change for the better') at every stage of the company's work.",
+      },
+    ],
+    disclaimerHeading: "Important",
+    disclaimer:
+      "These tips are general and informational, and don't replace advice from a lawyer, accountant, or financial consultant tailored to your specific situation.",
+    ctaAnalyze: "Calculate your business metrics",
+  },
   about: {
     eyebrow: "About us",
     title: "About the company",

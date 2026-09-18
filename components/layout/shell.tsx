@@ -152,7 +152,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
                     {dict.shell.footerServicesLinks.consulting}
                   </Link>
                 </li>
-                <li className="text-muted/50">{dict.shell.footerServicesLinks.advice}</li>
+                <li>
+                  <Link href={`/${locale}/advice`} className="text-muted transition-colors hover:text-fg">
+                    {dict.shell.footerServicesLinks.advice}
+                  </Link>
+                </li>
               </ul>
             </div>
 
