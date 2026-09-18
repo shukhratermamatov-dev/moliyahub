@@ -16,7 +16,7 @@ export const SITE_IMAGES = {
     alt: "Работники текстильного производства",
   },
   smallBusinessOwner: {
-    src: "https://images.unsplash.com/photo-1687422808248-f807f4ea2a2e?auto=format&fit=crop&w=1600&q=80",
-    alt: "Владелец небольшого бизнеса со смартфоном",
+    src: "https://images.unsplash.com/photo-1603796846097-bee99e4a601f?auto=format&fit=crop&w=1600&q=80",
+    alt: "Подписание финансового договора",
   },
 } as const;
