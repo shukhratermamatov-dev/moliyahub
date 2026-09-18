@@ -25,9 +25,9 @@ export const PARTNERS: Partner[] = [
     name: 'ООО "FIRSTGROUP"',
     category: "DISTRIBUTION",
     description: {
-      ru: "Дистрибьюторская компания. Консультирует предпринимателей MoliyaHub по вопросам развития бизнеса.",
-      uz: "Distribyutorlik kompaniyasi. MoliyaHub tadbirkorlarini biznesni rivojlantirish masalalarida maslahat bilan qo'llab-quvvatlaydi.",
-      en: "Distribution company. Advises MoliyaHub entrepreneurs on business development.",
+      ru: 'ООО «FIRSTGROUP» — крупнейший дистрибьютор FMCG.',
+      uz: '«FIRSTGROUP» MChJ — FMCG bo\'yicha eng yirik distribyutor.',
+      en: 'FIRSTGROUP LLC — the largest FMCG distributor.',
     },
     url: "https://ayvengroup.com/",
     logoDomain: "ayvengroup.com",
