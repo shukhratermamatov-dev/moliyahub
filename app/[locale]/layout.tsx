@@ -36,6 +36,7 @@ export async function generateMetadata({
   // сервер→клиент как React-проп.
   const dict = await getDictionary(locale);
   return {
+    metadataBase: new URL("https://www.moliyahub.uz"),
     title: dict.meta.title,
     description: dict.meta.description,
     icons: {
@@ -45,6 +46,9 @@ export async function generateMetadata({
       title: dict.meta.title,
       description: dict.meta.description,
       images: ["/og.jpg"],
+      url: `/${locale}`,
+      locale,
+      siteName: "MoliyaHub",
     },
   };
 }
