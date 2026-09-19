@@ -1,0 +1,179 @@
+.wrap {
+  --ia-cyan: #63e6c9;
+  --ia-electric: #3fd0e0;
+  --ia-mint: #8ff2df;
+  --ia-primary-soft: #58c79b;
+  --ia-badge-bg: #0c2420;
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 30rem;
+}
+
+.tag {
+  position: absolute;
+  top: -0.5rem;
+  right: 1rem;
+  z-index: 1;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-raised) 90%, transparent);
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ia-cyan);
+  backdrop-filter: blur(4px);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.rotCw {
+  animation: ia-spin 60s linear infinite;
+  transform-origin: 430px 300px;
+}
+.rotCcw {
+  animation: ia-spin 46s linear infinite reverse;
+  transform-origin: 430px 300px;
+}
+@keyframes ia-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pulseRing {
+  animation: ia-ringpulse 4.5s ease-in-out infinite;
+  transform-origin: 430px 300px;
+}
+@keyframes ia-ringpulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px rgba(63, 208, 224, 0.55));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(63, 208, 224, 0.9));
+  }
+}
+
+.badge {
+  animation: ia-badgefloat 5.2s ease-in-out infinite;
+}
+@keyframes ia-badgefloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.badgeGlow {
+  animation: ia-badgeglow 3.6s ease-in-out infinite;
+}
+@keyframes ia-badgeglow {
+  0%,
+  50%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(63, 208, 224, 0.4));
+  }
+  25% {
+    filter: drop-shadow(0 0 13px rgba(63, 208, 224, 0.85));
+  }
+}
+
+.bar {
+  animation: ia-barmove 3.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+@keyframes ia-barmove {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.72);
+  }
+}
+
+.dotPulse {
+  animation: ia-dotpulse 2.4s ease-in-out infinite;
+}
+@keyframes ia-dotpulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    r: 3;
+  }
+  50% {
+    opacity: 1;
+    r: 4.6;
+  }
+}
+
+.pctArc {
+  stroke-dasharray: 218;
+  animation: ia-pctdraw 5s ease-in-out infinite;
+}
+@keyframes ia-pctdraw {
+  0% {
+    stroke-dashoffset: 218;
+  }
+  45% {
+    stroke-dashoffset: 55;
+  }
+  75%,
+  100% {
+    stroke-dashoffset: 218;
+  }
+}
+
+.fingertip {
+  animation: ia-tipglow 2.8s ease-in-out infinite;
+}
+@keyframes ia-tipglow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.handTrace {
+  animation: ia-tracesheen 3.6s ease-in-out infinite;
+}
+@keyframes ia-tracesheen {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.drift {
+  animation: ia-driftup 6s ease-in-out infinite;
+}
+@keyframes ia-driftup {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-14px);
+    opacity: 1;
+  }
+}
