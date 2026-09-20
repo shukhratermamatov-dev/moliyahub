@@ -45,6 +45,9 @@ export async function addProject(
   });
 
   if (error) {
+    // Логируем реальную ошибку Supabase в серверный лог (Vercel → Logs) —
+    // без этого причина падения была не видна вообще нигде.
+    console.error("[addProject] supabase insert error:", error);
     return { error: "generic_error" };
   }
 

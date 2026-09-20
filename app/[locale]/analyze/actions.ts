@@ -45,6 +45,10 @@ export async function saveAnalysisAction(payload: {
   });
 
   if (error) {
+    // Логируем реальную ошибку Supabase в серверный лог (Vercel → Logs) —
+    // без этого причина падения (например, отсутствующая колонка из-за не
+    // выполненного SQL-патча) была не видна вообще нигде.
+    console.error("[saveAnalysisAction] supabase insert error:", error);
     return { ok: false, error: "generic_error" };
   }
 
