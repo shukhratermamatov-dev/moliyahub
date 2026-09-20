@@ -23,6 +23,13 @@ export async function addProject(
   const region = String(formData.get("region") || "").trim();
   const amountRaw = String(formData.get("amount") || "").trim();
   const amount = amountRaw ? Number(amountRaw) : null;
+  // "stage" не собирался формой и не отправлялся в insert — если колонка в
+  // Supabase NOT NULL без default, каждое добавление проекта падало молча
+  // (форма просто показывала generic_error). Теперь всегда шлём валидное
+  // значение из фиксированного набора (как на публичной "Бирже проектов").
+  const STAGES = ["IDEA", "MVP", "GROWTH", "SCALE"] as const;
+  const stageRaw = String(formData.get("stage") || "IDEA");
+  const stage = (STAGES as readonly string[]).includes(stageRaw) ? stageRaw : "IDEA";
 
   if (!name) {
     return { error: "name_required" };
@@ -34,6 +41,7 @@ export async function addProject(
     description: description || null,
     region: region || null,
     amount,
+    stage,
   });
 
   if (error) {

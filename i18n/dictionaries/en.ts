@@ -142,6 +142,10 @@ const dict: Dictionary = {
     guestNotice:
       "You're not signed in: results are only visible on this page and won't be saved once you close it. Sign in or register to keep history and compare periods.",
     savedNotice: "Analysis saved to your cabinet",
+    saveNow: "Save analysis",
+    savingNow: "Saving…",
+    saveErrorNotice: "Couldn't save the analysis. Please try again.",
+    saveAuthNotice: "Sign in or register to save this analysis",
     companyNameLabel: "Company name",
     addSecondYearLabel: "Add second year",
     removeSecondYearLabel: "Remove second year",
@@ -656,6 +660,7 @@ const dict: Dictionary = {
     projectDescriptionLabel: "Description",
     projectRegionLabel: "Region",
     projectAmountLabel: "Amount needed, UZS",
+    projectStageLabel: "Stage",
     addProject: "Add project",
     addingProject: "Adding…",
     noProjects: "No projects yet — add your first one.",

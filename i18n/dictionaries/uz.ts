@@ -142,6 +142,10 @@ const dict: Dictionary = {
     guestNotice:
       "Siz tizimga kirmagansiz: hisob-kitoblar faqat shu sahifada koʻrinadi va uni yopgach saqlanmaydi. Tarixni saqlash va davrlarni solishtirish uchun tizimga kiring yoki roʻyxatdan oʻting.",
     savedNotice: "Tahlil shaxsiy kabinetga saqlandi",
+    saveNow: "Tahlilni saqlash",
+    savingNow: "Saqlanmoqda…",
+    saveErrorNotice: "Tahlilni saqlab boʻlmadi. Qaytadan urinib koʻring.",
+    saveAuthNotice: "Tahlilni saqlash uchun tizimga kiring yoki roʻyxatdan oʻting",
     companyNameLabel: "Kompaniya nomi",
     addSecondYearLabel: "Ikkinchi yilni qo'shish",
     removeSecondYearLabel: "Ikkinchi yilni olib tashlash",
@@ -658,6 +662,7 @@ const dict: Dictionary = {
     projectDescriptionLabel: "Tavsif",
     projectRegionLabel: "Hudud",
     projectAmountLabel: "Kerakli summa, soʻm",
+    projectStageLabel: "Bosqich",
     addProject: "Loyiha qoʻshish",
     addingProject: "Qoʻshilmoqda…",
     noProjects: "Hozircha loyihalar yoʻq — birinchisini qoʻshing.",

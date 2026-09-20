@@ -193,6 +193,7 @@ export function AnalyzePageClient() {
   const [periods, setPeriods] = useState<FinancePeriod[]>([{ year: CURRENT_YEAR, data: { ...DEMO_FINANCE_DATA } }]);
   const [advice, setAdvice] = useState<AiAdvice | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [uploading, setUploading] = useState(false);
   const [exporting, setExporting] = useState<"xlsx" | "pdf" | null>(null);
@@ -258,19 +259,6 @@ export function AnalyzePageClient() {
     setAdvice(null);
   };
 
-  async function persist(nextAdvice: AiAdvice) {
-    if (!loggedIn) return;
-    const res = await saveAnalysisAction({
-      companyName,
-      industry,
-      region,
-      periods,
-      ratios: primary.ratios,
-      advice: nextAdvice,
-    });
-    if (res.ok) toast.success(t.savedNotice);
-  }
-
   const runLocal = () => {
     if (yearsConflict) {
       toast.error(t.yearsMustDifferError);
@@ -280,7 +268,6 @@ export function AnalyzePageClient() {
     if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
     setAdvice(next);
     toast.success(t.toastCalculated);
-    void persist(next);
   };
 
   const runAi = async () => {
@@ -293,7 +280,6 @@ export function AnalyzePageClient() {
       const next = await requestAiAdvice({ periods, industry, region, locale });
       setAdvice(next);
       toast.success(next.source === "ai" ? t.toastAiReady : t.toastExpress);
-      void persist(next);
     } catch {
       const next = buildRuleAdvice(primary.aggregate, primary.ratios, dict, locale, primary.data);
       if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
@@ -301,6 +287,41 @@ export function AnalyzePageClient() {
       toast.error(t.toastAiUnavailable);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Явное сохранение по кнопке — раньше сохранялось автоматически и молча
+  // после каждого расчёта (без кнопки и без сообщения об ошибке, если
+  // insert в Supabase падал, например из-за несозданной колонки/таблицы).
+  // Теперь пользователь явно нажимает «Сохранить» и всегда получает toast
+  // с результатом, включая причину неудачи.
+  const saveAnalysis = async () => {
+    if (!advice) return;
+    if (!loggedIn) {
+      toast.error(t.saveAuthNotice);
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await saveAnalysisAction({
+        companyName,
+        industry,
+        region,
+        periods,
+        ratios: primary.ratios,
+        advice,
+      });
+      if (res.ok) {
+        toast.success(t.savedNotice);
+      } else if (res.error === "not_authenticated") {
+        toast.error(t.saveAuthNotice);
+      } else {
+        toast.error(t.saveErrorNotice);
+      }
+    } catch {
+      toast.error(t.saveErrorNotice);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -518,6 +539,14 @@ export function AnalyzePageClient() {
               </Button>
               <Button type="button" variant="gold" disabled={loading || yearsConflict} onClick={runAi}>
                 {loading ? t.loadingAi : t.getAi}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!advice || saving}
+                onClick={saveAnalysis}
+              >
+                {saving ? t.savingNow : t.saveNow}
               </Button>
             </div>
             <p className="mt-3 text-xs text-muted">{t.aiHint}</p>

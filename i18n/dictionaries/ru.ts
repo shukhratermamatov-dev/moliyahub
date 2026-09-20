@@ -140,6 +140,10 @@ const dict = {
     guestNotice:
       "Вы не вошли в аккаунт: расчёты видны только на этой странице и не сохранятся после её закрытия. Войдите или зарегистрируйтесь, чтобы сохранять историю и сравнивать периоды.",
     savedNotice: "Анализ сохранён в личном кабинете",
+    saveNow: "Сохранить анализ",
+    savingNow: "Сохраняем…",
+    saveErrorNotice: "Не удалось сохранить анализ. Попробуйте ещё раз.",
+    saveAuthNotice: "Войдите или зарегистрируйтесь, чтобы сохранить анализ",
     companyNameLabel: "Наименование компании",
     addSecondYearLabel: "Добавить второй год",
     removeSecondYearLabel: "Убрать второй год",
@@ -670,6 +674,7 @@ const dict = {
     projectDescriptionLabel: "Описание",
     projectRegionLabel: "Регион",
     projectAmountLabel: "Нужная сумма, сум",
+    projectStageLabel: "Стадия",
     addProject: "Добавить проект",
     addingProject: "Добавляем…",
     noProjects: "Пока нет ни одного проекта — добавьте первый.",

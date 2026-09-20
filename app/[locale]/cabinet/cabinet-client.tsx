@@ -230,6 +230,16 @@ export function CabinetClient({
               <NumberField value={projectAmount} onValueChange={setProjectAmount} className={inputClass} />
               <input type="hidden" name="amount" value={projectAmount || ""} />
             </label>
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted">{dict.cabinet.projectStageLabel}</span>
+              <select name="stage" defaultValue="IDEA" className={inputClass}>
+                {(Object.keys(dict.projectStages) as (keyof typeof dict.projectStages)[]).map((key) => (
+                  <option key={key} value={key}>
+                    {dict.projectStages[key]}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           {state?.error ? <p className="text-sm text-danger">{state.error}</p> : null}
           <button
