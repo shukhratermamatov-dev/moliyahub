@@ -7,6 +7,7 @@ import { buildRuleAdvice } from "@/lib/finance/advice";
 import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import { computeVariance } from "@/lib/finance/variance";
+import { callGeminiJson, extractJsonObject } from "@/lib/ai/gemini";
 import type { AiAdvice, FinancePeriod } from "@/lib/finance/types";
 
 type AnalyzeInput = {
@@ -35,42 +36,30 @@ const BASE_SCHEMA_FIELDS =
 
 const VARIANCE_SCHEMA_FIELD = ',"variance":{"narrative":""}';
 
-type AnthropicTextBlock = { type: "text"; text: string };
-
-// Извлекает JSON-объект из финального текстового ответа модели — на случай,
-// если модель обернула его в ```json fences вопреки инструкции. Тот же приём,
-// что в lib/ai/business-plan.ts (нужен, когда включён server tool веб-поиска —
-// тогда старая "затравка" ассистента символом "{" не работает: с
-// инструментами Anthropic не разрешает предзаполнять ответ ассистента).
-function extractJson(text: string): unknown | null {
-  const withoutFence = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = withoutFence.indexOf("{");
-  const end = withoutFence.lastIndexOf("}");
-  if (start === -1 || end === -1 || end < start) return null;
-  try {
-    return JSON.parse(withoutFence.slice(start, end + 1));
-  } catch {
-    return null;
-  }
-}
-
-// ИИ-анализ через Anthropic (Claude), с включённым веб-поиском (server tool)
-// для отраслевого бенчмаркинга — модель ищет реальные публикуемые показатели
-// и обязана честно писать benchmark.available=false, если ничего надёжного не
-// нашла, а не выдумывать цифры. Числовые срезы (структура маржи, замороженные
-// активы, запас прочности по выручке) считаются в коде (lib/finance/insights.ts)
-// и передаются модели уже готовыми — она их комментирует, а не пересчитывает,
-// так что итоговые цифры на странице и в тексте ИИ всегда совпадают.
-// Ключ ANTHROPIC_API_KEY добавляется в Vercel самим пользователем; если ключа
-// нет или вызов не удался — используется локальный разбор по правилам
-// (buildRuleAdvice), сайт никогда не остаётся без ответа.
+// ИИ-анализ через Google Gemini (gemini-2.5-flash, бесплатный тариф —
+// выбрано пользователем взамен платного Anthropic, см.
+// claude/analiz-kabinet-bp-bagi-status.md). У бесплатного тарифа Gemini НЕТ
+// server-side веб-поиска (это платная функция Google), поэтому отраслевой
+// бенчмаркинг модель теперь делает по собственным (обучающим) знаниям, а не
+// по живому поиску — промпт явно требует честно ставить benchmark.available
+// = false и не выдумывать цифры, если модель не уверена в конкретных
+// узбекских/региональных показателях, а не выдавать оценку "с потолка" за
+// подтверждённый факт.
+// Числовые срезы (структура маржи, замороженные активы, запас прочности по
+// выручке) считаются в коде (lib/finance/insights.ts) и передаются модели
+// уже готовыми — она их комментирует, а не пересчитывает, так что итоговые
+// цифры на странице и в тексте ИИ всегда совпадают.
+// Ключ GEMINI_API_KEY добавляется в Vercel самим пользователем (получается
+// бесплатно на aistudio.google.com); если ключа нет или вызов не удался —
+// используется локальный разбор по правилам (buildRuleAdvice), сайт никогда
+// не остаётся без ответа.
 //
-// Если передан второй период (periods[1]) — scoreDelta/ratioDeltas между двумя
-// годами считаются локально через computeVariance() и НЕ зависят от ИИ (значит,
-// дашборд отклонений работает даже без ключа Anthropic); у ИИ дополнительно
-// просим короткий текстовый комментарий variance.narrative — если ключа нет
-// или ответ не распарсился, narrative остаётся пустой строкой, а числа всё
-// равно на месте.
+// Если передан второй период (periods[1]) — scoreDelta/ratioDeltas между
+// двумя годами считаются локально через computeVariance() и НЕ зависят от
+// ИИ (значит, дашборд отклонений работает даже без ключа Gemini); у ИИ
+// дополнительно просим короткий текстовый комментарий variance.narrative —
+// если ключа нет или ответ не распарсился, narrative остаётся пустой
+// строкой, а числа всё равно на месте.
 export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> {
   const dict = await getDictionary(payload.locale);
   const primary = payload.periods[0];
@@ -89,7 +78,7 @@ export async function requestAiAdvice(payload: AnalyzeInput): Promise<AiAdvice> 
     fallback.variance = { ...computeVariance(ratios, ratios2), narrative: "" };
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return fallback;
 
   const secondPeriodBlock = second
@@ -133,36 +122,24 @@ ${JSON.stringify(safetyMargin)}${secondPeriodBlock}
 3. margin_commentary — простыми словами объясни, где компания теряет маржинальность, опираясь на переданную структуру маржи (marginBridge) и её biggestDrag.
 4. frozen_assets_commentary — объясни, в каких активах заморожены деньги, опираясь на переданный разбор (frozenAssets), включая дни оборота запасов/дебиторки, если они посчитаны.
 5. safety_margin_commentary — объясни человеческим языком безопасный порог снижения выручки, опираясь на переданный расчёт (safetyMargin): на сколько % может упасть выручка до операционного убытка, и что произойдёт, если status не "ok".
-6. benchmark — воспользуйся веб-поиском, чтобы найти РЕАЛЬНЫЕ публикуемые средние показатели по отрасли "${payload.industry || "не указана"}" (в Узбекистане, а если не нашлось — в Центральной Азии или в целом по развивающимся рынкам, явно уточнив это в note). Сравнивай с показателями, где сравнение осмысленно (рентабельность, оборачиваемость, автономия). Если ничего достоверного с указанием источника не нашлось — верни available:false и честно объясни в note, что открытых отраслевых данных по коэффициентам для Узбекистана нет; НИКОГДА не выдумывай цифры и не выдавай примерную оценку за подтверждённый факт.${varianceTask}
+6. benchmark — у тебя НЕТ доступа к живому веб-поиску, поэтому используй только те отраслевые показатели по Узбекистану/Центральной Азии, в которых ты уверен по своим обучающим данным как в достоверных и не устаревших ориентирах. Если уверенности нет — верни available:false и честно объясни в note, что без доступа к актуальным открытым данным сравнение с отраслевыми показателями по Узбекистану сейчас дать нельзя; НИКОГДА не выдумывай цифры и не выдавай примерную оценку за подтверждённый факт.${varianceTask}
 
-Дай развёрнутый разбор, опираясь на ВСЕ приведённые статьи баланса и ОПУ, а не только на итоговые коэффициенты. Когда данных для веб-поиска достаточно (или сразу, если он не даёт результата за 2-3 запроса), дай финальный ответ — он должен содержать ТОЛЬКО один валидный JSON-объект, без markdown-обёртки и без пояснений до или после, строго по схеме:
+Дай развёрнутый разбор, опираясь на ВСЕ приведённые статьи баланса и ОПУ, а не только на итоговые коэффициенты. Ответ должен содержать ТОЛЬКО один валидный JSON-объект, без markdown-обёртки и без пояснений до или после, строго по схеме:
 ${responseSchema}`;
 
+  const systemPrompt = `Ты финансовый консультант по МСБ Узбекистана. Ответ должен содержать ТОЛЬКО один валидный JSON-объект без markdown-обёртки и без пояснений вокруг него. Весь текст внутри JSON — на ${LANGUAGE_NAME[payload.locale] ?? "русском"} языке.`;
+
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 3500,
-        system: `Ты финансовый консультант по МСБ Узбекистана. Когда данных для ответа достаточно, финальный ответ должен содержать ТОЛЬКО один валидный JSON-объект без markdown-обёртки и без пояснений вокруг него. Весь текст внутри JSON — на ${LANGUAGE_NAME[payload.locale] ?? "русском"} языке.`,
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
-        messages: [{ role: "user", content: userContent }],
-      }),
+    const result = await callGeminiJson({
+      apiKey,
+      system: systemPrompt,
+      user: userContent,
+      maxOutputTokens: 3500,
     });
 
-    if (!res.ok) return fallback;
+    if (!result.ok) return fallback;
 
-    const body = (await res.json()) as { content?: AnthropicTextBlock[] };
-    const textBlocks = (body.content ?? []).filter((c) => c.type === "text");
-    if (textBlocks.length === 0) return fallback;
-
-    const fullText = textBlocks.map((b) => b.text).join("\n");
-    const parsed = extractJson(fullText) as (Partial<AiAdvice> & { variance?: { narrative?: string } }) | null;
+    const parsed = extractJsonObject(result.text) as (Partial<AiAdvice> & { variance?: { narrative?: string } }) | null;
     if (!parsed || !parsed.summary || !Array.isArray(parsed.recommendations)) return fallback;
 
     const advice: AiAdvice = {
