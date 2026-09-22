@@ -2,10 +2,14 @@
 
 import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
+import { toast, Toaster } from "sonner";
 import { NumberField } from "@/components/ui/number-input";
+import { AnalysisPanel } from "@/components/finance/analysis-panel";
 import { VarianceDashboard } from "@/components/finance/variance-dashboard";
+import { PlanPanel } from "@/components/business-plan/plan-panel";
 import { useI18n } from "@/i18n/provider";
 import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
+import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import type { AiAdvice, FinanceData, FinancePeriod, FinancialRatios } from "@/lib/finance/types";
 import type { BusinessPlan } from "@/lib/business-plan/types";
@@ -98,7 +102,9 @@ export function CabinetClient({
   const [projectAmount, setProjectAmount] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
   const [exportingPlanId, setExportingPlanId] = useState<string | null>(null);
+  const [exportingAnalysisId, setExportingAnalysisId] = useState<string | null>(null);
 
   const toggleSelected = (id: string) => {
     setSelected((prev) => {
@@ -145,13 +151,51 @@ export function CabinetClient({
     setExportingPlanId(`${row.id}:${kind}`);
     try {
       await downloadBlob(`/api/business-plan/export/${kind}`, { plan: row.data }, `business-plan.${kind}`);
+    } catch {
+      toast.error(dict.cabinet.exportError);
     } finally {
       setExportingPlanId(null);
     }
   };
 
+  // Экспорт сохранённого анализа из кабинета — тот же API-роут и та же форма
+  // payload, что и на /analyze (app/[locale]/analyze/analyze-page-client.tsx
+  // exportFile), просто данные берём не из локального state формы, а из уже
+  // сохранённой строки analyses. industry/region передаём как есть (id из
+  // справочника или — для старых записей — свободный текст): сам API уже
+  // умеет резолвить оба варианта в подпись (см. app/api/finance/export/*).
+  const exportAnalysis = async (row: AnalysisRow, kind: "xlsx" | "pdf") => {
+    const primaryData = row.periods?.[0]?.data ?? row.data;
+    if (!primaryData || !row.ratios) return;
+    const primaryYear = row.periods?.[0]?.year;
+    const secondPeriod = row.periods && row.periods.length === 2 ? row.periods[1] : null;
+    setExportingAnalysisId(`${row.id}:${kind}`);
+    try {
+      await downloadBlob(
+        `/api/finance/export/${kind}`,
+        {
+          locale,
+          industry: row.industry ?? "",
+          region: row.region ?? "",
+          companyName: row.companyName ?? undefined,
+          year: primaryYear,
+          data: primaryData,
+          ratios: row.ratios,
+          advice: row.advice,
+          secondPeriod,
+        },
+        `moliyahub-analysis.${kind}`,
+      );
+    } catch {
+      toast.error(dict.cabinet.exportError);
+    } finally {
+      setExportingAnalysisId(null);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
+      <Toaster theme="dark" position="top-center" />
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-2xl">{dict.cabinet.title}</h1>
@@ -272,6 +316,7 @@ export function CabinetClient({
               {analyses.map((a) => {
                 const hasTwoPeriods = (a.periods?.length ?? 0) === 2;
                 const isExpanded = expandedId === a.id;
+                const primaryData = a.periods?.[0]?.data ?? a.data;
                 return (
                   <li
                     key={a.id}
@@ -302,32 +347,74 @@ export function CabinetClient({
                           {new Date(a.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
                         </p>
                       </button>
-                      <form action={deleteAnalysis.bind(null, locale, a.id)}>
+                      <div className="flex shrink-0 flex-col items-end gap-2">
                         <button
-                          type="submit"
-                          className="text-xs text-muted transition-colors hover:text-danger"
+                          type="button"
+                          className="text-xs text-muted transition-colors hover:text-fg"
+                          onClick={() => setExpandedId(isExpanded ? null : a.id)}
                         >
-                          {dict.cabinet.deleteAnalysis}
+                          {isExpanded ? dict.cabinet.hideAnalysis : dict.cabinet.viewAnalysis}
                         </button>
-                      </form>
+                        <form action={deleteAnalysis.bind(null, locale, a.id)}>
+                          <button
+                            type="submit"
+                            className="text-xs text-muted transition-colors hover:text-danger"
+                          >
+                            {dict.cabinet.deleteAnalysis}
+                          </button>
+                        </form>
+                      </div>
                     </div>
 
-                    {isExpanded && hasTwoPeriods && a.periods ? (
-                      <VarianceDashboard
-                        period1={{
-                          year: a.periods[0].year,
-                          data: a.periods[0].data,
-                          subtotals: computeSubtotals(a.periods[0].data),
-                          ratios: calculateRatios(deriveAggregates(a.periods[0].data)),
-                        }}
-                        period2={{
-                          year: a.periods[1].year,
-                          data: a.periods[1].data,
-                          subtotals: computeSubtotals(a.periods[1].data),
-                          ratios: calculateRatios(deriveAggregates(a.periods[1].data)),
-                        }}
-                        narrative={a.advice?.variance?.narrative || undefined}
-                      />
+                    {isExpanded ? (
+                      <div className="mt-4 border-t border-line/60 pt-4">
+                        {hasTwoPeriods && a.periods ? (
+                          <VarianceDashboard
+                            period1={{
+                              year: a.periods[0].year,
+                              data: a.periods[0].data,
+                              subtotals: computeSubtotals(a.periods[0].data),
+                              ratios: calculateRatios(deriveAggregates(a.periods[0].data)),
+                            }}
+                            period2={{
+                              year: a.periods[1].year,
+                              data: a.periods[1].data,
+                              subtotals: computeSubtotals(a.periods[1].data),
+                              ratios: calculateRatios(deriveAggregates(a.periods[1].data)),
+                            }}
+                            narrative={a.advice?.variance?.narrative || undefined}
+                          />
+                        ) : primaryData && a.ratios ? (
+                          <AnalysisPanel
+                            ratios={a.ratios}
+                            advice={a.advice}
+                            marginBridge={computeMarginBridge(primaryData)}
+                            frozenAssets={computeFrozenAssets(primaryData, deriveAggregates(primaryData).totalAssets)}
+                            safetyMargin={computeRevenueSafetyMargin(primaryData)}
+                          />
+                        ) : (
+                          <p className="text-xs text-muted">{dict.cabinet.noDataToShow}</p>
+                        )}
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={exportingAnalysisId !== null}
+                            onClick={() => exportAnalysis(a, "xlsx")}
+                            className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
+                          >
+                            {exportingAnalysisId === `${a.id}:xlsx` ? dict.analyze.exportingFile : dict.analyze.exportXlsx}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={exportingAnalysisId !== null}
+                            onClick={() => exportAnalysis(a, "pdf")}
+                            className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
+                          >
+                            {exportingAnalysisId === `${a.id}:pdf` ? dict.analyze.exportingFile : dict.analyze.exportPdf}
+                          </button>
+                        </div>
+                      </div>
                     ) : null}
                   </li>
                 );
@@ -392,47 +479,70 @@ export function CabinetClient({
           </div>
         ) : (
           <ul className="mt-4 flex flex-col gap-3">
-            {businessPlans.map((bp) => (
-              <li
-                key={bp.id}
-                className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium">{bp.project_name}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {new Date(bp.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
-                    </p>
+            {businessPlans.map((bp) => {
+              const isPlanExpanded = expandedPlanId === bp.id;
+              return (
+                <li
+                  key={bp.id}
+                  className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{bp.project_name}</p>
+                      <p className="mt-1 text-xs text-muted">
+                        {new Date(bp.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <button
+                        type="button"
+                        className="text-xs text-muted transition-colors hover:text-fg"
+                        onClick={() => setExpandedPlanId(isPlanExpanded ? null : bp.id)}
+                      >
+                        {isPlanExpanded ? dict.cabinet.hideBusinessPlan : dict.cabinet.viewBusinessPlan}
+                      </button>
+                      <form action={deleteBusinessPlan.bind(null, locale, bp.id)}>
+                        <button
+                          type="submit"
+                          className="text-xs text-muted transition-colors hover:text-danger"
+                        >
+                          {dict.cabinet.deleteBusinessPlan}
+                        </button>
+                      </form>
+                    </div>
                   </div>
-                  <form action={deleteBusinessPlan.bind(null, locale, bp.id)}>
+
+                  {isPlanExpanded ? (
+                    <div className="mt-4 border-t border-line/60 pt-4">
+                      {bp.data ? (
+                        <PlanPanel plan={bp.data} />
+                      ) : (
+                        <p className="text-xs text-muted">{dict.cabinet.noDataToShow}</p>
+                      )}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-3 flex flex-wrap gap-2">
                     <button
-                      type="submit"
-                      className="text-xs text-muted transition-colors hover:text-danger"
+                      type="button"
+                      disabled={exportingPlanId !== null}
+                      onClick={() => exportPlan(bp, "xlsx")}
+                      className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
                     >
-                      {dict.cabinet.deleteBusinessPlan}
+                      {dict.businessPlanAi.exportXlsx}
                     </button>
-                  </form>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={exportingPlanId !== null}
-                    onClick={() => exportPlan(bp, "xlsx")}
-                    className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
-                  >
-                    {dict.businessPlanAi.exportXlsx}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={exportingPlanId !== null}
-                    onClick={() => exportPlan(bp, "pdf")}
-                    className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
-                  >
-                    {dict.businessPlanAi.exportPdf}
-                  </button>
-                </div>
-              </li>
-            ))}
+                    <button
+                      type="button"
+                      disabled={exportingPlanId !== null}
+                      onClick={() => exportPlan(bp, "pdf")}
+                      className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line disabled:opacity-40"
+                    >
+                      {dict.businessPlanAi.exportPdf}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
