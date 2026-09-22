@@ -26,6 +26,14 @@ function fmtMoney(value: number): string {
   return Math.round(value).toLocaleString("ru-RU");
 }
 
+// Выкупленные собственные акции (treasuryShares) — контр-счёт к капиталу:
+// в итоговой формуле equityTotal они вычитаются (см. lib/finance/aggregate.ts),
+// поэтому в таблице показываем их в скобках, как принято в балансах, а не
+// просто как ещё одну прибавляемую строку.
+function fmtField(field: keyof FinanceData, value: number): string {
+  return field === "treasuryShares" ? `(${fmtMoney(value)})` : fmtMoney(value);
+}
+
 function fieldsOf(key: FinanceGroupKey) {
   return FINANCE_GROUPS.find((g) => g.key === key)?.fields ?? [];
 }
@@ -61,8 +69,8 @@ function balanceTableBody(
     rows.push(sectionCells);
 
     for (const field of fieldsOf(key)) {
-      const row: Cell[] = [dict.financeFields.labels[field], fmtMoney(data[field])];
-      if (secondHeader) row.push(secondData ? fmtMoney(secondData[field]) : "—");
+      const row: Cell[] = [dict.financeFields.labels[field], fmtField(field, data[field])];
+      if (secondHeader) row.push(secondData ? fmtField(field, secondData[field]) : "—");
       rows.push(row);
     }
 

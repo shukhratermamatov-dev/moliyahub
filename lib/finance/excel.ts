@@ -15,6 +15,12 @@ const HEADER_FILL: ExcelJS.Fill = { type: "pattern", pattern: "solid", fgColor: 
 const SECTION_FILL: ExcelJS.Fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE2E8F0" } };
 const TOTAL_FILL: ExcelJS.Fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF8FAFC" } };
 const MONEY_FMT = "#,##0";
+// Выкупленные собственные акции (treasuryShares) — контр-счёт к капиталу:
+// вычитаются в формуле equityTotal (lib/finance/aggregate.ts). Ячейка хранит
+// то же положительное число, что и раньше (важно для обратной загрузки через
+// /api/finance/import — там ожидается положительная величина), в скобках
+// показываем только визуально через формат ячейки.
+const MONEY_FMT_PARENS = "(#,##0)";
 
 function setupSheet(sheet: ExcelJS.Worksheet, secondValueHeader?: string) {
   const columns: Partial<ExcelJS.Column>[] = [
@@ -44,10 +50,12 @@ function fieldRow(
   label: string,
   value: number | null,
   value2?: number | null,
+  parens?: boolean,
 ) {
   const row = sheet.addRow(value2 !== undefined ? { code, label, value, value2 } : { code, label, value });
-  row.getCell("value").numFmt = MONEY_FMT;
-  if (value2 !== undefined) row.getCell("value2").numFmt = MONEY_FMT;
+  const fmt = parens ? MONEY_FMT_PARENS : MONEY_FMT;
+  row.getCell("value").numFmt = fmt;
+  if (value2 !== undefined) row.getCell("value2").numFmt = fmt;
   return row;
 }
 
@@ -127,6 +135,7 @@ export function addBalanceSheet(
       dict.financeFields.labels[key],
       data ? data[key] : null,
       hasSecond ? (secondData ? secondData[key] : null) : undefined,
+      key === "treasuryShares",
     );
   }
   totalRow(
