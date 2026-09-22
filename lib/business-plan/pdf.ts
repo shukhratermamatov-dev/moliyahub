@@ -147,7 +147,11 @@ export async function buildBusinessPlanPdf(plan: BusinessPlan): Promise<Buffer> 
   };
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
-  const buffer = await streamToBuffer(pdfDoc);
+  // ВАЖНО: .end() должен быть вызван ДО ожидания потока — иначе поток
+  // никогда не эмитит 'end' и await зависает навсегда (был баг: PDF-экспорт
+  // висел бесконечно и на /analyze, и на бизнес-планах).
+  const bufferPromise = streamToBuffer(pdfDoc);
   pdfDoc.end();
+  const buffer = await bufferPromise;
   return buffer;
 }
