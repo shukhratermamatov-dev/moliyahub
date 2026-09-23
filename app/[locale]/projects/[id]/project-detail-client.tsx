@@ -110,7 +110,10 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
                   <Input name="contact" placeholder={t.contactPlaceholder} required />
                   <Textarea name="message" rows={4} placeholder={t.messagePlaceholder} />
                   {appState && "error" in appState ? (
-                    <p className="text-sm text-danger">{t.toastFillRequired}</p>
+                    <p className="text-sm text-danger">
+                      {t.toastFillRequired}
+                      {appState.detail ? ` (${appState.detail})` : ""}
+                    </p>
                   ) : null}
                   <p className="text-xs text-muted">{t.privacyNote}</p>
                   <Button type="submit" disabled={appPending}>

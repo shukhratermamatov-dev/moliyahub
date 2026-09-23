@@ -67,7 +67,10 @@ export async function createPublicProject(
   return { success: true, id: data.id as string };
 }
 
-export type SubmitApplicationState = { error: string } | { success: true } | undefined;
+export type SubmitApplicationState =
+  | { error: string; detail?: string }
+  | { success: true }
+  | undefined;
 
 // Заявка инвестора на публичный проект — контакт нужен, чтобы владелец
 // проекта мог связаться с инвестором (видно только владельцу в кабинете,
@@ -96,7 +99,14 @@ export async function submitApplication(
 
   if (error) {
     console.error("[submitApplication] supabase insert error:", error);
-    return { error: "generic_error" };
+    // Временно возвращаем текст ошибки Postgres на экран (не только в
+    // серверный лог) — помогает быстро диагностировать RLS/схему без
+    // похода в Vercel Logs. Не секрет и не персональные данные — просто
+    // причина отказа БД. Уберём после того, как заявки заработают стабильно.
+    return {
+      error: "generic_error",
+      detail: [error.code, error.message].filter(Boolean).join(": "),
+    };
   }
 
   return { success: true };
