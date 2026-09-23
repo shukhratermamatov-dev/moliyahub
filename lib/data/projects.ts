@@ -1,4 +1,4 @@
-import type { LocalizedText } from "@/lib/i18n-text";
+import { sameForAllLocales, type LocalizedText } from "@/lib/i18n-text";
 
 export type ProjectStage = "IDEA" | "MVP" | "GROWTH" | "SCALE";
 
@@ -24,7 +24,55 @@ export type Project = {
   description: LocalizedText;
   owner: LocalizedText;
   raisedHint?: LocalizedText;
+  // Проект пришёл из Supabase (опубликован через /projects/new авторизованным
+  // пользователем) — а не из статичного SEED_PROJECTS и не из локального
+  // zustand-стора браузера. Только у таких проектов есть реальный владелец
+  // (аккаунт в личном кабинете), поэтому только для них:
+  //  - заявка инвестора пишется в Supabase (project_applications), а не в
+  //    локальный localStorage браузера отправителя;
+  //  - список заявок не показывается публично на странице проекта — его
+  //    видит только владелец в личном кабинете (RLS ограничивает выборку).
+  source?: "supabase";
 };
+
+// Строка таблицы Supabase projects, как её возвращает select() на страницах
+// /projects и /projects/[id] (только публичные, is_public = true).
+export type DbProjectRow = {
+  id: string;
+  name: string;
+  owner_name: string | null;
+  industry_id: string | null;
+  sub_industry_id: string | null;
+  stage: string | null;
+  amount: number | null;
+  region: string | null;
+  description: string | null;
+};
+
+const STAGES: readonly string[] = ["IDEA", "MVP", "GROWTH", "SCALE"];
+
+// Превращает строку из Supabase в тот же Project, которым уже пользуется вся
+// вёрстка "Биржи проектов" — так каталог/страница проекта не различают,
+// откуда пришёл проект (SEED_PROJECTS, локальный zustand или Supabase).
+export function mapDbProjectRow(row: DbProjectRow): Project {
+  return {
+    id: row.id,
+    title: sameForAllLocales(row.name),
+    industryId: row.industry_id || INDUSTRIES_FALLBACK,
+    subIndustryId: row.sub_industry_id || undefined,
+    stage: (STAGES.includes(row.stage || "") ? row.stage : "IDEA") as ProjectStage,
+    amount: row.amount ?? 0,
+    region: sameForAllLocales(row.region || ""),
+    description: sameForAllLocales(row.description || ""),
+    owner: sameForAllLocales(row.owner_name || ""),
+    source: "supabase",
+  };
+}
+
+// Захардкожен, а не импортирован из industries.ts, чтобы не тянуть весь
+// справочник сюда ради одного id первой отрасли — используется только как
+// fallback для повреждённых/пустых строк.
+const INDUSTRIES_FALLBACK = "industry";
 
 export const SEED_PROJECTS: Project[] = [
   {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
@@ -11,48 +11,33 @@ import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import { findIndustry, INDUSTRIES } from "@/lib/data/industries";
 import type { ProjectStage } from "@/lib/data/projects";
-import { pickText, sameForAllLocales } from "@/lib/i18n-text";
-import { useHubStore } from "@/lib/store";
+import { pickText } from "@/lib/i18n-text";
+import { createPublicProject, type CreatePublicProjectState } from "../actions";
+
+const initialState: CreatePublicProjectState = undefined;
 
 export function NewProjectPageClient() {
   const { locale, dict } = useI18n();
   const t = dict.projectsNew;
   const router = useRouter();
-  const addProject = useHubStore((s) => s.addProject);
-  const [title, setTitle] = useState("");
+  const boundCreate = createPublicProject.bind(null, locale);
+  const [state, formAction, pending] = useActionState(boundCreate, initialState);
+
   const [industryId, setIndustryId] = useState(INDUSTRIES[0].id);
   const [subIndustryId, setSubIndustryId] = useState(INDUSTRIES[0].subIndustries[0]?.id ?? "");
   const [stage, setStage] = useState<ProjectStage>("GROWTH");
   const [amount, setAmount] = useState(500_000_000);
-  const [region, setRegion] = useState("Ташкент");
-  const [owner, setOwner] = useState("");
-  const [description, setDescription] = useState("");
 
   const selectedIndustry = findIndustry(industryId);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !description.trim() || !owner.trim()) {
+  useEffect(() => {
+    if (state && "success" in state) {
+      toast.success(t.toastPublished);
+      router.push(`/${locale}/projects/${state.id}`);
+    } else if (state && "error" in state) {
       toast.error(t.toastFillRequired);
-      return;
     }
-    // Форма не спрашивает язык — публикатор пишет на одном языке, поэтому
-    // показываем введённый текст как есть на всех локалях, а не переводим
-    // его машинно. Отрасль/подотрасль — не текст, а id из общего справочника
-    // lib/data/industries.ts, поэтому переводится сама вместе с интерфейсом.
-    const id = addProject({
-      title: sameForAllLocales(title),
-      industryId,
-      subIndustryId: subIndustryId || undefined,
-      stage,
-      amount,
-      region: sameForAllLocales(region),
-      owner: sameForAllLocales(owner),
-      description: sameForAllLocales(description),
-    });
-    toast.success(t.toastPublished);
-    router.push(`/${locale}/projects/${id}`);
-  };
+  }, [state, locale, router, t]);
 
   return (
     <Shell>
@@ -61,19 +46,20 @@ export function NewProjectPageClient() {
         <h1 className="font-display text-3xl">{t.title}</h1>
         <p className="mt-2 text-muted">{t.subtitle}</p>
         <Card className="mt-8">
-          <form onSubmit={submit} className="space-y-4">
+          <form action={formAction} className="space-y-4">
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{t.titleLabel}</span>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input name="title" required />
             </label>
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{t.ownerLabel}</span>
-              <Input value={owner} onChange={(e) => setOwner(e.target.value)} />
+              <Input name="owner" required />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.industryLabel}</span>
                 <select
+                  name="industryId"
                   className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
                   value={industryId}
                   onChange={(e) => {
@@ -92,6 +78,7 @@ export function NewProjectPageClient() {
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.subIndustryLabel}</span>
                 <select
+                  name="subIndustryId"
                   className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
                   value={subIndustryId}
                   onChange={(e) => setSubIndustryId(e.target.value)}
@@ -106,12 +93,13 @@ export function NewProjectPageClient() {
             </div>
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{t.regionLabel}</span>
-              <Input value={region} onChange={(e) => setRegion(e.target.value)} />
+              <Input name="region" defaultValue="Ташкент" />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.stageLabel}</span>
                 <select
+                  name="stage"
                   className="h-11 w-full rounded-xl bg-raised px-3 text-sm"
                   value={stage}
                   onChange={(e) => setStage(e.target.value as ProjectStage)}
@@ -126,17 +114,19 @@ export function NewProjectPageClient() {
               <label className="text-sm">
                 <span className="mb-1 block text-muted">{t.amountLabel}</span>
                 <NumberField value={amount} onValueChange={(n) => setAmount(n || 0)} />
+                <input type="hidden" name="amount" value={amount || ""} />
               </label>
             </div>
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{t.descriptionLabel}</span>
-              <Textarea
-                rows={5}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+              <Textarea name="description" rows={5} required />
             </label>
-            <Button type="submit">{t.submit}</Button>
+            {state && "error" in state ? (
+              <p className="text-sm text-danger">{t.toastFillRequired}</p>
+            ) : null}
+            <Button type="submit" disabled={pending}>
+              {pending ? t.publishing : t.submit}
+            </Button>
           </form>
         </Card>
       </div>

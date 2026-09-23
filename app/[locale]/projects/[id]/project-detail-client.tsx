@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
@@ -9,16 +9,24 @@ import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
 import { findIndustry, findSubIndustry } from "@/lib/data/industries";
-import type { ProjectStage } from "@/lib/data/projects";
+import type { Project, ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { useAllProjects, useHubStore } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
+import { submitApplication, type SubmitApplicationState } from "../actions";
 
-export function ProjectDetailClient({ id }: { id: string }) {
+const initialApplicationState: SubmitApplicationState = undefined;
+
+export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: Project | null }) {
   const { locale, dict } = useI18n();
   const t = dict.projectDetail;
-  const projects = useAllProjects();
-  const project = projects.find((p) => p.id === id);
+  const localProjects = useAllProjects();
+  // Локальные (seed/zustand) проекты имеют приоритет по id — dbProject
+  // подставляется, только если такого id нет среди локальных (см.
+  // app/[locale]/projects/[id]/page.tsx: он и не запрашивается для seed-id).
+  const project = localProjects.find((p) => p.id === id) ?? dbProject ?? undefined;
+  const isDbProject = project?.source === "supabase";
+
   const addApplication = useHubStore((s) => s.addApplication);
   // Важно: селектор zustand должен возвращать один и тот же массив, если он
   // не менялся — s.applications.filter(...) создавал НОВЫЙ массив на каждый
@@ -34,6 +42,15 @@ export function ProjectDetailClient({ id }: { id: string }) {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
 
+  // Для проектов из Supabase заявка идёт через серверный экшен (реальная
+  // запись, видна только владельцу проекта в личном кабинете) — контакт
+  // обязателен, иначе владельцу не с кем будет связаться.
+  const boundSubmitApplication = submitApplication.bind(null, project?.id ?? "");
+  const [appState, appFormAction, appPending] = useActionState(
+    boundSubmitApplication,
+    initialApplicationState,
+  );
+
   if (!project) {
     return (
       <Shell>
@@ -47,7 +64,7 @@ export function ProjectDetailClient({ id }: { id: string }) {
     );
   }
 
-  const send = (e: React.FormEvent) => {
+  const sendLocal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) {
       toast.error(t.toastFillRequired);
@@ -82,23 +99,48 @@ export function ProjectDetailClient({ id }: { id: string }) {
 
         <Card className="mt-10">
           <h2 className="font-display text-xl">{t.applicationHeading}</h2>
-          <form onSubmit={send} className="mt-4 space-y-3">
-            <Input
-              placeholder={t.namePlaceholder}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Textarea
-              rows={4}
-              placeholder={t.messagePlaceholder}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <Button type="submit">{t.submit}</Button>
-          </form>
+
+          {isDbProject ? (
+            <>
+              {appState && "success" in appState ? (
+                <p className="mt-4 text-sm text-primary">{t.toastSent}</p>
+              ) : (
+                <form action={appFormAction} className="mt-4 space-y-3">
+                  <Input name="name" placeholder={t.namePlaceholder} required />
+                  <Input name="contact" placeholder={t.contactPlaceholder} required />
+                  <Textarea name="message" rows={4} placeholder={t.messagePlaceholder} />
+                  {appState && "error" in appState ? (
+                    <p className="text-sm text-danger">{t.toastFillRequired}</p>
+                  ) : null}
+                  <p className="text-xs text-muted">{t.privacyNote}</p>
+                  <Button type="submit" disabled={appPending}>
+                    {appPending ? t.sending : t.submit}
+                  </Button>
+                </form>
+              )}
+            </>
+          ) : (
+            <form onSubmit={sendLocal} className="mt-4 space-y-3">
+              <Input
+                placeholder={t.namePlaceholder}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Textarea
+                rows={4}
+                placeholder={t.messagePlaceholder}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <Button type="submit">{t.submit}</Button>
+            </form>
+          )}
         </Card>
 
-        {applications.length > 0 ? (
+        {/* Для проектов из Supabase заявки видит только владелец в личном
+            кабинете (RLS) — публично их не показываем, в отличие от
+            демо/локальных проектов, где это старое поведение сохранено. */}
+        {!isDbProject && applications.length > 0 ? (
           <div className="mt-8 space-y-3">
             <h3 className="font-display text-lg">{t.receivedApplications}</h3>
             {applications.map((a) => (

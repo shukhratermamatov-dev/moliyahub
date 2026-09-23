@@ -10,12 +10,17 @@ import { findIndustry, findSubIndustry, INDUSTRIES } from "@/lib/data/industries
 import type { ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { useAllProjects } from "@/lib/store";
+import type { Project } from "@/lib/data/projects";
 import { formatMoney } from "@/lib/utils";
 
-export function ProjectsPageClient() {
+export function ProjectsPageClient({ dbProjects }: { dbProjects: Project[] }) {
   const { locale, dict } = useI18n();
   const t = dict.projectsIndex;
-  const projects = useAllProjects();
+  const localProjects = useAllProjects();
+  // Проекты из Supabase (реальные, опубликованные через /projects/new
+  // авторизованными пользователями) показываем первыми, затем локальные —
+  // статичный SEED_PROJECTS и то, что кто-то добавил только в своём браузере.
+  const projects = [...dbProjects, ...localProjects];
   const [industryId, setIndustryId] = useState<string | null>(null);
   const [subIndustryId, setSubIndustryId] = useState<string | null>(null);
 

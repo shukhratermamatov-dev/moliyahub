@@ -27,6 +27,16 @@ export type ProjectRow = {
   region: string | null;
   amount: number | string | null;
   stage: string;
+  is_public: boolean;
+  created_at: string;
+};
+
+export type ApplicationRow = {
+  id: string;
+  project_id: string;
+  applicant_name: string;
+  applicant_contact: string;
+  message: string | null;
   created_at: string;
 };
 
@@ -88,11 +98,13 @@ async function downloadBlob(url: string, body: unknown, filename: string) {
 export function CabinetClient({
   email,
   projects,
+  applications,
   analyses,
   businessPlans,
 }: {
   email: string;
   projects: ProjectRow[];
+  applications: ApplicationRow[];
   analyses: AnalysisRow[];
   businessPlans: BusinessPlanRow[];
 }) {
@@ -105,6 +117,16 @@ export function CabinetClient({
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
   const [exportingPlanId, setExportingPlanId] = useState<string | null>(null);
   const [exportingAnalysisId, setExportingAnalysisId] = useState<string | null>(null);
+  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
+  const applicationsByProject = useMemo(() => {
+    const map = new Map<string, ApplicationRow[]>();
+    for (const a of applications) {
+      const list = map.get(a.project_id);
+      if (list) list.push(a);
+      else map.set(a.project_id, [a]);
+    }
+    return map;
+  }, [applications]);
 
   const toggleSelected = (id: string) => {
     setSelected((prev) => {
@@ -144,6 +166,31 @@ export function CabinetClient({
   function resolveRegionLabel(id: string | null): string {
     if (!id) return "—";
     return findRegion(id) ? pickText(findRegion(id)!.name, locale) : id;
+  }
+
+  // "Сохранить" для заявок инвесторов — простой CSV в браузере, без похода
+  // на сервер: данных немного (имя/контакт/дата/сообщение), а
+  // Excel/Sheets/Numbers открывают CSV с BOM без проблем с кириллицей.
+  function saveApplicationsToComputer(projectName: string, apps: ApplicationRow[]) {
+    const header = ["Имя", "Контакт", "Дата", "Сообщение"];
+    const rows = apps.map((a) => [
+      a.applicant_name,
+      a.applicant_contact,
+      new Date(a.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US"),
+      a.message ?? "",
+    ]);
+    const escapeCell = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const csv = [header, ...rows].map((r) => r.map(escapeCell).join(",")).join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const safeName = projectName.replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "") || "project";
+    link.download = `${safeName}-applications.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   const exportPlan = async (row: BusinessPlanRow, kind: "xlsx" | "pdf") => {
@@ -218,37 +265,102 @@ export function CabinetClient({
           <p className="mt-3 text-sm text-muted">{dict.cabinet.noProjects}</p>
         ) : (
           <ul className="mt-4 flex flex-col gap-3">
-            {projects.map((p) => (
-              <li
-                key={p.id}
-                className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium">{p.name}</p>
-                    {p.description ? (
-                      <p className="mt-1 text-sm text-muted">{p.description}</p>
-                    ) : null}
-                    <p className="mt-2 text-xs text-muted">
-                      {[
-                        p.region,
-                        p.amount != null ? formatMoney(Number(p.amount), locale) : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
+            {projects.map((p) => {
+              const apps = applicationsByProject.get(p.id) ?? [];
+              const isProjectExpanded = expandedProjectId === p.id;
+              return (
+                <li
+                  key={p.id}
+                  className="rounded-2xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{p.name}</p>
+                        {p.is_public ? (
+                          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] text-primary">
+                            {dict.cabinet.publicBadge}
+                          </span>
+                        ) : null}
+                      </div>
+                      {p.description ? (
+                        <p className="mt-1 text-sm text-muted">{p.description}</p>
+                      ) : null}
+                      <p className="mt-2 text-xs text-muted">
+                        {[
+                          p.region,
+                          p.amount != null ? formatMoney(Number(p.amount), locale) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                    <form action={deleteProject.bind(null, locale, p.id)}>
+                      <button
+                        type="submit"
+                        className="text-xs text-muted transition-colors hover:text-danger"
+                      >
+                        {dict.cabinet.deleteProject}
+                      </button>
+                    </form>
                   </div>
-                  <form action={deleteProject.bind(null, locale, p.id)}>
-                    <button
-                      type="submit"
-                      className="text-xs text-muted transition-colors hover:text-danger"
-                    >
-                      {dict.cabinet.deleteProject}
-                    </button>
-                  </form>
-                </div>
-              </li>
-            ))}
+
+                  {p.is_public ? (
+                    <div className="mt-3 border-t border-line/60 pt-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm text-muted">
+                          {dict.cabinet.applicationsHeading} ({apps.length})
+                        </p>
+                        {apps.length > 0 ? (
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              className="text-xs text-muted transition-colors hover:text-fg"
+                              onClick={() => setExpandedProjectId(isProjectExpanded ? null : p.id)}
+                            >
+                              {isProjectExpanded ? dict.cabinet.hideApplications : dict.cabinet.viewApplications}
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs text-muted transition-colors hover:text-fg"
+                              onClick={() => saveApplicationsToComputer(p.name, apps)}
+                            >
+                              {dict.cabinet.saveApplications}
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {apps.length === 0 ? (
+                        <p className="mt-2 text-xs text-muted">{dict.cabinet.noApplicationsYet}</p>
+                      ) : null}
+
+                      {isProjectExpanded && apps.length > 0 ? (
+                        <ul className="mt-3 flex flex-col gap-2">
+                          {apps.map((a) => (
+                            <li
+                              key={a.id}
+                              className="rounded-xl bg-raised p-3 text-sm"
+                            >
+                              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                <span className="font-medium">{a.applicant_name}</span>
+                                <span className="text-xs text-muted">
+                                  {new Date(a.created_at).toLocaleString(locale === "ru" ? "ru-RU" : locale === "uz" ? "uz-UZ" : "en-US")}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-xs text-primary">{a.applicant_contact}</p>
+                              {a.message ? (
+                                <p className="mt-1 text-xs text-muted">{a.message}</p>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

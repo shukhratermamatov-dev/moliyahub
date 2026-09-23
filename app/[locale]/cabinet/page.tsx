@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/layout/shell";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
-import { CabinetClient, type AnalysisRow, type BusinessPlanRow, type ProjectRow } from "./cabinet-client";
+import { CabinetClient, type AnalysisRow, type ApplicationRow, type BusinessPlanRow, type ProjectRow } from "./cabinet-client";
 
 export default async function CabinetPage({
   params,
@@ -25,7 +25,15 @@ export default async function CabinetPage({
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("id, name, description, region, amount, stage, created_at")
+    .select("id, name, description, region, amount, stage, is_public, created_at")
+    .order("created_at", { ascending: false });
+
+  // RLS (moliyahub_applications_select_owner) сама ограничивает выборку
+  // заявками только на проекты текущего пользователя — доп. фильтр по
+  // user_id тут не нужен, как и для projects/analyses/business_plans выше.
+  const { data: applications } = await supabase
+    .from("project_applications")
+    .select("id, project_id, applicant_name, applicant_contact, message, created_at")
     .order("created_at", { ascending: false });
 
   const { data: analyses } = await supabase
@@ -45,6 +53,7 @@ export default async function CabinetPage({
       <CabinetClient
         email={user.email ?? ""}
         projects={(projects as ProjectRow[]) ?? []}
+        applications={(applications as ApplicationRow[]) ?? []}
         analyses={(analyses as AnalysisRow[]) ?? []}
         businessPlans={(businessPlans as BusinessPlanRow[]) ?? []}
       />
