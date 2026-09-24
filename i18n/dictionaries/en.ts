@@ -982,6 +982,8 @@ const dict: Dictionary = {
     ctaHeading: "Discuss your task",
     ctaEmailLabel: "Email us",
     ctaPhoneLabel: "Call us",
+    ctaCopy: "Copy",
+    ctaCopied: "Copied",
   },
 };
 

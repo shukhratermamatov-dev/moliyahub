@@ -984,6 +984,8 @@ const dict: Dictionary = {
     ctaHeading: "Vazifani muhokama qilish",
     ctaEmailLabel: "Pochtaga yozish",
     ctaPhoneLabel: "Qoʻngʻiroq qilish",
+    ctaCopy: "Nusxalash",
+    ctaCopied: "Nusxalandi",
   },
 };
 

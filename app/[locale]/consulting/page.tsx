@@ -5,16 +5,14 @@ import {
   Cpu,
   FileText,
   LineChart,
-  Mail,
-  Phone,
   RefreshCw,
   ShieldCheck,
   Wallet,
 } from "lucide-react";
 import { Shell } from "@/components/layout/shell";
-import { Button } from "@/components/ui/button";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { ConsultingCta } from "./consulting-cta";
 
 const SERVICE_ICONS: Record<string, typeof Calculator> = {
   budgeting: Calculator,
@@ -72,23 +70,7 @@ export default async function ConsultingPage({
       </section>
 
       <section className="mx-auto max-w-4xl px-4 pb-20">
-        <div className="rounded-2xl bg-raised p-6 text-center md:p-10">
-          <h2 className="font-display text-2xl">{t.ctaHeading}</h2>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <a href="mailto:info@moliyahub.uz">
-                <Mail className="size-4" aria-hidden="true" />
-                {t.ctaEmailLabel}
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="tel:+998909300330">
-                <Phone className="size-4" aria-hidden="true" />
-                {t.ctaPhoneLabel}
-              </a>
-            </Button>
-          </div>
-        </div>
+        <ConsultingCta t={t} />
       </section>
     </Shell>
   );

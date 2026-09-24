@@ -996,6 +996,8 @@ const dict = {
     ctaHeading: "Обсудить задачу",
     ctaEmailLabel: "Написать на почту",
     ctaPhoneLabel: "Позвонить",
+    ctaCopy: "Скопировать",
+    ctaCopied: "Скопировано",
   },
 };
 
