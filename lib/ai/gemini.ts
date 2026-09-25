@@ -1,7 +1,7 @@
 // Общий тонкий клиент для Google Gemini API (используется lib/ai/analyze.ts
 // и lib/ai/business-plan.ts). Переход с Anthropic на Gemini выбран
-// пользователем как бесплатная альтернатива (Gemini 2.5 Flash, бесплатный
-// тариф Google AI Studio: 1500 запросов/день, 1M TPM) — см.
+// пользователем как бесплатная альтернатива (сейчас — Gemini 3.8 Flash,
+// бесплатный тариф Google AI Studio) — см.
 // claude/analiz-kabinet-bp-bagi-status.md. Ключ GEMINI_API_KEY пользователь
 // получает на aistudio.google.com и добавляет в переменные окружения Vercel.
 //
@@ -14,9 +14,16 @@
 // проектах: github.com/morpheus65535/bazarr/issues/3590,
 // github.com/lingarr-translate/lingarr/issues/532; официальный REST-пример
 // в текущей документации ai.google.dev/gemini-api/docs/api-key тоже
-// использует только заголовок). Это и было причиной того, что после
-// добавления реального ключа в Vercel ИИ-анализ всё равно тихо падал в
-// локальный разбор по правилам.
+// использует только заголовок).
+//
+// Модель gemini-2.5-flash (и другие модели линейки 2.5) с осени 2026
+// недоступна новым ключам/пользователям — Gemini API отвечает 404
+// "This model models/gemini-2.5-flash is no longer available to new
+// users" и рекомендует models/gemini-3.8-flash. См.
+// ai.google.dev/gemini-api/docs/deprecations. Именно эти две причины вместе
+// (query-параметр вместо заголовка + устаревший ID модели) объясняют, почему
+// после добавления реального ключа в Vercel ИИ-анализ всё равно тихо падал
+// в локальный разбор по правилам — обе исправлены в этом файле.
 //
 // У бесплатного тарифа Gemini нет server-side веб-поиска с грaundingом (это
 // платная функция) — в отличие от прежней интеграции с Anthropic, здесь
@@ -26,7 +33,7 @@
 // "application/json" заставляет Gemini вернуть чистый JSON без markdown-
 // обёртки, но extractJsonObject() всё равно есть как страховка.
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.8-flash";
 
 export type GeminiCallResult = { ok: true; text: string } | { ok: false; error: string };
 

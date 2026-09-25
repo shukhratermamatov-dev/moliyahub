@@ -102,7 +102,7 @@ export type GenerateBusinessPlanResult =
   | { ok: true; plan: BusinessPlan }
   | { ok: false; error: "not_configured" | "generation_failed" };
 
-// Генерация бизнес-плана через Google Gemini (gemini-2.5-flash, бесплатный
+// Генерация бизнес-плана через Google Gemini (gemini-3.8-flash, бесплатный
 // тариф — выбрано пользователем взамен платного Anthropic, см.
 // claude/analiz-kabinet-bp-bagi-status.md). Ключ GEMINI_API_KEY добавляется
 // в Vercel самим пользователем (бесплатно на aistudio.google.com); если

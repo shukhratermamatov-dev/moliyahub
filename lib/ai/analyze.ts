@@ -36,7 +36,7 @@ const BASE_SCHEMA_FIELDS =
 
 const VARIANCE_SCHEMA_FIELD = ',"variance":{"narrative":""}';
 
-// ИИ-анализ через Google Gemini (gemini-2.5-flash, бесплатный тариф —
+// ИИ-анализ через Google Gemini (gemini-3.8-flash, бесплатный тариф —
 // выбрано пользователем взамен платного Anthropic, см.
 // claude/analiz-kabinet-bp-bagi-status.md). У бесплатного тарифа Gemini НЕТ
 // server-side веб-поиска (это платная функция Google), поэтому отраслевой
