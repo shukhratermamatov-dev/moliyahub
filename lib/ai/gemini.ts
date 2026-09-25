@@ -5,6 +5,19 @@
 // claude/analiz-kabinet-bp-bagi-status.md. Ключ GEMINI_API_KEY пользователь
 // получает на aistudio.google.com и добавляет в переменные окружения Vercel.
 //
+// Ключ передаётся заголовком x-goog-api-key, НЕ query-параметром ?key=.
+// Осенью 2026 Google перевела новые ключи Gemini API на формат "AQ." (вместо
+// старого "AIzaSy...") и одновременно перестала принимать сам способ передачи
+// ключа через ?key= в URL — такие запросы падают с 401
+// ACCESS_TOKEN_TYPE_UNSUPPORTED независимо от того, какой именно ключ
+// подставлен (подтверждено багрепортами по этой же проблеме в других
+// проектах: github.com/morpheus65535/bazarr/issues/3590,
+// github.com/lingarr-translate/lingarr/issues/532; официальный REST-пример
+// в текущей документации ai.google.dev/gemini-api/docs/api-key тоже
+// использует только заголовок). Это и было причиной того, что после
+// добавления реального ключа в Vercel ИИ-анализ всё равно тихо падал в
+// локальный разбор по правилам.
+//
 // У бесплатного тарифа Gemini нет server-side веб-поиска с грaundingом (это
 // платная функция) — в отличие от прежней интеграции с Anthropic, здесь
 // модель работает только с тем, что передано в промпте (расчётные данные
@@ -26,10 +39,10 @@ export async function callGeminiJson(params: {
 }): Promise<GeminiCallResult> {
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(params.apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
       {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-goog-api-key": params.apiKey },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: params.user }] }],
           systemInstruction: { role: "system", parts: [{ text: params.system }] },
@@ -42,7 +55,15 @@ export async function callGeminiJson(params: {
       },
     );
 
-    if (!res.ok) return { ok: false, error: `http_${res.status}` };
+    if (!res.ok) {
+      // Логируем тело ответа Google в серверный лог (Vercel Functions), не в
+      // UI — там может быть полезная причина отказа (неверный/просроченный
+      // ключ, не включён биллинг, превышена квота и т.д.), но не секрет и не
+      // персональные данные пользователя сайта.
+      const errorBody = await res.text().catch(() => "");
+      console.error(`[gemini] http_${res.status}:`, errorBody.slice(0, 500));
+      return { ok: false, error: `http_${res.status}` };
+    }
 
     const body = (await res.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
