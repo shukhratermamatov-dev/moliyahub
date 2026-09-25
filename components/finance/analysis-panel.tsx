@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, BarChart3, CheckCircle2, Gauge, Lock, Sparkles, TrendingDown } from "lucide-react";
+import { AlertTriangle, BarChart3, CheckCircle2, Gauge, Lightbulb, Lock, Sparkles, TrendingDown } from "lucide-react";
 import { ScoreRing } from "@/components/finance/score-ring";
 import { Card } from "@/components/ui/card";
 import { useI18n } from "@/i18n/provider";
+import type { ImprovementItem } from "@/lib/finance/improvement";
 import type { FrozenAssetsAnalysis, MarginBridge, RevenueSafetyMargin } from "@/lib/finance/insights";
 import type { AiAdvice, FinancialRatios } from "@/lib/finance/types";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
@@ -27,15 +28,30 @@ const RATIO_ROW_KEYS: { key: RatioRowKey; kind: "ratio" | "pct" | "money" }[] = 
   { key: "workingCapital", kind: "money" },
 ];
 
+// Что видно после какой кнопки:
+// - "local" (Посчитать сейчас) — только коэффициенты (выше, всегда) + короткий
+//   итог/возможность финансирования. Никакого детального разбора — по запросу
+//   пользователя, чтобы кнопки давали заметно разные результаты.
+// - "ai" (Получить ИИ-анализ) — весь расширенный разбор (маржа/заморозка/запас
+//   прочности/red flags/сильные и слабые стороны/рекомендации/бенчмаркинг) плюс
+//   новый детерминированный план улучшения показателей. Если реальный ИИ (Gemini)
+//   недоступен и сработал локальный фолбэк — честно показываем баннер об этом
+//   (раньше это было неотличимо от настоящего ИИ-ответа).
+export type ResultMode = "local" | "ai" | null;
+
 export function AnalysisPanel({
   ratios,
   advice,
+  resultMode,
+  improvementPlan,
   marginBridge,
   frozenAssets,
   safetyMargin,
 }: {
   ratios: FinancialRatios;
   advice: AiAdvice | null;
+  resultMode: ResultMode;
+  improvementPlan: ImprovementItem[];
   marginBridge: MarginBridge;
   frozenAssets: FrozenAssetsAnalysis;
   safetyMargin: RevenueSafetyMargin;
@@ -92,71 +108,88 @@ export function AnalysisPanel({
         ))}
       </div>
 
-      {/* Где теряется маржа — считается всегда, не только после ИИ/правил. */}
-      <Card className="space-y-3">
-        <h3 className="flex items-center gap-2 font-display text-lg">
-          <TrendingDown className="size-5 text-gold" /> {t.marginBridgeHeading}
-        </h3>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {dragRows.map((row) => (
-            <div key={row.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
-              <span className="text-muted">{row.label}</span>
-              <span className="tabular-nums">{formatPct(row.ratio)}</span>
-            </div>
-          ))}
-        </div>
-        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.margin_commentary}</p> : null}
-      </Card>
+      {resultMode === "local" && advice ? (
+        <Card className="space-y-3">
+          <h3 className="font-display text-lg">{t.localSummaryHeading}</h3>
+          <p className="text-sm leading-relaxed">{advice.summary}</p>
+          <div className="border-t border-line/60 pt-3">
+            <h4 className="mb-1 text-sm font-semibold text-gold">{t.financingHeading}</h4>
+            <p className="text-sm leading-relaxed text-muted">{advice.financing_advice}</p>
+          </div>
+        </Card>
+      ) : null}
 
-      {/* Где заморожены деньги — топ статей, дни оборота запасов/дебиторки. */}
-      <Card className="space-y-3">
-        <h3 className="flex items-center gap-2 font-display text-lg">
-          <Lock className="size-5 text-gold" /> {t.frozenAssetsHeading}
-        </h3>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {frozenAssets.items.map((item) => (
-            <div key={item.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
-              <span className="text-muted">{dict.financeFields.labels[item.key]}</span>
-              <span className="tabular-nums">
-                {formatMoney(item.amount, locale)} · {formatPct(item.shareOfAssets)}
+      {resultMode === "ai" && advice ? (
+        <div className="space-y-4">
+          {advice.source === "rules" ? (
+            <Card className="border border-gold/30 bg-gold/5">
+              <p className="text-sm text-gold">{t.aiUnavailableBanner}</p>
+            </Card>
+          ) : null}
+
+          {/* Где теряется маржа */}
+          <Card className="space-y-3">
+            <h3 className="flex items-center gap-2 font-display text-lg">
+              <TrendingDown className="size-5 text-gold" /> {t.marginBridgeHeading}
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {dragRows.map((row) => (
+                <div key={row.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+                  <span className="text-muted">{row.label}</span>
+                  <span className="tabular-nums">{formatPct(row.ratio)}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm leading-relaxed text-muted">{advice.margin_commentary}</p>
+          </Card>
+
+          {/* Где заморожены деньги */}
+          <Card className="space-y-3">
+            <h3 className="flex items-center gap-2 font-display text-lg">
+              <Lock className="size-5 text-gold" /> {t.frozenAssetsHeading}
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {frozenAssets.items.map((item) => (
+                <div key={item.key} className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+                  <span className="text-muted">{dict.financeFields.labels[item.key]}</span>
+                  <span className="tabular-nums">
+                    {formatMoney(item.amount, locale)} · {formatPct(item.shareOfAssets)}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 text-sm text-muted">
+              <span>
+                {t.inventoryDaysLabel}: {frozenAssets.inventoryDays !== null ? Math.round(frozenAssets.inventoryDays) : "—"}
+              </span>
+              <span>
+                {t.receivablesDaysLabel}:{" "}
+                {frozenAssets.receivablesDays !== null ? Math.round(frozenAssets.receivablesDays) : "—"}
               </span>
             </div>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-4 text-sm text-muted">
-          <span>
-            {t.inventoryDaysLabel}: {frozenAssets.inventoryDays !== null ? Math.round(frozenAssets.inventoryDays) : "—"}
-          </span>
-          <span>
-            {t.receivablesDaysLabel}:{" "}
-            {frozenAssets.receivablesDays !== null ? Math.round(frozenAssets.receivablesDays) : "—"}
-          </span>
-        </div>
-        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.frozen_assets_commentary}</p> : null}
-      </Card>
+            <p className="text-sm leading-relaxed text-muted">{advice.frozen_assets_commentary}</p>
+          </Card>
 
-      {/* Безопасный порог снижения выручки — запас прочности до операционного убытка. */}
-      <Card className="space-y-3">
-        <h3 className="flex items-center gap-2 font-display text-lg">
-          <Gauge className="size-5 text-gold" /> {t.safetyMarginHeading}
-        </h3>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
-            <span className="text-muted">{t.breakEvenRevenueLabel}</span>
-            <span className="tabular-nums">
-              {safetyMargin.breakEvenRevenue !== null ? formatMoney(safetyMargin.breakEvenRevenue, locale) : "—"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
-            <span className="text-muted">{t.safeDeclineLabel}</span>
-            <span className="tabular-nums">{formatPct(safetyMargin.safeDeclinePct)}</span>
-          </div>
-        </div>
-        {advice ? <p className="text-sm leading-relaxed text-muted">{advice.safety_margin_commentary}</p> : null}
-      </Card>
+          {/* Безопасный порог снижения выручки */}
+          <Card className="space-y-3">
+            <h3 className="flex items-center gap-2 font-display text-lg">
+              <Gauge className="size-5 text-gold" /> {t.safetyMarginHeading}
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+                <span className="text-muted">{t.breakEvenRevenueLabel}</span>
+                <span className="tabular-nums">
+                  {safetyMargin.breakEvenRevenue !== null ? formatMoney(safetyMargin.breakEvenRevenue, locale) : "—"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-raised px-3 py-2 text-sm">
+                <span className="text-muted">{t.safeDeclineLabel}</span>
+                <span className="tabular-nums">{formatPct(safetyMargin.safeDeclinePct)}</span>
+              </div>
+            </div>
+            <p className="text-sm leading-relaxed text-muted">{advice.safety_margin_commentary}</p>
+          </Card>
 
-      {advice ? (
-        <div className="space-y-4">
           <Card>
             <div className="mb-2 flex items-center gap-2 text-sm text-gold">
               <Sparkles className="size-4" />
@@ -207,6 +240,24 @@ export function AnalysisPanel({
               </ul>
             </Card>
           ) : null}
+
+          {/* Новое: конкретный численный план улучшения показателей — считается
+              в коде (lib/finance/improvement.ts), не ИИ, поэтому есть всегда,
+              даже если Gemini недоступен. */}
+          <Card className="space-y-3">
+            <h3 className="flex items-center gap-2 font-display text-lg">
+              <Lightbulb className="size-5 text-gold" /> {t.improvementPlan.heading}
+            </h3>
+            {improvementPlan.length > 0 ? (
+              <ul className="list-disc space-y-2 pl-5 text-sm text-muted">
+                {improvementPlan.map((item) => (
+                  <li key={item.key}>{item.text}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted">{t.improvementPlan.allGoodMessage}</p>
+            )}
+          </Card>
 
           <Card className="space-y-4">
             <h3 className="font-display text-lg">{t.whatToDo}</h3>

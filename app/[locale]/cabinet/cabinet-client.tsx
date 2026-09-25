@@ -9,6 +9,7 @@ import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { PlanPanel } from "@/components/business-plan/plan-panel";
 import { useI18n } from "@/i18n/provider";
 import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
+import { computeImprovementPlan } from "@/lib/finance/improvement";
 import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import type { AiAdvice, FinanceData, FinancePeriod, FinancialRatios } from "@/lib/finance/types";
@@ -500,6 +501,13 @@ export function CabinetClient({
                           <AnalysisPanel
                             ratios={a.ratios}
                             advice={a.advice}
+                            resultMode="ai"
+                            improvementPlan={computeImprovementPlan(
+                              deriveAggregates(primaryData),
+                              a.ratios,
+                              dict,
+                              locale,
+                            )}
                             marginBridge={computeMarginBridge(primaryData)}
                             frozenAssets={computeFrozenAssets(primaryData, deriveAggregates(primaryData).totalAssets)}
                             safetyMargin={computeRevenueSafetyMargin(primaryData)}

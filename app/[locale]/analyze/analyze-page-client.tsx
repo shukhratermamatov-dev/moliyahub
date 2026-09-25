@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast, Toaster } from "sonner";
-import { AnalysisPanel } from "@/components/finance/analysis-panel";
+import { AnalysisPanel, type ResultMode } from "@/components/finance/analysis-panel";
+import { FinancingPicks } from "@/components/finance/financing-picks";
 import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { useI18n } from "@/i18n/provider";
 import { requestAiAdvice } from "@/lib/ai/analyze";
 import { computeSubtotals, deriveAggregates } from "@/lib/finance/aggregate";
 import { buildRuleAdvice } from "@/lib/finance/advice";
+import { computeImprovementPlan } from "@/lib/finance/improvement";
 import { computeFrozenAssets, computeMarginBridge, computeRevenueSafetyMargin } from "@/lib/finance/insights";
 import { calculateRatios } from "@/lib/finance/ratios";
 import {
@@ -192,6 +194,7 @@ export function AnalyzePageClient() {
   const [region, setRegion] = useState<string>(REGIONS[0]?.id ?? "");
   const [periods, setPeriods] = useState<FinancePeriod[]>([{ year: CURRENT_YEAR, data: { ...DEMO_FINANCE_DATA } }]);
   const [advice, setAdvice] = useState<AiAdvice | null>(null);
+  const [resultMode, setResultMode] = useState<ResultMode>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
@@ -237,6 +240,12 @@ export function AnalyzePageClient() {
     [primary.data, primary.aggregate.totalAssets],
   );
   const safetyMargin = useMemo(() => computeRevenueSafetyMargin(primary.data), [primary.data]);
+  // Численный план улучшения показателей — считается в коде (не ИИ), поэтому
+  // есть всегда и не зависит от доступности внешнего ИИ-сервиса.
+  const improvementPlan = useMemo(
+    () => computeImprovementPlan(primary.aggregate, primary.ratios, dict, locale),
+    [primary.aggregate, primary.ratios, dict, locale],
+  );
 
   const setPeriodField = (periodIndex: number, key: FinanceFieldKey, n: number) => {
     setPeriods((prev) =>
@@ -257,6 +266,7 @@ export function AnalyzePageClient() {
   const removeSecondPeriod = () => {
     setPeriods((prev) => prev.slice(0, 1));
     setAdvice(null);
+    setResultMode(null);
   };
 
   const runLocal = () => {
@@ -267,6 +277,7 @@ export function AnalyzePageClient() {
     const next = buildRuleAdvice(primary.aggregate, primary.ratios, dict, locale, primary.data);
     if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
     setAdvice(next);
+    setResultMode("local");
     toast.success(t.toastCalculated);
   };
 
@@ -279,11 +290,13 @@ export function AnalyzePageClient() {
     try {
       const next = await requestAiAdvice({ periods, industry, region, locale });
       setAdvice(next);
+      setResultMode("ai");
       toast.success(next.source === "ai" ? t.toastAiReady : t.toastExpress);
     } catch {
       const next = buildRuleAdvice(primary.aggregate, primary.ratios, dict, locale, primary.data);
       if (second) next.variance = { ...computeVariance(primary.ratios, second.ratios), narrative: "" };
       setAdvice(next);
+      setResultMode("ai");
       toast.error(t.toastAiUnavailable);
     } finally {
       setLoading(false);
@@ -328,6 +341,7 @@ export function AnalyzePageClient() {
   const resetTo = (data: FinanceData) => {
     setPeriods((prev) => [{ ...prev[0], data: { ...data } }, ...prev.slice(1)]);
     setAdvice(null);
+    setResultMode(null);
   };
 
   async function downloadBlob(url: string, body: unknown, filename: string) {
@@ -401,6 +415,7 @@ export function AnalyzePageClient() {
         return next;
       });
       setAdvice(null);
+      setResultMode(null);
       toast.success(t.uploadSuccess);
     } catch {
       toast.error(t.uploadError);
@@ -556,10 +571,14 @@ export function AnalyzePageClient() {
             <AnalysisPanel
               ratios={primary.ratios}
               advice={advice}
+              resultMode={resultMode}
+              improvementPlan={improvementPlan}
               marginBridge={marginBridge}
               frozenAssets={frozenAssets}
               safetyMargin={safetyMargin}
             />
+
+            {advice ? <div className="mt-6"><FinancingPicks locale={locale} /></div> : null}
 
             {second && advice ? (
               <VarianceDashboard
@@ -576,7 +595,7 @@ export function AnalyzePageClient() {
                 <Link href={`/${locale}/financing`}>{t.compareLoans}</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href={`/${locale}/projects`}>{t.findInvestor}</Link>
+                <Link href={`/${locale}/projects/new`}>{t.findInvestor}</Link>
               </Button>
             </div>
           </div>

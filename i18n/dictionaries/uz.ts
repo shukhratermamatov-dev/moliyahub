@@ -170,6 +170,27 @@ const dict: Dictionary = {
   },
   panel: {
     outOf100: "100 dan",
+    localSummaryHeading: "Xulosa",
+    aiUnavailableBanner:
+      "Sun'iy intellekt xizmati hozir mavjud emas (API kaliti sozlanmagan yoki vaqtinchalik xatolik) — model sharhi oʻrniga formulalar asosidagi kengaytirilgan tahlil koʻrsatilmoqda.",
+    improvementPlan: {
+      heading: "Koʻrsatkichlarni qanday yaxshilash mumkin",
+      allGoodMessage: "Barcha asosiy koʻrsatkichlar allaqachon meʼyor doirasida — maxsus chora talab qilinmaydi.",
+      currentRatio: (amount: string) =>
+        `Joriy likvidlik meʼyor doirasida boʻlishi uchun (kamida 1.5) joriy aktivlarni (masalan, pul mablagʻlarini) taxminan ${amount} ga oshiring — yoki joriy majburiyatlarni shunga mos ravishda kamaytiring.`,
+      absoluteLiquidity: (amount: string) =>
+        `Absolyut likvidlik meʼyor doirasida boʻlishi uchun pul mablagʻlarini taxminan ${amount} ga oshiring.`,
+      autonomyRatio: (amount: string) =>
+        `Avtonomiya (moliyaviy mustaqillik) koeffitsienti meʼyor doirasida boʻlishi uchun (kamida 50%) oʻz kapitalini taxminan ${amount} ga oshiring — masalan, taqsimlanmagan foyda yoki egasining qoʻshimcha mablagʻi hisobidan.`,
+      debtRatio: (amount: string) =>
+        `Qarz yuki meʼyor doirasida boʻlishi uchun (aktivlarning 40% dan koʻp boʻlmasligi kerak) majburiyatlarni taxminan ${amount} ga kamaytiring.`,
+      interestCoverage: (amount: string) =>
+        `Foizlarni qoplash koeffitsienti meʼyor doirasida boʻlishi uchun operatsion foydani taxminan ${amount} ga oshiring — yoki foiz xarajatlarini kamaytirish boʻyicha kelishing.`,
+      inventoryTurnover: (amount: string) =>
+        `Zaxiralar aylanmasi meʼyor doirasida boʻlishi uchun oʻrtacha zaxira qoldigʻini taxminan ${amount} ga kamaytiring.`,
+      roa: (amount: string) =>
+        `ROA (aktivlar rentabelligi) meʼyor doirasida boʻlishi uchun (kamida 3%) sof foydani taxminan ${amount} ga oshiring.`,
+    },
     aiAnalysis: "SI tahlili",
     expressRecommendations: "Ekspress-tavsiyalar",
     redFlags: "Xavf belgilari",
@@ -386,6 +407,13 @@ const dict: Dictionary = {
     VENTURE: "Venchur / farishta investorlar",
     CROWDFUNDING: "Ommaviy moliyalashtirish",
     GRANT: "Grant / imtiyozlar",
+  },
+  financingPicks: {
+    heading: "Eng past stavkali takliflar",
+    subtitle:
+      "Har bir toifada eng past stavkali banklar va mahsulotlar. Kredit stavkalari — real (bank.uz), islom moliyalashtiruvi va lizing — namunaviy misollar.",
+    detailsLink: "Barcha shartlarni koʻrish",
+    rateSuffix: "% yillik",
   },
   projectStages: {
     IDEA: "Gʻoya",

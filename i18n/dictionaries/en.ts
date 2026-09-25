@@ -170,6 +170,27 @@ const dict: Dictionary = {
   },
   panel: {
     outOf100: "out of 100",
+    localSummaryHeading: "Summary",
+    aiUnavailableBanner:
+      "The AI service is currently unavailable (no API key configured, or a temporary failure) — showing the extended rule-based breakdown instead of a live model comment.",
+    improvementPlan: {
+      heading: "How to improve your ratios",
+      allGoodMessage: "All key ratios are already within the norm — no specific action is needed.",
+      currentRatio: (amount: string) =>
+        `To bring the current ratio within the norm (at least 1.5), increase current assets (e.g. cash) by about ${amount} — or reduce current liabilities by a comparable amount.`,
+      absoluteLiquidity: (amount: string) =>
+        `To bring absolute liquidity within the norm, increase cash by about ${amount}.`,
+      autonomyRatio: (amount: string) =>
+        `To bring the equity (autonomy) ratio within the norm (at least 50%), increase equity by about ${amount} — for example through retained earnings or an owner contribution.`,
+      debtRatio: (amount: string) =>
+        `To bring the debt ratio within the norm (no more than 40% of assets), reduce liabilities by about ${amount}.`,
+      interestCoverage: (amount: string) =>
+        `To bring interest coverage within the norm, increase operating profit by about ${amount} — or negotiate lower interest costs.`,
+      inventoryTurnover: (amount: string) =>
+        `To bring inventory turnover within the norm, reduce average inventory by about ${amount}.`,
+      roa: (amount: string) =>
+        `To bring ROA within the norm (at least 3%), increase net profit by about ${amount}.`,
+    },
     aiAnalysis: "AI analysis",
     expressRecommendations: "Express recommendations",
     redFlags: "Red flags",
@@ -386,6 +407,13 @@ const dict: Dictionary = {
     VENTURE: "Venture / angels",
     CROWDFUNDING: "Crowdfunding",
     GRANT: "Grant / incentives",
+  },
+  financingPicks: {
+    heading: "Lowest-rate offers",
+    subtitle:
+      "Banks and products with the lowest rate in each category. Loan rates are real (bank.uz); Islamic financing and leasing are illustrative examples.",
+    detailsLink: "See all terms",
+    rateSuffix: "% p.a.",
   },
   projectStages: {
     IDEA: "Idea",
