@@ -34,14 +34,21 @@
 // обёртки, но extractJsonObject() всё равно есть как страховка.
 
 const GEMINI_MODEL = "gemini-3.8-flash";
+// Запасная модель — тоже бесплатный тариф, но менее востребованная/более
+// лёгкая, поэтому реже упирается в 503 "high demand" у основной модели.
+// Используется только если основная модель дважды подряд отказала с
+// перегрузкой — качество ответа чуть ниже, но живой ИИ-анализ лучше, чем
+// молчаливый откат в локальный разбор по правилам.
+const GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
 // gemini-3.8-flash — популярная бесплатная модель, поэтому Google иногда
 // отвечает 503 "This model is currently experiencing high demand" в часы
 // пиковой нагрузки — это не ошибка кода и не проблема ключа, а временная
-// перегрузка на стороне Google. Одна короткая повторная попытка спустя
-// ~1.2с обычно достаточно, чтобы не откатываться в локальный разбор по
-// правилам зря; вторая неудача — это уже настоящий отказ, дальше решает
-// вызывающий код (фолбэк на buildRuleAdvice).
+// перегрузка на стороне Google (подтверждено логами: 3 отдельных случая
+// подряд 25.09.2026, оба запроса в паре падали с 503). Один короткий повтор
+// спустя ~1.2с на той же модели, и если это тоже не помогло — одна попытка
+// на запасной модели, прежде чем откатываться в локальный разбор по
+// правилам.
 const RETRYABLE_STATUSES = new Set([503, 429]);
 const RETRY_DELAY_MS = 1200;
 
@@ -57,9 +64,11 @@ async function callGeminiOnce(params: {
   user: string;
   maxOutputTokens?: number;
   temperature?: number;
+  model?: string;
 }): Promise<{ ok: true; text: string } | { ok: false; error: string; status?: number }> {
+  const model = params.model ?? GEMINI_MODEL;
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": params.apiKey },
@@ -112,7 +121,12 @@ export async function callGeminiJson(params: {
     await sleep(RETRY_DELAY_MS);
     console.error(`[gemini] retrying after ${first.error}`);
     const second = await callGeminiOnce(params);
-    return second;
+    if (second.ok) return second;
+    if (!second.status || !RETRYABLE_STATUSES.has(second.status)) return second;
+
+    console.error(`[gemini] ${GEMINI_MODEL} overloaded twice, falling back to ${GEMINI_FALLBACK_MODEL}`);
+    const fallback = await callGeminiOnce({ ...params, model: GEMINI_FALLBACK_MODEL });
+    return fallback;
   } catch {
     return { ok: false, error: "network_error" };
   }
