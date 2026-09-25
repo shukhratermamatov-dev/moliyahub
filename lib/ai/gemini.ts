@@ -35,7 +35,67 @@
 
 const GEMINI_MODEL = "gemini-3.8-flash";
 
+// gemini-3.8-flash — популярная бесплатная модель, поэтому Google иногда
+// отвечает 503 "This model is currently experiencing high demand" в часы
+// пиковой нагрузки — это не ошибка кода и не проблема ключа, а временная
+// перегрузка на стороне Google. Одна короткая повторная попытка спустя
+// ~1.2с обычно достаточно, чтобы не откатываться в локальный разбор по
+// правилам зря; вторая неудача — это уже настоящий отказ, дальше решает
+// вызывающий код (фолбэк на buildRuleAdvice).
+const RETRYABLE_STATUSES = new Set([503, 429]);
+const RETRY_DELAY_MS = 1200;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export type GeminiCallResult = { ok: true; text: string } | { ok: false; error: string };
+
+async function callGeminiOnce(params: {
+  apiKey: string;
+  system: string;
+  user: string;
+  maxOutputTokens?: number;
+  temperature?: number;
+}): Promise<{ ok: true; text: string } | { ok: false; error: string; status?: number }> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": params.apiKey },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: params.user }] }],
+        systemInstruction: { role: "system", parts: [{ text: params.system }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: params.temperature ?? 0.4,
+          maxOutputTokens: params.maxOutputTokens ?? 4000,
+        },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    // Логируем тело ответа Google в серверный лог (Vercel Functions), не в
+    // UI — там может быть полезная причина отказа (неверный/просроченный
+    // ключ, не включён биллинг, превышена квота, временная перегрузка и
+    // т.д.), но не секрет и не персональные данные пользователя сайта.
+    const errorBody = await res.text().catch(() => "");
+    console.error(`[gemini] http_${res.status}:`, errorBody.slice(0, 500));
+    return { ok: false, error: `http_${res.status}`, status: res.status };
+  }
+
+  const body = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
+    promptFeedback?: { blockReason?: string };
+  };
+
+  if (body.promptFeedback?.blockReason) return { ok: false, error: `blocked_${body.promptFeedback.blockReason}` };
+
+  const text = (body.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
+  if (!text) return { ok: false, error: "empty_response" };
+  return { ok: true, text };
+}
 
 export async function callGeminiJson(params: {
   apiKey: string;
@@ -45,43 +105,14 @@ export async function callGeminiJson(params: {
   temperature?: number;
 }): Promise<GeminiCallResult> {
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": params.apiKey },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: params.user }] }],
-          systemInstruction: { role: "system", parts: [{ text: params.system }] },
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: params.temperature ?? 0.4,
-            maxOutputTokens: params.maxOutputTokens ?? 4000,
-          },
-        }),
-      },
-    );
+    const first = await callGeminiOnce(params);
+    if (first.ok) return first;
+    if (!first.status || !RETRYABLE_STATUSES.has(first.status)) return first;
 
-    if (!res.ok) {
-      // Логируем тело ответа Google в серверный лог (Vercel Functions), не в
-      // UI — там может быть полезная причина отказа (неверный/просроченный
-      // ключ, не включён биллинг, превышена квота и т.д.), но не секрет и не
-      // персональные данные пользователя сайта.
-      const errorBody = await res.text().catch(() => "");
-      console.error(`[gemini] http_${res.status}:`, errorBody.slice(0, 500));
-      return { ok: false, error: `http_${res.status}` };
-    }
-
-    const body = (await res.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
-      promptFeedback?: { blockReason?: string };
-    };
-
-    if (body.promptFeedback?.blockReason) return { ok: false, error: `blocked_${body.promptFeedback.blockReason}` };
-
-    const text = (body.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
-    if (!text) return { ok: false, error: "empty_response" };
-    return { ok: true, text };
+    await sleep(RETRY_DELAY_MS);
+    console.error(`[gemini] retrying after ${first.error}`);
+    const second = await callGeminiOnce(params);
+    return second;
   } catch {
     return { ok: false, error: "network_error" };
   }
