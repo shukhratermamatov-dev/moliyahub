@@ -14,6 +14,16 @@ const SECONDARY = "#d95926";
 const GRID = "#24343c";
 const AXIS_TEXT = "#8fa09a";
 
+// Временно отключённые инфографики (не удаляем данные/код — только не
+// рендерим): чтобы вернуть обратно, достаточно убрать ключ/тип диаграммы
+// отсюда. DISABLED_INDICATORS прячет показатель целиком (все 3 диаграммы),
+// DISABLED_CHARTS прячет только конкретный тип диаграммы у показателя,
+// остальные диаграммы этого показателя остаются видны.
+const DISABLED_INDICATORS: StatUzIndicatorKey[] = ["smallBusinessOperating"];
+const DISABLED_CHARTS: Partial<Record<StatUzIndicatorKey, ChartKind[]>> = {
+  newlyCreated: ["comparison"],
+};
+
 function niceCeil(value: number): number {
   if (value <= 0) return 1;
   const exp = Math.floor(Math.log10(value));
@@ -36,6 +46,8 @@ function fillTemplate(template: string, vars: Record<string, string | number>): 
 function regionName(region: StatUzRegion, locale: Locale): string {
   return region.name[locale] || region.name.ru;
 }
+
+type ChartKind = "dynamics" | "ranking" | "comparison";
 
 type CommonLabels = {
   yearHeader: string;
@@ -374,32 +386,46 @@ function IndicatorGroup({ indicator, locale, t }: { indicator: StatUzIndicator; 
     last: region.values[region.values.length - 1] ?? 0,
   }));
 
+  const hidden = new Set(DISABLED_CHARTS[indicator.key] ?? []);
+
   return (
     <div className="mt-12 first:mt-0">
       <h3 className="text-center font-display text-2xl">{forms.nominative}</h3>
-      <div className="mt-6 flex flex-col gap-6">
-        <DynamicsChart
-          years={indicator.years}
-          values={indicator.republic}
-          title={fillTemplate(t.dynamicsTitleTemplate, { value: forms.genitive })}
-          labels={commonLabels}
-        />
-        <RankingChart
-          rows={rankingRows}
-          title={fillTemplate(t.rankingTitleTemplate, { value: forms.dative, year: lastYear })}
-          labels={commonLabels}
-        />
-        <ComparisonChart
-          rows={comparisonRows}
-          year1={firstYear}
-          year2={lastYear}
-          title={fillTemplate(t.comparisonTitleTemplate, {
-            value: forms.nominative,
-            year1: firstYear,
-            year2: lastYear,
-          })}
-          labels={commonLabels}
-        />
+      {/* Компактная сетка: по умолчанию два графика в ряд (без потери
+          качества — это SVG с viewBox, он просто масштабируется). Диаграмма
+          сравнения регионов шире остальных (много столбцов), поэтому ей
+          отдаём всю ширину ряда. */}
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+        {!hidden.has("dynamics") ? (
+          <DynamicsChart
+            years={indicator.years}
+            values={indicator.republic}
+            title={fillTemplate(t.dynamicsTitleTemplate, { value: forms.genitive })}
+            labels={commonLabels}
+          />
+        ) : null}
+        {!hidden.has("ranking") ? (
+          <RankingChart
+            rows={rankingRows}
+            title={fillTemplate(t.rankingTitleTemplate, { value: forms.dative, year: lastYear })}
+            labels={commonLabels}
+          />
+        ) : null}
+        {!hidden.has("comparison") ? (
+          <div className="md:col-span-2">
+            <ComparisonChart
+              rows={comparisonRows}
+              year1={firstYear}
+              year2={lastYear}
+              title={fillTemplate(t.comparisonTitleTemplate, {
+                value: forms.nominative,
+                year1: firstYear,
+                year2: lastYear,
+              })}
+              labels={commonLabels}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -447,6 +473,8 @@ export function StatUzCharts() {
     return null;
   }
 
+  const visibleIndicators = indicators.filter((indicator) => !DISABLED_INDICATORS.includes(indicator.key));
+
   return (
     <section className="border-t border-line">
       <div className="mx-auto max-w-6xl px-4 py-16">
@@ -456,7 +484,7 @@ export function StatUzCharts() {
         {indicators.length === 0 ? (
           <p className="mt-8 text-center text-sm text-muted">{t.loadError}</p>
         ) : (
-          indicators.map((indicator) => (
+          visibleIndicators.map((indicator) => (
             <IndicatorGroup key={indicator.key} indicator={indicator} locale={locale} t={t} />
           ))
         )}
