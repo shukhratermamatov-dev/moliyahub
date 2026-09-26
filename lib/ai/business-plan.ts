@@ -1,7 +1,7 @@
 "use server";
 
 import type { Locale } from "@/i18n/config";
-import { findIndustry, findSubIndustry } from "@/lib/data/industries";
+import { findIndustry, resolveSubIndustryLabel } from "@/lib/data/industries";
 import { findBusinessPlanSample } from "@/lib/data/business-plan-samples";
 import { pickText } from "@/lib/i18n-text";
 import { callGeminiJson, extractJsonObject } from "@/lib/ai/gemini";
@@ -128,9 +128,13 @@ export async function generateBusinessPlan(
   if (!apiKey) return { ok: false, error: "not_configured" };
 
   const industry = findIndustry(input.industryId);
-  const sub = findSubIndustry(input.industryId, input.subIndustryId);
   const industryLabel = industry ? pickText(industry.name, locale) : input.industryId;
-  const subIndustryLabel = sub ? pickText(sub.name, locale) : undefined;
+  const subIndustryLabel = resolveSubIndustryLabel(
+    input.industryId,
+    input.subIndustryId,
+    input.subIndustryOther,
+    locale,
+  );
   const sample = findBusinessPlanSample(input.industryId);
 
   const sampleBlock = sample

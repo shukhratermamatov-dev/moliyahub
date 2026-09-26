@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { OTHER_SUB_INDUSTRY_ID } from "@/lib/data/industries";
 
 const STAGES = ["IDEA", "MVP", "GROWTH", "SCALE"] as const;
 
@@ -31,6 +32,7 @@ export async function createPublicProject(
   const ownerName = String(formData.get("owner") || "").trim();
   const industryId = String(formData.get("industryId") || "").trim();
   const subIndustryId = String(formData.get("subIndustryId") || "").trim();
+  const subIndustryOther = String(formData.get("subIndustryOther") || "").trim();
   const stageRaw = String(formData.get("stage") || "IDEA");
   const stage = (STAGES as readonly string[]).includes(stageRaw) ? stageRaw : "IDEA";
   const amountRaw = String(formData.get("amount") || "").trim();
@@ -39,6 +41,9 @@ export async function createPublicProject(
   const description = String(formData.get("description") || "").trim();
 
   if (!title || !ownerName || !description) {
+    return { error: "fill_required" };
+  }
+  if (subIndustryId === OTHER_SUB_INDUSTRY_ID && !subIndustryOther) {
     return { error: "fill_required" };
   }
 
@@ -54,6 +59,7 @@ export async function createPublicProject(
       stage,
       industry_id: industryId || null,
       sub_industry_id: subIndustryId || null,
+      sub_industry_other: subIndustryId === OTHER_SUB_INDUSTRY_ID ? subIndustryOther : null,
       is_public: true,
     })
     .select("id")

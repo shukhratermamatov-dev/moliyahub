@@ -1,4 +1,5 @@
-import type { LocalizedText } from "@/lib/i18n-text";
+import type { Locale } from "@/i18n/config";
+import { pickText, type LocalizedText } from "@/lib/i18n-text";
 
 export type SubIndustry = {
   id: string;
@@ -437,4 +438,27 @@ export function findIndustry(id: string): Industry | undefined {
 export function findSubIndustry(industryId: string, subIndustryId: string | undefined): SubIndustry | undefined {
   if (!subIndustryId) return undefined;
   return findIndustry(industryId)?.subIndustries.find((s) => s.id === subIndustryId);
+}
+
+// Синтетический id для варианта "Прочие" в выпадающем списке детализации —
+// не привязан ни к одной отрасли в INDUSTRIES, добавляется в UI отдельным
+// последним пунктом в каждом справочнике детализации. Когда пользователь
+// выбирает его, реальное уточнение вводится вручную (свободный текст) и
+// хранится рядом (например, Project.subIndustryOther), а не в этом справочнике.
+export const OTHER_SUB_INDUSTRY_ID = "other";
+
+// Единая точка резолва подписи детализации для отображения — учитывает
+// вариант "Прочие" (тогда подпись — введённый пользователем текст), иначе
+// ищет в справочнике как обычно. Используется везде, где раньше был прямой
+// findSubIndustry(...) + pickText(...) для показа детализации на экране.
+export function resolveSubIndustryLabel(
+  industryId: string,
+  subIndustryId: string | undefined,
+  otherText: string | null | undefined,
+  locale: Locale,
+): string | undefined {
+  if (!subIndustryId) return undefined;
+  if (subIndustryId === OTHER_SUB_INDUSTRY_ID) return otherText || undefined;
+  const sub = findSubIndustry(industryId, subIndustryId);
+  return sub ? pickText(sub.name, locale) : undefined;
 }

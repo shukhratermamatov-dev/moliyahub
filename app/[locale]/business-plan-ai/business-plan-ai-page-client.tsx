@@ -11,7 +11,7 @@ import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
 import { generateBusinessPlan } from "@/lib/ai/business-plan";
 import type { BusinessPlan, BusinessPlanInput, BusinessPlanStage } from "@/lib/business-plan/types";
-import { findIndustry, INDUSTRIES } from "@/lib/data/industries";
+import { findIndustry, INDUSTRIES, OTHER_SUB_INDUSTRY_ID } from "@/lib/data/industries";
 import { pickText } from "@/lib/i18n-text";
 import { createClient } from "@/lib/supabase/client";
 import { saveBusinessPlanAction } from "./actions";
@@ -22,6 +22,7 @@ export function BusinessPlanAiPageClient() {
 
   const [industryId, setIndustryId] = useState(INDUSTRIES[0].id);
   const [subIndustryId, setSubIndustryId] = useState(INDUSTRIES[0].subIndustries[0]?.id ?? "");
+  const [subIndustryOther, setSubIndustryOther] = useState("");
   const [projectName, setProjectName] = useState("");
   const [idea, setIdea] = useState("");
   const [region, setRegion] = useState("");
@@ -52,7 +53,11 @@ export function BusinessPlanAiPageClient() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!projectName.trim() || !idea.trim()) {
+    if (
+      !projectName.trim() ||
+      !idea.trim() ||
+      (subIndustryId === OTHER_SUB_INDUSTRY_ID && !subIndustryOther.trim())
+    ) {
       toast.error(t.toastFillRequired);
       return;
     }
@@ -62,6 +67,7 @@ export function BusinessPlanAiPageClient() {
       const input: BusinessPlanInput = {
         industryId,
         subIndustryId: subIndustryId || undefined,
+        subIndustryOther: subIndustryId === OTHER_SUB_INDUSTRY_ID ? subIndustryOther.trim() : undefined,
         projectName: projectName.trim(),
         idea: idea.trim(),
         region: region.trim(),
@@ -161,6 +167,7 @@ export function BusinessPlanAiPageClient() {
                       const nextId = e.target.value;
                       setIndustryId(nextId);
                       setSubIndustryId(findIndustry(nextId)?.subIndustries[0]?.id ?? "");
+                      setSubIndustryOther("");
                     }}
                   >
                     {INDUSTRIES.map((ind) => (
@@ -182,9 +189,20 @@ export function BusinessPlanAiPageClient() {
                         {pickText(sub.name, locale)}
                       </option>
                     ))}
+                    <option value={OTHER_SUB_INDUSTRY_ID}>{t.subIndustryOtherOption}</option>
                   </select>
                 </label>
               </div>
+              {subIndustryId === OTHER_SUB_INDUSTRY_ID ? (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-muted">{t.subIndustryOtherPlaceholder}</span>
+                  <Input
+                    value={subIndustryOther}
+                    onChange={(e) => setSubIndustryOther(e.target.value)}
+                    placeholder={t.subIndustryOtherPlaceholder}
+                  />
+                </label>
+              ) : null}
 
               <label className="block text-sm">
                 <span className="mb-1 block text-muted">{t.projectNameLabel}</span>

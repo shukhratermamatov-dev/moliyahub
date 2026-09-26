@@ -7,6 +7,8 @@ export type BusinessPlanStage = "IDEA" | "MVP" | "GROWTH" | "SCALE";
 export type BusinessPlanInput = {
   industryId: string;
   subIndustryId?: string;
+  // Свободный текст, когда subIndustryId === OTHER_SUB_INDUSTRY_ID ("Прочие").
+  subIndustryOther?: string;
   projectName: string;
   idea: string;
   region: string;

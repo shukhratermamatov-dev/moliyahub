@@ -6,7 +6,7 @@ export default async function ProjectsPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
-    .select("id, name, owner_name, industry_id, sub_industry_id, stage, amount, region, description")
+    .select("id, name, owner_name, industry_id, sub_industry_id, sub_industry_other, stage, amount, region, description")
     .eq("is_public", true)
     .order("created_at", { ascending: false });
 

@@ -18,6 +18,10 @@ export type Project = {
   // списку отраслей для всех проектов, включая добавленные посетителями.
   industryId: string;
   subIndustryId?: string;
+  // Свободный текст, введённый пользователем, когда subIndustryId ===
+  // OTHER_SUB_INDUSTRY_ID ("Прочие") — справочник industries.ts не может
+  // покрыть все виды деятельности, это ручное уточнение вместо него.
+  subIndustryOther?: string;
   stage: ProjectStage;
   amount: number;
   region: LocalizedText;
@@ -43,6 +47,7 @@ export type DbProjectRow = {
   owner_name: string | null;
   industry_id: string | null;
   sub_industry_id: string | null;
+  sub_industry_other: string | null;
   stage: string | null;
   amount: number | null;
   region: string | null;
@@ -60,6 +65,7 @@ export function mapDbProjectRow(row: DbProjectRow): Project {
     title: sameForAllLocales(row.name),
     industryId: row.industry_id || INDUSTRIES_FALLBACK,
     subIndustryId: row.sub_industry_id || undefined,
+    subIndustryOther: row.sub_industry_other || undefined,
     stage: (STAGES.includes(row.stage || "") ? row.stage : "IDEA") as ProjectStage,
     amount: row.amount ?? 0,
     region: sameForAllLocales(row.region || ""),

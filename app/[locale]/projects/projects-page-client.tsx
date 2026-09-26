@@ -6,7 +6,7 @@ import { Shell } from "@/components/layout/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useI18n } from "@/i18n/provider";
-import { findIndustry, findSubIndustry, INDUSTRIES } from "@/lib/data/industries";
+import { findIndustry, INDUSTRIES, OTHER_SUB_INDUSTRY_ID, resolveSubIndustryLabel } from "@/lib/data/industries";
 import type { ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { useAllProjects } from "@/lib/store";
@@ -100,19 +100,28 @@ export function ProjectsPageClient({ dbProjects }: { dbProjects: Project[] }) {
                 {pickText(sub.name, locale)}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setSubIndustryId(OTHER_SUB_INDUSTRY_ID)}
+              className={`min-h-9 rounded-full px-3 text-xs ${
+                subIndustryId === OTHER_SUB_INDUSTRY_ID ? "bg-gold/20 text-gold" : "bg-raised text-muted"
+              }`}
+            >
+              {t.otherFilter}
+            </button>
           </div>
         ) : null}
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {list.map((p) => {
             const industry = findIndustry(p.industryId);
-            const sub = findSubIndustry(p.industryId, p.subIndustryId);
+            const subLabel = resolveSubIndustryLabel(p.industryId, p.subIndustryId, p.subIndustryOther, locale);
             return (
               <Link key={p.id} href={`/${locale}/projects/${p.id}`} className="block">
                 <Card className="h-full transition-transform hover:-translate-y-0.5">
                   <div className="text-xs text-gold">
                     {industry ? pickText(industry.name, locale) : ""}
-                    {sub ? ` · ${pickText(sub.name, locale)}` : ""} ·{" "}
+                    {subLabel ? ` · ${subLabel}` : ""} ·{" "}
                     {dict.projectStages[p.stage as ProjectStage]}
                   </div>
                   <h2 className="mt-2 font-display text-2xl">{pickText(p.title, locale)}</h2>

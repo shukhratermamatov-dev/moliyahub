@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-input";
 import { useI18n } from "@/i18n/provider";
-import { findIndustry, INDUSTRIES } from "@/lib/data/industries";
+import { findIndustry, INDUSTRIES, OTHER_SUB_INDUSTRY_ID } from "@/lib/data/industries";
 import type { ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { createPublicProject, type CreatePublicProjectState } from "../actions";
@@ -25,6 +25,7 @@ export function NewProjectPageClient() {
 
   const [industryId, setIndustryId] = useState(INDUSTRIES[0].id);
   const [subIndustryId, setSubIndustryId] = useState(INDUSTRIES[0].subIndustries[0]?.id ?? "");
+  const [subIndustryOther, setSubIndustryOther] = useState("");
   const [stage, setStage] = useState<ProjectStage>("GROWTH");
   const [amount, setAmount] = useState(500_000_000);
 
@@ -66,6 +67,7 @@ export function NewProjectPageClient() {
                     const nextId = e.target.value;
                     setIndustryId(nextId);
                     setSubIndustryId(findIndustry(nextId)?.subIndustries[0]?.id ?? "");
+                    setSubIndustryOther("");
                   }}
                 >
                   {INDUSTRIES.map((ind) => (
@@ -88,9 +90,22 @@ export function NewProjectPageClient() {
                       {pickText(sub.name, locale)}
                     </option>
                   ))}
+                  <option value={OTHER_SUB_INDUSTRY_ID}>{t.subIndustryOtherOption}</option>
                 </select>
               </label>
             </div>
+            {subIndustryId === OTHER_SUB_INDUSTRY_ID ? (
+              <label className="block text-sm">
+                <span className="mb-1 block text-muted">{t.subIndustryOtherPlaceholder}</span>
+                <Input
+                  name="subIndustryOther"
+                  value={subIndustryOther}
+                  onChange={(e) => setSubIndustryOther(e.target.value)}
+                  placeholder={t.subIndustryOtherPlaceholder}
+                  required
+                />
+              </label>
+            ) : null}
             <label className="block text-sm">
               <span className="mb-1 block text-muted">{t.regionLabel}</span>
               <Input name="region" defaultValue="Ташкент" />

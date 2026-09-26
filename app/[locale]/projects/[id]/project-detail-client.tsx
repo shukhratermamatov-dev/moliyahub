@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/i18n/provider";
-import { findIndustry, findSubIndustry } from "@/lib/data/industries";
+import { findIndustry, resolveSubIndustryLabel } from "@/lib/data/industries";
 import type { Project, ProjectStage } from "@/lib/data/projects";
 import { pickText } from "@/lib/i18n-text";
 import { useAllProjects, useHubStore } from "@/lib/store";
@@ -84,9 +84,15 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
         </Link>
         <p className="mt-6 text-xs text-gold">
           {findIndustry(project.industryId) ? pickText(findIndustry(project.industryId)!.name, locale) : ""}
-          {findSubIndustry(project.industryId, project.subIndustryId)
-            ? ` · ${pickText(findSubIndustry(project.industryId, project.subIndustryId)!.name, locale)}`
-            : ""}{" "}
+          {(() => {
+            const subLabel = resolveSubIndustryLabel(
+              project.industryId,
+              project.subIndustryId,
+              project.subIndustryOther,
+              locale,
+            );
+            return subLabel ? ` · ${subLabel}` : "";
+          })()}{" "}
           · {dict.projectStages[project.stage as ProjectStage]} · {pickText(project.region, locale)}
         </p>
         <h1 className="mt-2 font-display text-4xl">{pickText(project.title, locale)}</h1>
