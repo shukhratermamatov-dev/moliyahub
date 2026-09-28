@@ -22,6 +22,10 @@ const dict: Dictionary = {
     footerLine2: "Hisob-kitoblar maʼlumot xarakteriga ega va bank taklifi hisoblanmaydi.",
     contactsLabel: "Aloqa",
     cbuRatesLabel: "OʻzR MB:",
+    liveLabel: "LIVE",
+    creditsFromLabel: "Kreditlar",
+    updatedLabel: "yangilangan",
+    allRatesLabel: "Barcha stavkalar →",
     usefulLinksLabel: "Foydali havolalar",
     usefulLinks: {
       finlit: "Moliyaviy savodxonlik",
@@ -31,7 +35,7 @@ const dict: Dictionary = {
       soliq: "Soliq qoʻmitasi",
       trk: "Tadbirkorlikni rivojlantirish kompaniyasi (TRK)",
     },
-    footerMainLabel: "Bosh sahifa",
+    footerMainLabel: "Kompaniya",
     footerMainLinks: {
       about: "Kompaniya haqida",
       partners: "Hamkorlar",
@@ -50,6 +54,102 @@ const dict: Dictionary = {
     eyebrow: "Oʻzbekiston tadbirkorlari uchun platforma",
     h1Line1: "Moliyaviy koʻrsatkichlarni tahlil qiling.",
     h1Line2: "Biznesni kengaytirish uchun moliyalashtirish manbalarini toping.",
+    aiVisualTag: "AI bilan tezroq",
+    audience: {
+      heading: "Bitta platforma — bitimning uch tomoni",
+      tablistLabel: "Kim uchun",
+      biz: {
+        label: "Tadbirkorga",
+        cta: "Koʻrsatkichlarni hisoblash",
+        note: "Bepul · 3 daqiqa",
+        items: [
+          { title: "Tushunarli skoring", text: "0–100 ball va me'yorlar bilan solishtirish — zaif joylar darhol koʻrinadi." },
+          { title: "Birinchi navbatda nima tuzatish", text: "Muddat va kutilayotgan samara bilan AI tavsiyalari." },
+          { title: "Balingizga mos moliya", text: "Kredit, lizing, grant, vencher va islom instrumentlari — bitta katalogda." },
+        ],
+      },
+      inv: {
+        label: "Investorga",
+        cta: "Loyihalarni koʻrish",
+        note: "Soha, bosqich va hudud boʻyicha filtrlar",
+        items: [
+          { title: "Tekshirilgan raqamlar", text: "Har bir loyihada shunchaki tavsif emas, moliyaviy skoring bor." },
+          { title: "Tez tanlov", text: "Ortiqcha byurokratiyasiz soha, bosqich va hudud boʻyicha filtrlash." },
+          { title: "Bir marta bosish bilan ariza", text: "Loyiha yoqdimi — kartochkadan toʻgʻridan-toʻgʻri ariza qoldiring." },
+        ],
+      },
+      bank: {
+        label: "Bankka",
+        cta: "Hamkor boʻlish",
+        note: "Mahsulotlar real soʻrovlar yonida",
+        items: [
+          { title: "Tayyor murojaatlar", text: "Tadbirkorlar allaqachon hisoblangan koʻrsatkichlar bilan keladi." },
+          { title: "Mahsulotlar vitrinasi", text: "Kredit, lizing va islom mahsulotlaringiz umumiy katalogda." },
+          { title: "Jonli kanal", text: "Kichik biznesning hozirgi soʻrovlarini real vaqtda koʻring." },
+        ],
+      },
+    },
+    miniScoring: {
+      title: "Ekspress skoring",
+      unit: "mln so'm",
+      revenue: "Yillik tushum",
+      profit: "Sof foyda",
+      assets: "Aylanma aktivlar",
+      debts: "Qisqa muddatli qarzlar",
+      of100: "100 dan",
+      labelGood: "Yaxshi holat",
+      labelMid: "Yaxshilash mumkin",
+      labelLow: "Diqqat talab qiladi",
+      margin: "Rentabellik",
+      liquidity: "Joriy likvidlik",
+      note: "4 ta raqam boʻyicha dastlabki baho. Toʻliq tahlil — 15 ta maydon va AI tavsiyalari.",
+      cta: "Toʻliq hisobotni olish",
+    },
+    trustStrip: {
+      analyses: "moliyaviy tahlil",
+      projects: "birjadagi loyihalar",
+      products: "moliyalashtirish mahsulotlari",
+      templates: "tayyor biznes-reja shablonlari",
+      partnersLabel: "Hamkorlar",
+      partnerPlaceholder: "Logotip",
+    },
+    industriesGrid: {
+      heading: "Sohangiz uchun biznes-reja",
+      subtitle: "11 soha — o'zingiznikini tanlang va tayyor Excel/Word shablonini yuklab oling.",
+      cta: "Barcha sohalar va shablonlar",
+    },
+    projectsCarousel: {
+      heading: "Birjadagi loyihalar",
+      subtitle: "Moliyalashtirish yoki investor izlayotgan tadbirkorlarning dolzarb so'rovlari.",
+      cta: "Barcha loyihalarni ko'rish",
+      emptyState: "Hozircha e'lon qilingan loyihalar yo'q — birinchi bo'ling.",
+    },
+    islamicTeaser: {
+      heading: "Islom moliyalashtiruvi",
+      text: "Murobaha, ijara va boshqa shariatga mos vositalar — bank kreditlari va lizing bilan bir qatorda.",
+      cta: "Islom mahsulotlarini ko'rish",
+    },
+    faq: {
+      heading: "Ko'p beriladigan savollar",
+      items: [
+        {
+          q: "Bu bepulmi?",
+          a: "Moliyaviy tahlil, skoring va loyihani birjada e'lon qilish tadbirkorlar uchun bepul. Ko'rsatkichlarni hisoblash uchun ro'yxatdan o'tish shart emas — faqat tarixni saqlash va loyihalarni e'lon qilish uchun kerak.",
+        },
+        {
+          q: "Ma'lumotlarim xavfsizmi?",
+          a: "Ma'lumotlar kirishni cheklash imkoniyatiga ega himoyalangan Supabase bazasida saqlanadi: faqat hisob egasi o'z tahlillari va arizalarini ko'ra oladi.",
+        },
+        {
+          q: "Ko'rsatkichlarni hisoblash uchun ro'yxatdan o'tish kerakmi?",
+          a: "Yo'q. Ekspress-hisob va to'liq moliyaviy tahlil ro'yxatdan o'tmasdan mavjud. Hisob faqat tahlillar tarixini saqlash va loyihalarni birjada e'lon qilish uchun kerak.",
+        },
+        {
+          q: "AI-tahlil qanday ishlaydi?",
+          a: "AI faqat sizning buyrug'ingiz bilan — \"AI-tahlil olish\" tugmasi bosilganda chaqiriladi. Xizmat mavjud bo'lmasa, platforma xuddi shu koeffitsientlar bo'yicha lokal tahlilni ko'rsatadi, hisob-kitob hech qachon to'xtamaydi.",
+        },
+      ],
+    },
     subtitle:
       "MoliyaHub balans va foyda-zarar hisoboti asosida koʻrsatkichlarni hisoblaydi, nimani tuzatish kerakligini aytadi va moliyalashtirishni qayerdan olish mumkinligini koʻrsatadi — bankdan, investordan yoki islomiy moliyaviy vositalar orqali.",
     ctaPrimary: "Koʻrsatkichlarni hisoblash",

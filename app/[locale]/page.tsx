@@ -10,12 +10,20 @@ import {
   Users,
 } from "lucide-react";
 import { Shell } from "@/components/layout/shell";
-import { AiHologramVisual } from "@/components/home/ai-hologram-visual";
+import { MiniScoringWidget } from "@/components/home/mini-scoring-widget";
+import { TrustStrip } from "@/components/home/trust-strip";
+import { AudienceTabs } from "@/components/home/audience-tabs";
+import { IndustriesGrid } from "@/components/home/industries-grid";
+import { IslamicTeaser } from "@/components/home/islamic-teaser";
+import { ProjectsCarousel } from "@/components/home/projects-carousel";
+import { FaqAccordion } from "@/components/home/faq-accordion";
 import { StatUzCharts } from "@/components/finance/stat-uz-charts";
 import { Button } from "@/components/ui/button";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { SITE_IMAGES } from "@/lib/site-images";
+import { mapDbProjectRow, type DbProjectRow, type Project } from "@/lib/data/projects";
+import { createClient } from "@/lib/supabase/server";
 
 const FEATURE_ICONS = [BarChart3, Sparkles, Landmark, LineChart, Users, Building2];
 
@@ -29,11 +37,22 @@ export default async function Home({
   const dict = await getDictionary(locale);
   const t = dict.home;
 
+  // Реальные опубликованные проекты (Supabase, is_public=true) — витрина
+  // «Проекты на бирже» на главной; тот же паттерн запроса, что на /projects.
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("projects")
+    .select("id, name, owner_name, industry_id, sub_industry_id, sub_industry_other, stage, amount, region, description")
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .limit(6);
+  const dbProjects: Project[] = ((data as DbProjectRow[]) ?? []).map(mapDbProjectRow);
+
   return (
     <Shell>
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(30,168,122,0.16),_transparent_55%)]" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 md:pt-24">
+        <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-16 md:pt-24">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <div className="max-w-xl">
               <p className="mb-5 inline-flex rounded-full bg-raised px-3 py-1 text-base tracking-wide text-primary">
@@ -55,11 +74,33 @@ export default async function Home({
                 </Button>
               </div>
             </div>
-            <div className="hidden md:block">
-              <AiHologramVisual />
-            </div>
+            <MiniScoringWidget />
           </div>
         </div>
+      </section>
+
+      <TrustStrip />
+
+      <section className="border-t border-line">
+        <div className="mx-auto max-w-6xl px-4 py-16 text-center">
+          <h2 className="font-display text-3xl">{t.stepsHeading}</h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {t.steps.map((s) => (
+              <div key={s.n} className="rounded-2xl bg-raised p-6">
+                <div className="font-display text-3xl text-gold">{s.n}</div>
+                <h3 className="mt-3 font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted">{s.text}</p>
+              </div>
+            ))}
+          </div>
+          <Button asChild className="mt-10" size="lg">
+            <Link href={`/${locale}/analyze`}>{t.finalCta}</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="border-t border-line">
+        <AudienceTabs />
       </section>
 
       <StatUzCharts />
@@ -81,6 +122,10 @@ export default async function Home({
             );
           })}
         </div>
+      </section>
+
+      <section className="border-t border-line">
+        <IndustriesGrid />
       </section>
 
       <section className="border-t border-line">
@@ -109,6 +154,14 @@ export default async function Home({
       </section>
 
       <section className="border-t border-line">
+        <IslamicTeaser />
+      </section>
+
+      <section className="border-t border-line">
+        <ProjectsCarousel dbProjects={dbProjects} />
+      </section>
+
+      <section className="border-t border-line">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="text-center font-display text-3xl">{t.gallery.heading}</h2>
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -134,21 +187,7 @@ export default async function Home({
       </section>
 
       <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-16 text-center">
-          <h2 className="font-display text-3xl">{t.stepsHeading}</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {t.steps.map((s) => (
-              <div key={s.n} className="rounded-2xl bg-raised p-6">
-                <div className="font-display text-3xl text-gold">{s.n}</div>
-                <h3 className="mt-3 font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted">{s.text}</p>
-              </div>
-            ))}
-          </div>
-          <Button asChild className="mt-10" size="lg">
-            <Link href={`/${locale}/analyze`}>{t.finalCta}</Link>
-          </Button>
-        </div>
+        <FaqAccordion />
       </section>
     </Shell>
   );

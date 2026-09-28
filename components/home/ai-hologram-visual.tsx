@@ -129,10 +129,10 @@ const FINGERTIPS = [
  * rotating analytics dashboard ring, orbited by five feature badges.
  * Purely decorative next to the hero heading, so it's marked aria-hidden.
  */
-export function AiHologramVisual() {
+export function AiHologramVisual({ tag }: { tag: string }) {
   return (
     <div className={styles.wrap}>
-      <span className={styles.tag}>Moving faster with AI</span>
+      <span className={styles.tag}>{tag}</span>
       <svg
         className={styles.svg}
         viewBox="0 0 800 650"
@@ -318,7 +318,7 @@ export function AiHologramVisual() {
         </g>
 
         {/* 5 orbiting icon badges */}
-        <g fontFamily="Manrope, sans-serif">
+        <g fontFamily="Golos Text, sans-serif">
           {BADGES.map((b) => (
             <g key={b.key} transform={`translate(${b.x},${b.y})`}>
               <g className={styles.badge} style={{ animationDelay: b.delay }}>

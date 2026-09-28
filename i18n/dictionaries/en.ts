@@ -22,6 +22,10 @@ const dict: Dictionary = {
     footerLine2: "Calculations are for reference only and are not a bank offer.",
     contactsLabel: "Contacts",
     cbuRatesLabel: "CBU:",
+    liveLabel: "LIVE",
+    creditsFromLabel: "Loans from",
+    updatedLabel: "updated",
+    allRatesLabel: "All rates →",
     usefulLinksLabel: "Useful links",
     usefulLinks: {
       finlit: "Financial literacy",
@@ -31,7 +35,7 @@ const dict: Dictionary = {
       soliq: "Tax Committee",
       trk: "Entrepreneurship Development Company (TRK)",
     },
-    footerMainLabel: "Home",
+    footerMainLabel: "Company",
     footerMainLinks: {
       about: "About the company",
       partners: "Partners",
@@ -50,6 +54,102 @@ const dict: Dictionary = {
     eyebrow: "A platform for Uzbekistan entrepreneurs",
     h1Line1: "Analyze your financial metrics.",
     h1Line2: "Find financing sources to grow your business.",
+    aiVisualTag: "Moving faster with AI",
+    audience: {
+      heading: "One platform, three sides of the deal",
+      tablistLabel: "Who it's for",
+      biz: {
+        label: "Entrepreneurs",
+        cta: "Calculate my metrics",
+        note: "Free · 3 minutes",
+        items: [
+          { title: "Clear scoring", text: "A 0–100 score benchmarked against norms — weak spots stand out at once." },
+          { title: "What to fix first", text: "AI recommendations with timelines and expected effect." },
+          { title: "Money for your score", text: "Loans, leasing, grants, venture and Islamic instruments in one catalog." },
+        ],
+      },
+      inv: {
+        label: "Investors",
+        cta: "Browse projects",
+        note: "Filter by industry, stage and region",
+        items: [
+          { title: "Verified numbers", text: "Every project carries a financial score, not just a description." },
+          { title: "Fast screening", text: "Filter by industry, stage and region without red tape." },
+          { title: "One-click inquiry", text: "Found a project you like? Send an inquiry right from the card." },
+        ],
+      },
+      bank: {
+        label: "Banks",
+        cta: "Become a partner",
+        note: "Products next to real demand",
+        items: [
+          { title: "Warm leads", text: "Entrepreneurs arrive with their metrics already calculated." },
+          { title: "Product showcase", text: "Your loans, leasing and Islamic products in one shared catalog." },
+          { title: "A live channel", text: "See what small businesses are looking for right now." },
+        ],
+      },
+    },
+    miniScoring: {
+      title: "Express scoring",
+      unit: "mln UZS",
+      revenue: "Annual revenue",
+      profit: "Net profit",
+      assets: "Current assets",
+      debts: "Short-term debts",
+      of100: "of 100",
+      labelGood: "Good shape",
+      labelMid: "Room to improve",
+      labelLow: "Needs attention",
+      margin: "Profit margin",
+      liquidity: "Current ratio",
+      note: "A rough estimate from 4 numbers. The full analysis uses 15 fields plus AI recommendations.",
+      cta: "Get the full report",
+    },
+    trustStrip: {
+      analyses: "financial analyses run",
+      projects: "projects on the exchange",
+      products: "financing products",
+      templates: "ready business-plan templates",
+      partnersLabel: "Partners",
+      partnerPlaceholder: "Logo",
+    },
+    industriesGrid: {
+      heading: "A business plan for your industry",
+      subtitle: "11 industries — pick yours and download a ready Excel/Word template.",
+      cta: "All industries and templates",
+    },
+    projectsCarousel: {
+      heading: "Projects on the exchange",
+      subtitle: "Live requests from entrepreneurs looking for financing or an investor.",
+      cta: "See all projects",
+      emptyState: "No published projects yet — be the first.",
+    },
+    islamicTeaser: {
+      heading: "Islamic financing",
+      text: "Murabaha, ijara, and other Sharia-compliant instruments — alongside bank loans and leasing.",
+      cta: "See Islamic products",
+    },
+    faq: {
+      heading: "Frequently asked questions",
+      items: [
+        {
+          q: "Is it free?",
+          a: "Financial analysis, scoring, and listing a project on the exchange are free for entrepreneurs. No registration is required to calculate your ratios — only to save history and publish projects.",
+        },
+        {
+          q: "Is my data safe?",
+          a: "Data is stored in a secured Supabase database with access control: only the account owner can see their own analyses and applications.",
+        },
+        {
+          q: "Do I need to register to calculate my ratios?",
+          a: "No. The express calculation and the full financial analysis are available without registration. An account is only needed to save analysis history and publish projects on the exchange.",
+        },
+        {
+          q: "How does the AI analysis work?",
+          a: "AI is called only when you ask for it — by pressing \"Get AI analysis\". If the service is unavailable, the platform falls back to a local breakdown using the same ratios, so the calculation never breaks.",
+        },
+      ],
+    },
     subtitle:
       "MoliyaHub calculates your metrics from the balance sheet and P&L, tells you what to fix, and shows where to get financing — from a bank, an investor, or Islamic finance instruments.",
     ctaPrimary: "Calculate metrics",
