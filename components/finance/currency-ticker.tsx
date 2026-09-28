@@ -10,6 +10,18 @@ import { useI18n } from "@/i18n/provider";
 
 const DATE_LOCALE: Record<string, string> = { ru: "ru-RU", uz: "uz-UZ", en: "en-US" };
 
+// ЦБ РУз отдаёт дату в формате "ДД.ММ.ГГГГ" (см. app/api/cbu-rates/route.ts,
+// поле Date из их JSON) — `new Date("26.09.2026")` эту запись не понимает
+// и возвращает Invalid Date (отсюда была строка "обновлено Invalid Date"
+// в строке курсов). Разбираем вручную.
+function parseCbuDate(raw: string): Date | null {
+  const m = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return null;
+  const [, day, month, year] = m;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 // "Живая" строка под шапкой на всех страницах — курсы ЦБ РУз, основная
 // ставка ЦБ (см. /api/cbu-refinancing-rate) и минимальная ставка по
 // кредитам из каталога (учитывает админ-правки ставок и скрытые продукты,
@@ -55,8 +67,9 @@ export function CurrencyTicker() {
   );
   const minRate = loanOffers.length > 0 ? Math.min(...loanOffers.map((o) => o.rateMin)) : null;
 
-  const updatedAt = rates[0]?.date
-    ? new Date(rates[0].date).toLocaleDateString(DATE_LOCALE[locale] ?? "ru-RU", {
+  const updatedAtDate = rates[0]?.date ? parseCbuDate(rates[0].date) : null;
+  const updatedAt = updatedAtDate
+    ? updatedAtDate.toLocaleDateString(DATE_LOCALE[locale] ?? "ru-RU", {
         day: "2-digit",
         month: "2-digit",
       })
