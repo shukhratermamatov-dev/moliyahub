@@ -19,9 +19,10 @@ const AXIS_TEXT = "#8fa09a";
 // отсюда. DISABLED_INDICATORS прячет показатель целиком (все 3 диаграммы),
 // DISABLED_CHARTS прячет только конкретный тип диаграммы у показателя,
 // остальные диаграммы этого показателя остаются видны.
-const DISABLED_INDICATORS: StatUzIndicatorKey[] = ["smallBusinessOperating"];
+const DISABLED_INDICATORS: StatUzIndicatorKey[] = ["smallBusinessOperating", "newlyCreated"];
 const DISABLED_CHARTS: Partial<Record<StatUzIndicatorKey, ChartKind[]>> = {
-  newlyCreated: ["comparison"],
+  operating: ["comparison"],
+  registered: ["comparison"],
 };
 
 function niceCeil(value: number): number {
