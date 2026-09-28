@@ -14,6 +14,7 @@ const dict = {
   },
   shell: {
     calcCta: "Рассчитать показатели",
+    registerCta: "Регистрация",
     openMenu: "Открыть меню",
     closeMenu: "Закрыть меню",
     footerLine1: "© {year} MoliyaHub. Финансовая площадка для предпринимателей Узбекистана.",

@@ -16,6 +16,7 @@ const dict: Dictionary = {
   },
   shell: {
     calcCta: "Calculate metrics",
+    registerCta: "Register",
     openMenu: "Open menu",
     closeMenu: "Close menu",
     footerLine1: "© {year} MoliyaHub. A financial platform for Uzbekistan entrepreneurs.",

@@ -20,10 +20,16 @@ const buttonClass =
 // login/actions.ts) — задел под персонализацию кабинета/онбординга позже.
 type Role = "biz" | "inv";
 
-export function LoginPageClient({ next }: { next?: string }) {
+export function LoginPageClient({
+  next,
+  initialMode = "login",
+}: {
+  next?: string;
+  initialMode?: "login" | "register";
+}) {
   const { locale, dict } = useI18n();
   const t = dict.auth;
-  const [mode, setMode] = useState<"login" | "register" | "reset">("login");
+  const [mode, setMode] = useState<"login" | "register" | "reset">(initialMode);
   const [role, setRole] = useState<Role>("biz");
   const [loginState, loginAction, loginPending] = useActionState(signIn, initialState);
   const [registerState, registerAction, registerPending] = useActionState(signUp, initialState);

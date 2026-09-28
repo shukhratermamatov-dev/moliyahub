@@ -27,8 +27,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { locale, dict } = useI18n();
 
+  // Пункт "Главная" убран из меню (Stage: редизайн шапки) — на главную
+  // ведёт логотип слева, как и раньше, отдельная ссылка в навигации больше
+  // не нужна.
   const NAV = [
-    { href: `/${locale}`, label: dict.nav.home },
     { href: `/${locale}/analyze`, label: dict.nav.analyze },
     { href: `/${locale}/financing`, label: dict.nav.financing },
     { href: `/${locale}/islamic-finance`, label: dict.nav.islamicGuide },
@@ -40,7 +42,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-bg text-fg">
       <CurrencyTicker />
       <header className="sticky top-0 z-40 border-b border-line/80 bg-bg/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
           <Link href={`/${locale}`} className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-fg">
               M
@@ -64,10 +66,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <AuthNav />
             <LanguageSwitcher current={locale} />
+            <AuthNav />
             <Button asChild size="sm">
-              <Link href={`/${locale}/analyze`}>{dict.shell.calcCta}</Link>
+              <Link href={`/${locale}/login?mode=register`}>{dict.shell.registerCta}</Link>
             </Button>
           </div>
 
@@ -94,12 +96,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
               <div className="mt-2 flex items-center justify-between gap-3">
-                <AuthNav onNavigate={() => setOpen(false)} />
                 <LanguageSwitcher current={locale} />
+                <AuthNav onNavigate={() => setOpen(false)} />
               </div>
               <Button asChild className="mt-2">
-                <Link href={`/${locale}/analyze`} onClick={() => setOpen(false)}>
-                  {dict.shell.calcCta}
+                <Link href={`/${locale}/login?mode=register`} onClick={() => setOpen(false)}>
+                  {dict.shell.registerCta}
                 </Link>
               </Button>
             </div>

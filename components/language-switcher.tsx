@@ -21,14 +21,14 @@ export function LanguageSwitcher({ current, className }: { current: Locale; clas
   };
 
   return (
-    <div className={cn("flex items-center gap-1 rounded-lg bg-raised p-1 text-xs", className)}>
+    <div className={cn("flex items-center gap-1 rounded-full bg-raised p-1 text-xs", className)}>
       {locales.map((locale) => (
         <button
           key={locale}
           type="button"
           onClick={() => switchTo(locale)}
           className={cn(
-            "rounded-md px-2 py-1.5 font-medium transition-colors",
+            "rounded-full px-2.5 py-1.5 font-medium transition-colors",
             locale === current ? "bg-primary text-primary-fg" : "text-muted hover:text-fg",
           )}
         >

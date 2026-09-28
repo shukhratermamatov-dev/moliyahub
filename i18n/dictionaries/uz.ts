@@ -16,6 +16,7 @@ const dict: Dictionary = {
   },
   shell: {
     calcCta: "Koʻrsatkichlarni hisoblash",
+    registerCta: "Roʻyxatdan oʻtish",
     openMenu: "Menyuni ochish",
     closeMenu: "Menyuni yopish",
     footerLine1: "© {year} MoliyaHub. Oʻzbekiston tadbirkorlari uchun moliyaviy platforma.",
