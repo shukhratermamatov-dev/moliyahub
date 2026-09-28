@@ -73,3 +73,21 @@ export async function deleteBusinessPlan(locale: string, id: string, _formData: 
   await supabase.from("business_plans").delete().eq("id", id);
   revalidatePath(`/${locale}/cabinet`);
 }
+
+// Одобрить/отклонить заявку инвестора — RLS (moliyahub_applications_update_owner)
+// пропускает UPDATE только если текущий пользователь — владелец проекта,
+// на который пришла заявка, так что доп. проверку тут дублировать не нужно.
+// До одобрения контакт заявителя не приходит на клиент вообще (см.
+// cabinet/page.tsx — маскируется на сервере), поэтому "утечка" контакта
+// через неавторизованный вызов этого экшена невозможна даже теоретически.
+export async function approveApplication(locale: string, id: string, _formData: FormData) {
+  const supabase = await createClient();
+  await supabase.from("project_applications").update({ status: "approved" }).eq("id", id);
+  revalidatePath(`/${locale}/cabinet`);
+}
+
+export async function declineApplication(locale: string, id: string, _formData: FormData) {
+  const supabase = await createClient();
+  await supabase.from("project_applications").update({ status: "declined" }).eq("id", id);
+  revalidatePath(`/${locale}/cabinet`);
+}
