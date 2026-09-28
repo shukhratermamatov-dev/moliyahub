@@ -44,11 +44,17 @@ const GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 // gemini-3.8-flash — популярная бесплатная модель, поэтому Google иногда
 // отвечает 503 "This model is currently experiencing high demand" в часы
 // пиковой нагрузки — это не ошибка кода и не проблема ключа, а временная
-// перегрузка на стороне Google (подтверждено логами: 3 отдельных случая
-// подряд 25.09.2026, оба запроса в паре падали с 503). Один короткий повтор
-// спустя ~1.2с на той же модели, и если это тоже не помогло — одна попытка
-// на запасной модели, прежде чем откатываться в локальный разбор по
-// правилам.
+// перегрузка на стороне Google (подтверждено логами: несколько отдельных
+// случаев 25.09.2026 и 28.09.2026, каждый раз с 503 "UNAVAILABLE"; 28.09
+// в одном инциденте даже запасная модель gemini-3.5-flash-lite с первой
+// попытки тоже словила 503 — то есть в пиковые моменты перегружены сразу
+// обе модели). Поэтому повтор через ~1.2с применяется к КАЖДОЙ модели по
+// отдельности (см. callWithRetry ниже): основная модель — попытка + при
+// 503/429 повтор, и если оба раза не вышло — та же логика (попытка +
+// повтор) на запасной модели, и только если и она дважды отказала —
+// откат в локальный разбор по правилам. Итого до 4 обращений к Gemini на
+// один клик "Получить ИИ-анализ" — заметно надёжнее, чем раньше (было
+// максимум 3), ценой небольшой добавки к времени ответа в худшем случае.
 const RETRYABLE_STATUSES = new Set([503, 429]);
 const RETRY_DELAY_MS = 1200;
 
@@ -106,6 +112,25 @@ async function callGeminiOnce(params: {
   return { ok: true, text };
 }
 
+// Одна попытка + (если ответ 503/429) один повтор спустя RETRY_DELAY_MS —
+// на КОНКРЕТНОЙ модели. Общий помощник, вызывается отдельно для основной и
+// для запасной модели, чтобы у запасной был точно такой же шанс пережить
+// кратковременную перегрузку, а не единственная попытка без повтора (см.
+// комментарий у RETRY_DELAY_MS — инцидент 28.09.2026, когда с первой
+// попытки отказала и она).
+async function callWithRetry(
+  params: { apiKey: string; system: string; user: string; maxOutputTokens?: number; temperature?: number },
+  model: string,
+): Promise<{ ok: true; text: string } | { ok: false; error: string; status?: number }> {
+  const first = await callGeminiOnce({ ...params, model });
+  if (first.ok) return first;
+  if (!first.status || !RETRYABLE_STATUSES.has(first.status)) return first;
+
+  await sleep(RETRY_DELAY_MS);
+  console.error(`[gemini] retrying ${model} after ${first.error}`);
+  return callGeminiOnce({ ...params, model });
+}
+
 export async function callGeminiJson(params: {
   apiKey: string;
   system: string;
@@ -114,19 +139,12 @@ export async function callGeminiJson(params: {
   temperature?: number;
 }): Promise<GeminiCallResult> {
   try {
-    const first = await callGeminiOnce(params);
-    if (first.ok) return first;
-    if (!first.status || !RETRYABLE_STATUSES.has(first.status)) return first;
-
-    await sleep(RETRY_DELAY_MS);
-    console.error(`[gemini] retrying after ${first.error}`);
-    const second = await callGeminiOnce(params);
-    if (second.ok) return second;
-    if (!second.status || !RETRYABLE_STATUSES.has(second.status)) return second;
+    const primary = await callWithRetry(params, GEMINI_MODEL);
+    if (primary.ok) return primary;
+    if (!primary.status || !RETRYABLE_STATUSES.has(primary.status)) return primary;
 
     console.error(`[gemini] ${GEMINI_MODEL} overloaded twice, falling back to ${GEMINI_FALLBACK_MODEL}`);
-    const fallback = await callGeminiOnce({ ...params, model: GEMINI_FALLBACK_MODEL });
-    return fallback;
+    return await callWithRetry(params, GEMINI_FALLBACK_MODEL);
   } catch {
     return { ok: false, error: "network_error" };
   }
