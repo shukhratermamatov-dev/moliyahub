@@ -51,6 +51,13 @@ export async function signUp(
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
   const fullName = String(formData.get("fullName") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
+  // "biz" (предприниматель) | "inv" (инвестор) — выбор на редизайне
+  // экрана регистрации. Пока не заводим отдельную колонку в profiles (там
+  // нет триггера, который я могу безопасно менять не видя его целиком) —
+  // сохраняем в user_metadata Supabase Auth, откуда это легко забрать
+  // позже, когда понадобится реально использовать роль в продукте.
+  const role = String(formData.get("role") || "biz").trim();
   const locale = String(formData.get("locale") || "ru");
 
   if (!email || !password) {
@@ -66,7 +73,7 @@ export async function signUp(
     email,
     password,
     options: {
-      data: { full_name: fullName || null },
+      data: { full_name: fullName || null, phone: phone || null, role },
       // Без этого ссылка в письме ведёт на голый Site URL (домен без пути) —
       // код подтверждения остаётся необработанным, и пользователь не
       // авторизуется автоматически. Через /auth/callback код обменивается
