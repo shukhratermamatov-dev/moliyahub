@@ -125,9 +125,16 @@ const dict: Dictionary = {
       emptyState: "No published projects yet — be the first.",
     },
     islamicTeaser: {
-      heading: "Islamic financing",
-      text: "Murabaha, ijara, and other Sharia-compliant instruments — alongside bank loans and leasing.",
-      cta: "See Islamic products",
+      eyebrow: "Islamic guide",
+      heading: "Interest-free financing",
+      text: "Instruments that follow Sharia principles: how they work, how they differ from a loan, and where to get them in Uzbekistan.",
+      cta: "Open the guide",
+      cards: [
+        { title: "Murabaha", text: "The bank buys the goods and resells them to you with a markup agreed in advance, in instalments." },
+        { title: "Ijara", text: "Leasing equipment or real estate — the Islamic equivalent of leasing." },
+        { title: "Musharaka", text: "Joint capital participation: profit and risk are shared between the parties." },
+        { title: "Mudaraba", text: "The investor provides the money, the entrepreneur provides labor and expertise; profit is shared by agreement." },
+      ],
     },
     faq: {
       heading: "Frequently asked questions",

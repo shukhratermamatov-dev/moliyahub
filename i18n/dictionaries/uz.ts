@@ -125,9 +125,16 @@ const dict: Dictionary = {
       emptyState: "Hozircha e'lon qilingan loyihalar yo'q — birinchi bo'ling.",
     },
     islamicTeaser: {
-      heading: "Islom moliyalashtiruvi",
-      text: "Murobaha, ijara va boshqa shariatga mos vositalar — bank kreditlari va lizing bilan bir qatorda.",
-      cta: "Islom mahsulotlarini ko'rish",
+      eyebrow: "Islomiy gid",
+      heading: "Foizsiz moliyalashtirish",
+      text: "Shariat tamoyillariga mos vositalar: qanday ishlaydi, kreditdan nimasi bilan farq qiladi va ularni O'zbekistonda qayerdan olish mumkin.",
+      cta: "Gidni ochish",
+      cards: [
+        { title: "Murobaha", text: "Bank tovarni sotib oladi va sizga oldindan kelishilgan ustama bilan, bo'lib-bo'lib to'lash sharti bilan qayta sotadi." },
+        { title: "Ijara", text: "Uskuna yoki ko'chmas mulkni ijaraga olish — lizingning islomiy analogi." },
+        { title: "Musharaka", text: "Kapitalda birgalikda ishtirok etish: foyda va xavf tomonlar o'rtasida bo'linadi." },
+        { title: "Mudoraba", text: "Investor pul beradi, tadbirkor — mehnat va tajriba; foyda kelishuv asosida bo'linadi." },
+      ],
     },
     faq: {
       heading: "Ko'p beriladigan savollar",
