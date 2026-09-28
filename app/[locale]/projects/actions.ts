@@ -30,6 +30,7 @@ export async function createPublicProject(
 
   const title = String(formData.get("title") || "").trim();
   const ownerName = String(formData.get("owner") || "").trim();
+  const ownerContact = String(formData.get("ownerContact") || "").trim();
   const industryId = String(formData.get("industryId") || "").trim();
   const subIndustryId = String(formData.get("subIndustryId") || "").trim();
   const subIndustryOther = String(formData.get("subIndustryOther") || "").trim();
@@ -45,7 +46,7 @@ export async function createPublicProject(
   const hideContacts = formData.get("hideContacts") === "on";
   const attachScore = formData.get("attachScore") === "on";
 
-  if (!title || !ownerName || !description) {
+  if (!title || !ownerName || !ownerContact || !description) {
     return { error: "fill_required" };
   }
   if (subIndustryId === OTHER_SUB_INDUSTRY_ID && !subIndustryOther) {
@@ -73,6 +74,7 @@ export async function createPublicProject(
       user_id: user.id,
       name: title,
       owner_name: ownerName,
+      owner_contact: ownerContact,
       description: description || null,
       region: region || null,
       amount,
@@ -97,7 +99,7 @@ export async function createPublicProject(
 
 export type SubmitApplicationState =
   | { error: string }
-  | { success: true }
+  | { success: true; id: string }
   | undefined;
 
 // Заявка инвестора на публичный проект — контакт нужен, чтобы владелец
@@ -118,17 +120,21 @@ export async function submitApplication(
     return { error: "fill_required" };
   }
 
-  const { error } = await supabase.from("project_applications").insert({
-    project_id: projectId,
-    applicant_name: name,
-    applicant_contact: contact,
-    message: message || null,
-  });
+  const { data, error } = await supabase
+    .from("project_applications")
+    .insert({
+      project_id: projectId,
+      applicant_name: name,
+      applicant_contact: contact,
+      message: message || null,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !data) {
     console.error("[submitApplication] supabase insert error:", error);
     return { error: "generic_error" };
   }
 
-  return { success: true };
+  return { success: true, id: data.id as string };
 }

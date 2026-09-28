@@ -78,6 +78,10 @@ export function NewProjectPageClient({
                 <span className="mb-1 block text-muted">{t.ownerLabel}</span>
                 <Input name="owner" required />
               </label>
+              <label className="block text-sm">
+                <span className="mb-1 block text-muted">{t.ownerContactLabel}</span>
+                <Input name="ownerContact" required />
+              </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
                   <span className="mb-1 block text-muted">{t.industryLabel}</span>

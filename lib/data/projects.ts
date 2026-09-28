@@ -28,6 +28,11 @@ export type Project = {
   description: LocalizedText;
   owner: LocalizedText;
   raisedHint?: LocalizedText;
+  // Балл скоринга, приложенный автором при публикации (снимок на момент
+  // публикации — см. projects.attached_score, чекбокс "приложить скоринг"
+  // на /projects/new). null/undefined — публикация без скоринга.
+  attachedScore?: number | null;
+  createdAt?: string;
   // Проект пришёл из Supabase (опубликован через /projects/new авторизованным
   // пользователем) — а не из статичного SEED_PROJECTS и не из локального
   // zustand-стора браузера. Только у таких проектов есть реальный владелец
@@ -52,6 +57,8 @@ export type DbProjectRow = {
   amount: number | null;
   region: string | null;
   description: string | null;
+  attached_score: number | null;
+  created_at?: string;
 };
 
 const STAGES: readonly string[] = ["IDEA", "MVP", "GROWTH", "SCALE"];
@@ -71,6 +78,8 @@ export function mapDbProjectRow(row: DbProjectRow): Project {
     region: sameForAllLocales(row.region || ""),
     description: sameForAllLocales(row.description || ""),
     owner: sameForAllLocales(row.owner_name || ""),
+    attachedScore: row.attached_score ?? null,
+    createdAt: row.created_at,
     source: "supabase",
   };
 }

@@ -18,7 +18,9 @@ export default async function ProjectDetailPage({
     const supabase = await createClient();
     const { data } = await supabase
       .from("projects")
-      .select("id, name, owner_name, industry_id, sub_industry_id, sub_industry_other, stage, amount, region, description")
+      .select(
+        "id, name, owner_name, industry_id, sub_industry_id, sub_industry_other, stage, amount, region, description, attached_score, created_at",
+      )
       .eq("id", id)
       .eq("is_public", true)
       .maybeSingle();
