@@ -3,22 +3,22 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CurrencyRate } from "@/app/api/cbu-rates/route";
+import type { RefinancingRate } from "@/app/api/cbu-refinancing-rate/route";
 import { applyRateOverrides, type RateOverrideMap } from "@/lib/finance/rate-overrides";
 import { useVisibleOffers } from "@/lib/store";
 import { useI18n } from "@/i18n/provider";
 
 const DATE_LOCALE: Record<string, string> = { ru: "ru-RU", uz: "uz-UZ", en: "en-US" };
 
-// "Живая" строка под шапкой на всех страницах — курсы ЦБ РУз и минимальная
-// ставка по кредитам из каталога (учитывает админ-правки ставок и скрытые
-// продукты, так что совпадает с тем, что видно на /financing). Пока нет
-// публичного фида ставки рефинансирования ЦБ — этот показатель не
-// выдумываем, а просто не показываем (см. обсуждение в ТЗ на редизайн,
-// раздел «Живые данные»).
+// "Живая" строка под шапкой на всех страницах — курсы ЦБ РУз, основная
+// ставка ЦБ (см. /api/cbu-refinancing-rate) и минимальная ставка по
+// кредитам из каталога (учитывает админ-правки ставок и скрытые продукты,
+// так что совпадает с тем, что видно на /financing).
 export function CurrencyTicker() {
   const { locale, dict } = useI18n();
   const t = dict.shell;
   const [rates, setRates] = useState<CurrencyRate[] | null>(null);
+  const [cbRate, setCbRate] = useState<RefinancingRate | null>(null);
   const [overrides, setOverrides] = useState<RateOverrideMap>({});
   const offers = useVisibleOffers();
 
@@ -34,6 +34,12 @@ export function CurrencyTicker() {
       .then((res) => (res.ok ? res.json() : {}))
       .then((data: RateOverrideMap) => {
         if (!cancelled && data && typeof data === "object") setOverrides(data);
+      })
+      .catch(() => {});
+    fetch("/api/cbu-refinancing-rate")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: RefinancingRate | null) => {
+        if (!cancelled && data) setCbRate(data);
       })
       .catch(() => {});
     return () => {
@@ -68,6 +74,13 @@ export function CurrencyTicker() {
           <span className="shrink-0 whitespace-nowrap">
             <span className="text-muted">{t.creditsFromLabel}</span>{" "}
             <b className="font-semibold">{minRate}%</b>
+          </span>
+        ) : null}
+
+        {cbRate ? (
+          <span className="shrink-0 whitespace-nowrap">
+            <span className="text-muted">{t.cbRateLabel}</span>{" "}
+            <b className="font-semibold">{cbRate.rate.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}%</b>
           </span>
         ) : null}
 

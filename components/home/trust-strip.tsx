@@ -3,15 +3,24 @@
 import { useEffect, useState } from "react";
 import { useVisibleOffers, useAllProjects } from "@/lib/store";
 import { useI18n } from "@/i18n/provider";
+import { BANK_DIRECTORY } from "@/lib/data/banks";
+import { BankLogo } from "@/components/finance/bank-logo";
+import { pickText } from "@/lib/i18n-text";
+
+// Витрина логотипов — крупнейшие/наиболее узнаваемые банки из общего
+// справочника «Все банки Узбекистана» (BANK_DIRECTORY, источник — реестр
+// ЦБ РУз, логотипы — через тот же прокси фавиконок, что и на /financing).
+// Отдельный список логотипов-картинок не заводим — переиспользуем то, что
+// уже есть и поддерживается в lib/data/banks.ts.
+const SHOWCASE_BANK_IDS = ["nbu", "asaka", "uzpsb", "agrobank", "kapitalbank", "hamkorbank"];
 
 type SiteStats = { analysesCount: number; publicProjectsCount: number };
 
 // Полоса доверия: 2 счётчика — с сервера (реальные строки Supabase,
 // /api/stats/site), 2 — из данных, уже загруженных в браузере (каталог
-// финансирования и проекты). Партнёрские логотипы — заглушки-плейсхолдеры,
-// реальные логотипы должны прислать со стороны заказчика (см. ТЗ).
+// финансирования и проекты). Логотипы — реальные банки из справочника ЦБ РУз.
 export function TrustStrip() {
-  const { dict } = useI18n();
+  const { locale, dict } = useI18n();
   const t = dict.home.trustStrip;
   const [stats, setStats] = useState<SiteStats | null>(null);
   const offers = useVisibleOffers();
@@ -53,14 +62,19 @@ export function TrustStrip() {
       <div className="mx-auto flex w-full max-w-6xl items-center gap-5">
         <span className="hidden w-28 shrink-0 text-xs text-muted/60 sm:block">{t.partnersLabel}</span>
         <div className="grid flex-1 grid-cols-3 gap-3 sm:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex h-10 items-center justify-center rounded-lg border border-dashed border-line text-[11px] text-muted/60"
-            >
-              {t.partnerPlaceholder}
-            </div>
-          ))}
+          {SHOWCASE_BANK_IDS.map((id) => {
+            const bank = BANK_DIRECTORY.find((b) => b.id === id);
+            if (!bank) return null;
+            return (
+              <div
+                key={id}
+                className="flex h-10 items-center justify-center gap-2 rounded-lg bg-inset px-2"
+                title={pickText(bank.name, locale)}
+              >
+                <BankLogo name={pickText(bank.name, locale)} logoDomain={bank.logoDomain} size={20} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

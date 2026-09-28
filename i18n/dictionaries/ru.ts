@@ -24,6 +24,7 @@ const dict = {
     creditsFromLabel: "Кредиты от",
     updatedLabel: "обновлено",
     allRatesLabel: "Все ставки →",
+    cbRateLabel: "Ставка ЦБ",
     usefulLinksLabel: "Полезные ссылки",
     usefulLinks: {
       finlit: "Финансовая грамотность",
@@ -109,7 +110,6 @@ const dict = {
       products: "продуктов финансирования",
       templates: "готовых шаблонов бизнес-планов",
       partnersLabel: "Партнёры",
-      partnerPlaceholder: "Логотип",
     },
     industriesGrid: {
       heading: "Бизнес-план под вашу отрасль",

@@ -26,6 +26,7 @@ const dict: Dictionary = {
     creditsFromLabel: "Loans from",
     updatedLabel: "updated",
     allRatesLabel: "All rates →",
+    cbRateLabel: "CBU rate",
     usefulLinksLabel: "Useful links",
     usefulLinks: {
       finlit: "Financial literacy",
@@ -111,7 +112,6 @@ const dict: Dictionary = {
       products: "financing products",
       templates: "ready business-plan templates",
       partnersLabel: "Partners",
-      partnerPlaceholder: "Logo",
     },
     industriesGrid: {
       heading: "A business plan for your industry",

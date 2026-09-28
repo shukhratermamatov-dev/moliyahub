@@ -26,6 +26,7 @@ const dict: Dictionary = {
     creditsFromLabel: "Kreditlar",
     updatedLabel: "yangilangan",
     allRatesLabel: "Barcha stavkalar →",
+    cbRateLabel: "MB stavkasi",
     usefulLinksLabel: "Foydali havolalar",
     usefulLinks: {
       finlit: "Moliyaviy savodxonlik",
@@ -111,7 +112,6 @@ const dict: Dictionary = {
       products: "moliyalashtirish mahsulotlari",
       templates: "tayyor biznes-reja shablonlari",
       partnersLabel: "Hamkorlar",
-      partnerPlaceholder: "Logotip",
     },
     industriesGrid: {
       heading: "Sohangiz uchun biznes-reja",
