@@ -7,7 +7,7 @@ const STAGES = ["IDEA", "MVP", "GROWTH", "SCALE"] as const;
 
 export type CreatePublicProjectState =
   | { error: string }
-  | { success: true; id: string }
+  | { success: true; id: string; isPublic: boolean }
   | undefined;
 
 // Публикация проекта на "Бирже проектов" — в отличие от приватного проекта
@@ -39,12 +39,32 @@ export async function createPublicProject(
   const amount = amountRaw ? Number(amountRaw) : null;
   const region = String(formData.get("region") || "").trim();
   const description = String(formData.get("description") || "").trim();
+  // "Опубликовать для всех" vs "Сохранить черновик" — один и тот же экшен,
+  // разница только в is_public (кнопки различаются name="intent").
+  const isPublic = String(formData.get("intent") || "publish") !== "draft";
+  const hideContacts = formData.get("hideContacts") === "on";
+  const attachScore = formData.get("attachScore") === "on";
 
   if (!title || !ownerName || !description) {
     return { error: "fill_required" };
   }
   if (subIndustryId === OTHER_SUB_INDUSTRY_ID && !subIndustryOther) {
     return { error: "fill_required" };
+  }
+
+  // Балл скоринга берём сами на сервере из самого свежего сохранённого
+  // анализа автора — не доверяем значению, которое мог бы прислать клиент
+  // (это публично видимая цифра на карточке проекта).
+  let attachedScore: number | null = null;
+  if (attachScore) {
+    const { data: latestAnalysisRow } = await supabase
+      .from("analyses")
+      .select("ratios")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const ratios = latestAnalysisRow?.ratios as { score?: number } | null | undefined;
+    attachedScore = typeof ratios?.score === "number" ? ratios.score : null;
   }
 
   const { data, error } = await supabase
@@ -60,7 +80,9 @@ export async function createPublicProject(
       industry_id: industryId || null,
       sub_industry_id: subIndustryId || null,
       sub_industry_other: subIndustryId === OTHER_SUB_INDUSTRY_ID ? subIndustryOther : null,
-      is_public: true,
+      is_public: isPublic,
+      hide_contacts: hideContacts,
+      attached_score: attachedScore,
     })
     .select("id")
     .single();
@@ -70,7 +92,7 @@ export async function createPublicProject(
     return { error: "generic_error" };
   }
 
-  return { success: true, id: data.id as string };
+  return { success: true, id: data.id as string, isPublic };
 }
 
 export type SubmitApplicationState =
