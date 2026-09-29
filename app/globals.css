@@ -56,6 +56,18 @@
   }
 }
 
+/* Скрывает нативный скроллбар у горизонтальной карусели (например,
+   components/home/projects-carousel.tsx), сохраняя сам скролл (в т.ч.
+   свайпом/колёсиком) — стрелки карусели и свайп остаются единственным
+   видимым способом навигации, как в присланном пользователем макете. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

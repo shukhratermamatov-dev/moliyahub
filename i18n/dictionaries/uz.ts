@@ -115,9 +115,14 @@ const dict: Dictionary = {
       partnersLabel: "Hamkorlar",
     },
     projectsCarousel: {
-      heading: "Birjadagi loyihalar",
+      eyebrow: "Loyihalar birjasi",
+      heading: "Investor izlayotgan loyihalar",
       subtitle: "Moliyalashtirish yoki investor izlayotgan tadbirkorlarning dolzarb so'rovlari.",
       cta: "Barcha loyihalarni ko'rish",
+      addProjectCta: "Loyihangizni joylashtiring",
+      stageLabel: "Bosqich",
+      amountLabel: "Kerak",
+      detailsCta: "Batafsil",
       emptyState: "Hozircha e'lon qilingan loyihalar yo'q — birinchi bo'ling.",
     },
     islamicTeaser: {

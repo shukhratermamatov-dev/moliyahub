@@ -115,9 +115,14 @@ const dict: Dictionary = {
       partnersLabel: "Partners",
     },
     projectsCarousel: {
-      heading: "Projects on the exchange",
+      eyebrow: "Project exchange",
+      heading: "Projects looking for an investor",
       subtitle: "Live requests from entrepreneurs looking for financing or an investor.",
       cta: "See all projects",
+      addProjectCta: "List your project",
+      stageLabel: "Stage",
+      amountLabel: "Needed",
+      detailsCta: "Details",
       emptyState: "No published projects yet — be the first.",
     },
     islamicTeaser: {

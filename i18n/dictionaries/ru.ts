@@ -113,9 +113,14 @@ const dict = {
       partnersLabel: "Партнёры",
     },
     projectsCarousel: {
-      heading: "Проекты на бирже",
+      eyebrow: "Биржа проектов",
+      heading: "Проекты, которые ищут инвестора",
       subtitle: "Актуальные заявки предпринимателей, которые ищут финансирование или инвестора.",
       cta: "Смотреть все проекты",
+      addProjectCta: "Разместить свой проект",
+      stageLabel: "Стадия",
+      amountLabel: "Нужно",
+      detailsCta: "Подробнее",
       emptyState: "Пока нет опубликованных проектов — станьте первым.",
     },
     islamicTeaser: {
