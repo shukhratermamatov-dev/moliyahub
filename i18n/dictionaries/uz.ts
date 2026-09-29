@@ -189,6 +189,7 @@ const dict: Dictionary = {
         text: "Mahsulotlar tadbirkorlarning real soʻrovlari yonida — jonli jalb qilish kanali.",
       },
     ],
+    stepsEyebrow: "Bu qanday ishlaydi",
     stepsHeading: "Uch qadam — va manzara aniq",
     steps: [
       { n: "1", title: "Hisobotni kiriting", text: "Balans va foyda-zarar hisobotining 15 ta maydoni yoki demo-namuna." },
@@ -204,6 +205,7 @@ const dict: Dictionary = {
       ],
     },
     businessPlansSection: {
+      eyebrow: "Biznes-rejalar",
       heading: "Biznes-reja — tayyor namuna yoki SI yordamida",
       subtitle:
         "Sohangiz uchun tayyor Excel shablonini yuklab oling yoki loyihangiz uchun SI bilan reja tuzing — Oʻzbekiston va chet el bozorlarining real tahlili bilan.",
@@ -211,10 +213,11 @@ const dict: Dictionary = {
       samplesText:
         "«Loyihalar birjasi»dagi har bir soha uchun bittadan — jami 11 ta Excel shabloni. Formulalar allaqachon hisoblangan, oʻz raqamlaringizni kiriting.",
       samplesCta: "Namunalarni koʻrish",
-      aiTitle: "SI yordamida biznes-reja tuzish",
+      allTemplatesCta: "Barcha Excel shablonlari",
+      aiTitle: "SI bilan reja tuzing",
       aiText:
-        "Gʻoyangizni tasvirlab bering — SI loyihangiz uchun Oʻzbekiston va bir nechta chet el bozorlarini solishtirgan holda reja tuzadi.",
-      aiCta: "SI yordamida biznes-reja",
+        "Gʻoyangizni tasvirlab bering — SI Oʻzbekiston bozori tahlili va chet el bozorlari bilan solishtirgan holda reja tayyorlaydi.",
+      aiCta: "SI bilan boshlash",
     },
   },
   analyze: {

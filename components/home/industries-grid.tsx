@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 // Двухбуквенные коды — визуальный акцент в духе утверждённого макета
 // (иконки-плашки вместо картинок для каждой из 11 отраслей «Биржи
 // проектов»/бизнес-планов). Коды намеренно на латинице — не зависят от
-// локали интерфейса.
-const CODES: Record<string, string> = {
+// локали интерфейса. Экспортируется — те же коды переиспользует сетка
+// отраслей в редизайне блока «Готовый шаблон или план с ИИ» на главной
+// (components/home/business-plans-teaser.tsx), чтобы визуальный код
+// отрасли был единым по всему сайту.
+export const INDUSTRY_CODES: Record<string, string> = {
   industry: "IN",
   agriculture: "AG",
   construction: "CO",
@@ -42,7 +45,7 @@ export function IndustriesGrid() {
             className="flex flex-col items-center gap-2 rounded-2xl bg-raised px-3 py-5 text-center transition-colors hover:bg-raised/70"
           >
             <span className="flex size-10 items-center justify-center rounded-full bg-primary/15 font-display text-sm text-primary-link">
-              {CODES[ind.id] ?? "•"}
+              {INDUSTRY_CODES[ind.id] ?? "•"}
             </span>
             <span className="text-xs leading-snug text-muted">{pickText(ind.name, locale)}</span>
           </Link>

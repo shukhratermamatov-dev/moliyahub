@@ -189,6 +189,7 @@ const dict: Dictionary = {
         text: "Products next to entrepreneurs' real requests — a live acquisition channel.",
       },
     ],
+    stepsEyebrow: "How it works",
     stepsHeading: "Three steps to a clear picture",
     steps: [
       { n: "1", title: "Enter your statements", text: "15 balance sheet and P&L fields, or a demo example." },
@@ -204,6 +205,7 @@ const dict: Dictionary = {
       ],
     },
     businessPlansSection: {
+      eyebrow: "Business plans",
       heading: "Business plan — a ready template or with AI",
       subtitle:
         "Download a ready Excel template for your industry, or put together a plan for your specific project with AI — grounded in real market analysis of Uzbekistan and foreign markets.",
@@ -211,10 +213,11 @@ const dict: Dictionary = {
       samplesText:
         "11 Excel templates — one for each industry on the Project exchange. The formulas are already set up, just fill in your numbers.",
       samplesCta: "Browse samples",
-      aiTitle: "AI-powered business plan builder",
+      allTemplatesCta: "All Excel templates",
+      aiTitle: "Build a plan with AI",
       aiText:
-        "Describe your idea — AI will put together a plan for your project, comparing the Uzbekistan market with a few foreign markets.",
-      aiCta: "Build a plan with AI",
+        "Describe your idea — AI will prepare a plan with market analysis of Uzbekistan compared to foreign markets.",
+      aiCta: "Start with AI",
     },
   },
   analyze: {

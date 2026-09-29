@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
-  FileSpreadsheet,
   Landmark,
   LineChart,
   Sparkles,
@@ -13,7 +12,9 @@ import { Shell } from "@/components/layout/shell";
 import { MiniScoringWidget } from "@/components/home/mini-scoring-widget";
 import { TrustStrip } from "@/components/home/trust-strip";
 import { AudienceTabs } from "@/components/home/audience-tabs";
+import { HowItWorks } from "@/components/home/how-it-works";
 import { IndustriesGrid } from "@/components/home/industries-grid";
+import { BusinessPlansTeaser } from "@/components/home/business-plans-teaser";
 import { IslamicTeaser } from "@/components/home/islamic-teaser";
 import { ProjectsCarousel } from "@/components/home/projects-carousel";
 import { FaqAccordion } from "@/components/home/faq-accordion";
@@ -82,21 +83,7 @@ export default async function Home({
       <TrustStrip />
 
       <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-16 text-center">
-          <h2 className="font-display text-3xl">{t.stepsHeading}</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {t.steps.map((s) => (
-              <div key={s.n} className="rounded-2xl bg-raised p-6">
-                <div className="font-display text-3xl text-gold">{s.n}</div>
-                <h3 className="mt-3 font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted">{s.text}</p>
-              </div>
-            ))}
-          </div>
-          <Button asChild className="mt-10" size="lg">
-            <Link href={`/${locale}/analyze`}>{t.finalCta}</Link>
-          </Button>
-        </div>
+        <HowItWorks />
       </section>
 
       <section className="border-t border-line">
@@ -129,28 +116,7 @@ export default async function Home({
       </section>
 
       <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-16">
-          <h2 className="text-center font-display text-3xl">{t.businessPlansSection.heading}</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-center text-muted">{t.businessPlansSection.subtitle}</p>
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-raised p-6">
-              <FileSpreadsheet className="mb-4 size-6 text-gold" />
-              <h3 className="font-display text-xl">{t.businessPlansSection.samplesTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{t.businessPlansSection.samplesText}</p>
-              <Button asChild variant="outline" className="mt-5">
-                <Link href={`/${locale}/business-plans`}>{t.businessPlansSection.samplesCta}</Link>
-              </Button>
-            </div>
-            <div className="rounded-2xl bg-raised p-6">
-              <Sparkles className="mb-4 size-6 text-gold" />
-              <h3 className="font-display text-xl">{t.businessPlansSection.aiTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{t.businessPlansSection.aiText}</p>
-              <Button asChild variant="gold" className="mt-5">
-                <Link href={`/${locale}/business-plan-ai`}>{t.businessPlansSection.aiCta}</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
+        <BusinessPlansTeaser />
       </section>
 
       <section className="border-t border-line">
