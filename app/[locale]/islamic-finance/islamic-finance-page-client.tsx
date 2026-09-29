@@ -159,7 +159,7 @@ export function IslamicFinancePageClient() {
 
       <section className="mx-auto max-w-4xl px-4 pb-16">
         <h2 className="mb-6 font-display text-3xl">{t.conceptsHeading}</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {t.concepts.map((c) => (
             <ConceptCard key={c.id} concept={c} locale={locale} t={t} />
           ))}

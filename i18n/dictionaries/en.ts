@@ -936,7 +936,7 @@ const dict: Dictionary = {
   islamicGuide: {
     eyebrow: "Guide",
     title: "Islamic finance, explained simply",
-    subtitle: "Murabaha, ijara, and musharaka — how they work and how they differ from a regular loan",
+    subtitle: "Murabaha, ijara, musharaka, and mudaraba — how they work and how they differ from a regular loan",
     intro:
       "Uzbekistan's Islamic banking law took effect on June 29, 2026, and banks are opening \"Islamic windows\" one after another. Behind the unfamiliar terms are mechanisms that are easy to understand — here's how they apply to your business.",
     quizHeading: "Test yourself",
@@ -951,7 +951,7 @@ const dict: Dictionary = {
     quizIncorrectFeedback:
       "Not quite. A fixed markup known in advance, with the bank buying the asset from the supplier, is what defines murabaha.",
     quizRetake: "Try again",
-    conceptsHeading: "Three tools",
+    conceptsHeading: "Four tools",
     flipHint: "Tap the card to learn more",
     differenceLabel: "How it differs from a loan",
     concepts: [
@@ -989,6 +989,19 @@ const dict: Dictionary = {
         hasOffer: false,
         noOfferNote:
           "Uzbek banks don't yet list ready-made musharaka products on bank.uz — ask banks directly which Islamic windows already offer this format.",
+      },
+      {
+        id: "mudaraba",
+        name: "Mudaraba",
+        teaser: "The bank provides the capital, you provide the work and expertise, and you share the profit",
+        explanation:
+          "The bank acts as the investor and funds the project entirely with money, while the entrepreneur runs the business, contributing labor, expertise, and time rather than capital. Profit is split in a proportion agreed in advance, and the bank bears the financial loss as long as the business was run in good faith — in that case the entrepreneur only loses the time and effort they put in.",
+        difference:
+          "Unlike a regular loan, there's no interest or fixed payment: the bank's return depends on the business's results. Unlike musharaka, only the bank puts up capital, not both sides, and a loss that isn't the entrepreneur's fault falls entirely on the bank.",
+        bestFor: "Launching a new business or project when the entrepreneur has the expertise and business model but no capital of their own.",
+        hasOffer: false,
+        noOfferNote:
+          "Uzbek banks don't yet list ready-made mudaraba products on bank.uz — ask banks directly which Islamic windows already offer this format.",
       },
     ],
     ctaViewOffer: "View the offer",

@@ -938,7 +938,7 @@ const dict: Dictionary = {
   islamicGuide: {
     eyebrow: "Gid",
     title: "Islomiy moliyalashtirish sodda tilda",
-    subtitle: "Murobaha, ijara va musharaka — bu qanday ishlaydi va oddiy kreditdan nimasi bilan farq qiladi",
+    subtitle: "Murobaha, ijara, musharaka va mudoraba — bu qanday ishlaydi va oddiy kreditdan nimasi bilan farq qiladi",
     intro:
       "2026-yil 29-iyundan Oʻzbekistonda islomiy banking toʻgʻrisidagi qonun kuchga kirdi va banklar birin-ketin «islomiy oyna»larini ochmoqda. Notanish soʻzlar ortida tushunarli mexanizmlar yotibdi — ularni bizneste qanday qoʻllashni koʻrib chiqamiz.",
     quizHeading: "Oʻzingizni sinab koʻring",
@@ -953,7 +953,7 @@ const dict: Dictionary = {
     quizIncorrectFeedback:
       "Unchalik toʻgʻri emas. Oldindan maʼlum boʻlgan qatʼiy ustama va aktivni bank tomonidan yetkazib beruvchidan sotib olinishi — bu murobahaning belgilari.",
     quizRetake: "Qayta urinib koʻrish",
-    conceptsHeading: "Uchta vosita",
+    conceptsHeading: "Toʻrtta vosita",
     flipHint: "Batafsil bilish uchun kartochkani bosing",
     differenceLabel: "Kreditdan farqi",
     concepts: [
@@ -991,6 +991,19 @@ const dict: Dictionary = {
         hasOffer: false,
         noOfferNote:
           "Oʻzbekiston banklari hali musharaka boʻyicha tayyor mahsulotlarni bank.uz saytida eʼlon qilmagan — qaysi islomiy oynalar bu formatda ishlayotganini toʻgʻridan-toʻgʻri soʻrab aniqlashtiring.",
+      },
+      {
+        id: "mudaraba",
+        name: "Mudoraba",
+        teaser: "Bank kapital beradi, siz — mehnat va tajriba, foydani boʻlishasiz",
+        explanation:
+          "Bank investor sifatida loyihani toʻliq pul bilan moliyalashtiradi, tadbirkor esa kapital emas, mehnat, tajriba va vaqt kiritib, biznesni boshqaradi. Foyda oldindan kelishilgan nisbatda boʻlinadi, tadbirkorning aybisiz yuzaga kelgan moliyaviy zararni esa bank koʻtaradi — bunda tadbirkor faqat sarflagan vaqti va mehnatini yoʻqotadi.",
+        difference:
+          "Oddiy kreditdan farqi — foiz ham, qatʼiy toʻlov ham yoʻq: bank daromadi biznes natijasiga bogʻliq. Musharakadan farqi — kapitalni faqat bank kiritadi, ikkala tomon emas, va tadbirkorning aybisiz zarar toʻliq bank zimmasida boʻladi.",
+        bestFor: "Tadbirkorda tajriba va biznes-model bor-u, lekin oʻz kapitali yoʻq boʻlgan yangi biznes yoki loyihani ishga tushirish.",
+        hasOffer: false,
+        noOfferNote:
+          "Oʻzbekiston banklari hali mudoraba boʻyicha tayyor mahsulotlarni bank.uz saytida eʼlon qilmagan — qaysi islomiy oynalar bu formatda ishlayotganini toʻgʻridan-toʻgʻri soʻrab aniqlashtiring.",
       },
     ],
     ctaViewOffer: "Taklifni koʻrish",
