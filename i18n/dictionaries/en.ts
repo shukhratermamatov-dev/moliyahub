@@ -114,11 +114,6 @@ const dict: Dictionary = {
       templates: "ready business-plan templates",
       partnersLabel: "Partners",
     },
-    industriesGrid: {
-      heading: "A business plan for your industry",
-      subtitle: "11 industries — pick yours and download a ready Excel/Word template.",
-      cta: "All industries and templates",
-    },
     projectsCarousel: {
       heading: "Projects on the exchange",
       subtitle: "Live requests from entrepreneurs looking for financing or an investor.",

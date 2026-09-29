@@ -13,7 +13,6 @@ import { MiniScoringWidget } from "@/components/home/mini-scoring-widget";
 import { TrustStrip } from "@/components/home/trust-strip";
 import { AudienceTabs } from "@/components/home/audience-tabs";
 import { HowItWorks } from "@/components/home/how-it-works";
-import { IndustriesGrid } from "@/components/home/industries-grid";
 import { BusinessPlansTeaser } from "@/components/home/business-plans-teaser";
 import { IslamicTeaser } from "@/components/home/islamic-teaser";
 import { ProjectsCarousel } from "@/components/home/projects-carousel";
@@ -109,10 +108,6 @@ export default async function Home({
             );
           })}
         </div>
-      </section>
-
-      <section className="border-t border-line">
-        <IndustriesGrid />
       </section>
 
       <section className="border-t border-line">

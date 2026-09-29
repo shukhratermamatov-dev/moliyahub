@@ -4,8 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useI18n } from "@/i18n/provider";
 import { Button } from "@/components/ui/button";
-import { INDUSTRIES } from "@/lib/data/industries";
-import { INDUSTRY_CODES } from "@/components/home/industries-grid";
+import { INDUSTRIES, INDUSTRY_CODES } from "@/lib/data/industries";
 import { pickText } from "@/lib/i18n-text";
 
 // Редизайн блока «Готовый шаблон или план с ИИ» (главная страница) по

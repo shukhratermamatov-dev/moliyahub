@@ -114,11 +114,6 @@ const dict: Dictionary = {
       templates: "tayyor biznes-reja shablonlari",
       partnersLabel: "Hamkorlar",
     },
-    industriesGrid: {
-      heading: "Sohangiz uchun biznes-reja",
-      subtitle: "11 soha — o'zingiznikini tanlang va tayyor Excel/Word shablonini yuklab oling.",
-      cta: "Barcha sohalar va shablonlar",
-    },
     projectsCarousel: {
       heading: "Birjadagi loyihalar",
       subtitle: "Moliyalashtirish yoki investor izlayotgan tadbirkorlarning dolzarb so'rovlari.",
