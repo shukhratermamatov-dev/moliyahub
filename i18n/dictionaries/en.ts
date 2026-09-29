@@ -215,13 +215,6 @@ const dict: Dictionary = {
       { n: "3", title: "Choose your funding", text: "A loan, murabaha, leasing, or an investor matched to your score." },
     ],
     finalCta: "Start the calculation",
-    gallery: {
-      heading: "Uzbekistan's economy — in numbers and in action",
-      items: [
-        { caption: "Small business and trade — the backbone of the economy" },
-        { caption: "Manufacturing and export — growth points" },
-      ],
-    },
     businessPlansSection: {
       eyebrow: "Business plans",
       heading: "Business plan — a ready template or with AI",

@@ -21,7 +21,6 @@ import { EnterprisesHero } from "@/components/home/enterprises-hero";
 import { Button } from "@/components/ui/button";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { SITE_IMAGES } from "@/lib/site-images";
 import { mapDbProjectRow, type DbProjectRow, type Project } from "@/lib/data/projects";
 import { createClient } from "@/lib/supabase/server";
 
@@ -120,31 +119,6 @@ export default async function Home({
 
       <section className="border-t border-line">
         <ProjectsCarousel dbProjects={dbProjects} />
-      </section>
-
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-16">
-          <h2 className="text-center font-display text-3xl">{t.gallery.heading}</h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            {[SITE_IMAGES.bazaar, SITE_IMAGES.textileFactory].map((img, i) => (
-              <figure
-                key={img.src}
-                className="group relative overflow-hidden rounded-2xl shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
-              >
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  loading="lazy"
-                  className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105 md:h-80"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/85 via-bg/10 to-transparent" />
-                <figcaption className="absolute inset-x-0 bottom-0 p-5 font-display text-lg leading-snug text-fg">
-                  {t.gallery.items[i].caption}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
       </section>
 
       <section className="border-t border-line">

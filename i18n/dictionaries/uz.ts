@@ -215,13 +215,6 @@ const dict: Dictionary = {
       { n: "3", title: "Mablagʻni tanlang", text: "Ballingizga mos kredit, murobaha, lizing yoki investor." },
     ],
     finalCta: "Hisoblashni boshlash",
-    gallery: {
-      heading: "Oʻzbekiston iqtisodiyoti — raqamlarda va amalda",
-      items: [
-        { caption: "Kichik biznes va savdo — iqtisodiyot poydevori" },
-        { caption: "Ishlab chiqarish va eksport — oʻsish nuqtalari" },
-      ],
-    },
     businessPlansSection: {
       eyebrow: "Biznes-rejalar",
       heading: "Biznes-reja — tayyor namuna yoki SI yordamida",
