@@ -17,7 +17,7 @@ import { BusinessPlansTeaser } from "@/components/home/business-plans-teaser";
 import { IslamicTeaser } from "@/components/home/islamic-teaser";
 import { ProjectsCarousel } from "@/components/home/projects-carousel";
 import { FaqAccordion } from "@/components/home/faq-accordion";
-import { StatUzCharts } from "@/components/finance/stat-uz-charts";
+import { EnterprisesHero } from "@/components/home/enterprises-hero";
 import { Button } from "@/components/ui/button";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -89,7 +89,7 @@ export default async function Home({
         <AudienceTabs />
       </section>
 
-      <StatUzCharts />
+      <EnterprisesHero />
 
       <section id="features" className="mx-auto max-w-6xl px-4 pb-24">
         <h2 className="mb-10 font-display text-3xl">{t.featuresHeading}</h2>
