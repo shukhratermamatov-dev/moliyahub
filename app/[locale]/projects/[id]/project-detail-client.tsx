@@ -99,7 +99,10 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
       setDbOwnerContact(null);
       toast.success(t.toastSent);
     } else if (appState && "error" in appState) {
-      toast.error(appState.error === "fill_required" ? t.toastFillRequired : t.toastGenericError);
+      // TEMP DIAGNOSTIC: show raw error string, revert after diagnosis
+      toast.error(
+        appState.error === "fill_required" ? t.toastFillRequired : appState.error,
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appState]);
@@ -226,7 +229,7 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
                           <Textarea name="message" rows={4} placeholder={t.messagePlaceholder} />
                           {appState && "error" in appState ? (
                             <p className="text-sm text-danger">
-                              {appState.error === "fill_required" ? t.toastFillRequired : t.toastGenericError}
+                              {appState.error === "fill_required" ? t.toastFillRequired : appState.error}
                             </p>
                           ) : null}
                           <p className="text-xs text-muted">{t.privacyNote}</p>

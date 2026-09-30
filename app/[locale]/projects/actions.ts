@@ -133,7 +133,11 @@ export async function submitApplication(
 
   if (error || !data) {
     console.error("[submitApplication] supabase insert error:", error);
-    return { error: "generic_error" };
+    // TEMP DIAGNOSTIC: surface the real Postgres/PostgREST error to the client
+    // so we can see the exact cause in the UI. Revert to "generic_error" once diagnosed.
+    return {
+      error: error ? `diag:${error.code ?? "?"}:${error.message ?? "?"}` : "generic_error",
+    };
   }
 
   return { success: true, id: data.id as string };
