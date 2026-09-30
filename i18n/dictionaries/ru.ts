@@ -608,7 +608,7 @@ const dict = {
     messagePlaceholder: "Сумма интереса, вопросы, условия",
     submit: "Отправить заявку",
     sending: "Отправляем…",
-    toastFillRequired: "Укажите имя и сообщение",
+    toastFillRequired: "Укажите имя и контакт для связи",
     toastSent: "Заявка отправлена предпринимателю",
     receivedApplications: "Полученные заявки",
     privacyNote: "Контакты увидит только владелец проекта — в своём личном кабинете.",

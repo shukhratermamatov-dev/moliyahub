@@ -596,7 +596,7 @@ const dict: Dictionary = {
     messagePlaceholder: "Qiziqish summasi, savollar, shartlar",
     submit: "Arizani yuborish",
     sending: "Yuborilmoqda…",
-    toastFillRequired: "Ism va xabarni kiriting",
+    toastFillRequired: "Ism va bogʻlanish uchun kontaktni kiriting",
     toastSent: "Ariza tadbirkorga yuborildi",
     receivedApplications: "Kelib tushgan arizalar",
     privacyNote: "Kontaktni faqat loyiha egasi — oʻz shaxsiy kabinetida koʻradi.",

@@ -596,7 +596,7 @@ const dict: Dictionary = {
     messagePlaceholder: "Interest amount, questions, terms",
     submit: "Send application",
     sending: "Sending…",
-    toastFillRequired: "Provide a name and a message",
+    toastFillRequired: "Provide a name and a contact",
     toastSent: "Application sent to the entrepreneur",
     receivedApplications: "Applications received",
     privacyNote: "Only the project owner will see your contact — in their own account.",
