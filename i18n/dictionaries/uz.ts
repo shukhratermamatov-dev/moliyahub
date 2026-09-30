@@ -54,8 +54,8 @@ const dict: Dictionary = {
   },
   home: {
     eyebrow: "Oʻzbekiston tadbirkorlari uchun platforma",
-    h1Line1: "Moliyaviy koʻrsatkichlarni tahlil qiling.",
-    h1Line2: "Biznesni kengaytirish uchun moliyalashtirish manbalarini toping.",
+    h1Line1: "Biznesingizning moliyaviy salomatligini bilib oling",
+    h1Line2: "3 daqiqada",
     aiVisualTag: "AI bilan tezroq",
     audience: {
       heading: "Bitta platforma — bitimning uch tomoni",
@@ -177,9 +177,10 @@ const dict: Dictionary = {
       ],
     },
     subtitle:
-      "MoliyaHub balans va foyda-zarar hisoboti asosida koʻrsatkichlarni hisoblaydi, nimani tuzatish kerakligini aytadi va moliyalashtirishni qayerdan olish mumkinligini koʻrsatadi — bankdan, investordan yoki islomiy moliyaviy vositalar orqali.",
-    ctaPrimary: "Koʻrsatkichlarni hisoblash",
+      "Balans va foyda-zarar hisobotiga koʻra skoring, tushunarli SI tavsiyalari va mablagʻ tanlovi: bank, lizing, investor yoki islomiy moliyaviy vositalar.",
+    ctaPrimary: "Toʻliq tahlilni boshlash",
     ctaSecondary: "Loyihalarni koʻrish",
+    heroTrust: ["Bepul", "Roʻyxatdan oʻtmasdan", "3 tilda"],
     featuresHeading: "Platforma nima qila oladi",
     features: [
       {

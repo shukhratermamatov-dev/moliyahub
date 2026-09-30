@@ -54,8 +54,8 @@ const dict: Dictionary = {
   },
   home: {
     eyebrow: "A platform for Uzbekistan entrepreneurs",
-    h1Line1: "Analyze your financial metrics.",
-    h1Line2: "Find financing sources to grow your business.",
+    h1Line1: "Know your business's financial health",
+    h1Line2: "in 3 minutes",
     aiVisualTag: "Moving faster with AI",
     audience: {
       heading: "One platform, three sides of the deal",
@@ -177,9 +177,10 @@ const dict: Dictionary = {
       ],
     },
     subtitle:
-      "MoliyaHub calculates your metrics from the balance sheet and P&L, tells you what to fix, and shows where to get financing — from a bank, an investor, or Islamic finance instruments.",
-    ctaPrimary: "Calculate metrics",
+      "Scoring based on your balance sheet and P&L, clear AI recommendations, and funding options — bank, leasing, investor, or Islamic finance instruments.",
+    ctaPrimary: "Start full analysis",
     ctaSecondary: "See projects",
+    heroTrust: ["Free", "No registration", "3 languages"],
     featuresHeading: "What the platform can do",
     features: [
       {

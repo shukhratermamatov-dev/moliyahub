@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
+  Check,
   Landmark,
   LineChart,
   Sparkles,
@@ -54,12 +55,12 @@ export default async function Home({
         <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-16 md:pt-24">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <div className="max-w-xl">
-              <p className="mb-5 inline-flex rounded-full bg-raised px-3 py-1 text-base tracking-wide text-primary">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-raised px-3 py-1 text-sm tracking-wide text-primary">
+                <span className="size-1.5 rounded-full bg-primary" />
                 {t.eyebrow}
               </p>
-              <h1 className="font-display text-[18px] leading-tight md:text-[30px]">
-                {t.h1Line1}
-                <span className="block text-primary">{t.h1Line2}</span>
+              <h1 className="font-display text-3xl leading-tight md:text-5xl">
+                {t.h1Line1} <span className="text-primary">{t.h1Line2}</span>
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted md:text-lg">{t.subtitle}</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -71,6 +72,14 @@ export default async function Home({
                 <Button asChild variant="outline" size="lg">
                   <Link href={`/${locale}/projects`}>{t.ctaSecondary}</Link>
                 </Button>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+                {t.heroTrust.map((item) => (
+                  <span key={item} className="inline-flex items-center gap-1.5 text-sm text-muted">
+                    <Check className="size-4 text-primary" />
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
             <MiniScoringWidget />
