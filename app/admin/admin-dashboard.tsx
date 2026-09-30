@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NumberField } from "@/components/ui/number-input";
 import { adminLogout } from "./actions";
 import { OFFERS, TYPE_LABEL, type FinancingOffer, type FinancingType } from "@/lib/data/banks";
@@ -11,6 +11,20 @@ import { useHubStore } from "@/lib/store";
 import { formatMoney } from "@/lib/utils";
 
 type RateImportResult = { updated: number; skipped: string[] };
+
+type AdminProjectRow = {
+  id: string;
+  name: string;
+  owner_name: string | null;
+  industry_id: string | null;
+  sub_industry_id: string | null;
+  sub_industry_other: string | null;
+  stage: string | null;
+  amount: number | null;
+  region: string | null;
+  description: string | null;
+  created_at: string | null;
+};
 
 const TABS = [
   { id: "catalog", label: "Каталог финансирования" },
@@ -52,10 +66,45 @@ export function AdminDashboard() {
   const addCustomOffer = useHubStore((s) => s.addCustomOffer);
   const removeCustomOffer = useHubStore((s) => s.removeCustomOffer);
 
-  const extraProjects = useHubStore((s) => s.extraProjects);
-  const removeProject = useHubStore((s) => s.removeProject);
-
   const applications = useHubStore((s) => s.applications);
+
+  const [dbProjects, setDbProjects] = useState<AdminProjectRow[] | null>(null);
+  const [dbProjectsError, setDbProjectsError] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/projects")
+      .then((res) => {
+        if (!res.ok) throw new Error("failed");
+        return res.json() as Promise<{ projects: AdminProjectRow[] }>;
+      })
+      .then((json) => {
+        if (!cancelled) setDbProjects(json.projects);
+      })
+      .catch(() => {
+        if (!cancelled) setDbProjectsError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const deleteDbProject = async (id: string, name: string) => {
+    if (!window.confirm(`Удалить проект «${name}» безвозвратно? Заявки инвесторов на него тоже будут удалены.`)) {
+      return;
+    }
+    setDeletingProjectId(id);
+    try {
+      const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("failed");
+      setDbProjects((prev) => (prev ? prev.filter((p) => p.id !== id) : prev));
+    } catch {
+      window.alert("Не удалось удалить проект — попробуйте ещё раз.");
+    } finally {
+      setDeletingProjectId(null);
+    }
+  };
 
   const [draft, setDraft] = useState(EMPTY_OFFER_DRAFT);
 
@@ -426,33 +475,44 @@ export function AdminDashboard() {
               </div>
             </section>
             <section>
-              <h2 className="font-display text-xl">Опубликованные пользователями ({extraProjects.length})</h2>
-              {extraProjects.length === 0 ? (
-                <p className="mt-1 text-sm text-muted">
-                  Пока ничего — здесь появятся проекты, размещённые через /projects/new в этом браузере.
-                </p>
+              <h2 className="font-display text-xl">
+                Опубликованные пользователями {dbProjects ? `(${dbProjects.length})` : ""}
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                Реальные проекты из общей базы — те же, что видны всем на «Бирже проектов». Удаление
+                здесь необратимо и затрагивает всех посетителей сайта, а не только этот браузер.
+              </p>
+              {dbProjectsError ? (
+                <p className="mt-3 text-sm text-danger">Не удалось загрузить список проектов. Обновите страницу.</p>
+              ) : dbProjects === null ? (
+                <p className="mt-3 text-sm text-muted">Загрузка…</p>
+              ) : dbProjects.length === 0 ? (
+                <p className="mt-1 text-sm text-muted">Пока никто не опубликовал проект.</p>
               ) : (
                 <div className="mt-3 grid gap-2">
-                  {extraProjects.map((p) => (
+                  {dbProjects.map((p) => (
                     <div
                       key={p.id}
                       className="flex items-center justify-between gap-3 rounded-xl bg-surface p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
                     >
                       <div>
                         <div className="text-xs text-gold">
-                          {projectIndustryLabel(p.industryId, p.subIndustryId, p.subIndustryOther)} · {STAGE_LABEL[p.stage]}
+                          {projectIndustryLabel(p.industry_id || "", p.sub_industry_id || undefined, p.sub_industry_other || undefined)}
+                          {" · "}
+                          {STAGE_LABEL[(p.stage as keyof typeof STAGE_LABEL) || "IDEA"]}
                         </div>
-                        <div className="font-medium">{p.title.ru}</div>
+                        <div className="font-medium">{p.name}</div>
                         <div className="text-sm text-muted">
-                          {formatMoney(p.amount, "ru")} · {p.owner.ru}
+                          {formatMoney(p.amount ?? 0, "ru")} · {p.owner_name || "—"} · {p.region || "—"}
                         </div>
                       </div>
                       <button
                         type="button"
-                        onClick={() => removeProject(p.id)}
-                        className="min-h-9 shrink-0 rounded-lg bg-raised px-3 text-xs font-medium text-danger hover:bg-line"
+                        disabled={deletingProjectId === p.id}
+                        onClick={() => void deleteDbProject(p.id, p.name)}
+                        className="min-h-9 shrink-0 rounded-lg bg-raised px-3 text-xs font-medium text-danger hover:bg-line disabled:opacity-50"
                       >
-                        Удалить
+                        {deletingProjectId === p.id ? "Удаление…" : "Удалить"}
                       </button>
                     </div>
                   ))}
