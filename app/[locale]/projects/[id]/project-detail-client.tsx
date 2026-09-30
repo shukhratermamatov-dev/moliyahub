@@ -99,7 +99,7 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
       setDbOwnerContact(null);
       toast.success(t.toastSent);
     } else if (appState && "error" in appState) {
-      toast.error(t.toastFillRequired);
+      toast.error(appState.error === "fill_required" ? t.toastFillRequired : t.toastGenericError);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appState]);
@@ -225,7 +225,9 @@ export function ProjectDetailClient({ id, dbProject }: { id: string; dbProject: 
                           <Input name="contact" placeholder={t.contactPlaceholder} required />
                           <Textarea name="message" rows={4} placeholder={t.messagePlaceholder} />
                           {appState && "error" in appState ? (
-                            <p className="text-sm text-danger">{t.toastFillRequired}</p>
+                            <p className="text-sm text-danger">
+                              {appState.error === "fill_required" ? t.toastFillRequired : t.toastGenericError}
+                            </p>
                           ) : null}
                           <p className="text-xs text-muted">{t.privacyNote}</p>
                           <Button type="submit" disabled={appPending}>

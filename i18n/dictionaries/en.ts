@@ -597,6 +597,7 @@ const dict: Dictionary = {
     submit: "Send application",
     sending: "Sending…",
     toastFillRequired: "Provide a name and a contact",
+    toastGenericError: "Could not send the application. Please try again shortly",
     toastSent: "Application sent to the entrepreneur",
     receivedApplications: "Applications received",
     privacyNote: "Only the project owner will see your contact — in their own account.",
