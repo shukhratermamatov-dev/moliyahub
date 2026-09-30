@@ -22,6 +22,7 @@ import {
   approveApplication,
   declineApplication,
   deleteAnalysis,
+  deleteApplication,
   deleteBusinessPlan,
   deleteProject,
 } from "./actions";
@@ -424,26 +425,36 @@ export function CabinetClient({
                         )}
                       </div>
 
-                      {a.status === "pending" ? (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <form action={approveApplication.bind(null, locale, a.id)}>
-                            <button
-                              type="submit"
-                              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-fg transition-all hover:brightness-110"
-                            >
-                              {dict.cabinet.openContacts}
-                            </button>
-                          </form>
-                          <form action={declineApplication.bind(null, locale, a.id)}>
-                            <button
-                              type="submit"
-                              className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line"
-                            >
-                              {dict.cabinet.declineRequest}
-                            </button>
-                          </form>
-                        </div>
-                      ) : null}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {a.status === "pending" ? (
+                          <>
+                            <form action={approveApplication.bind(null, locale, a.id)}>
+                              <button
+                                type="submit"
+                                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-fg transition-all hover:brightness-110"
+                              >
+                                {dict.cabinet.openContacts}
+                              </button>
+                            </form>
+                            <form action={declineApplication.bind(null, locale, a.id)}>
+                              <button
+                                type="submit"
+                                className="rounded-lg bg-raised px-3 py-1.5 text-xs text-fg transition-colors hover:bg-line"
+                              >
+                                {dict.cabinet.declineRequest}
+                              </button>
+                            </form>
+                          </>
+                        ) : null}
+                        <form action={deleteApplication.bind(null, locale, a.id)}>
+                          <button
+                            type="submit"
+                            className="rounded-lg bg-raised px-3 py-1.5 text-xs text-muted transition-colors hover:bg-danger/15 hover:text-danger"
+                          >
+                            {dict.cabinet.deleteRequest}
+                          </button>
+                        </form>
+                      </div>
                     </li>
                   );
                 })}

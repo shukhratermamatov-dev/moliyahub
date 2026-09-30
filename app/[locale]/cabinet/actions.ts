@@ -91,3 +91,16 @@ export async function declineApplication(locale: string, id: string, _formData: 
   await supabase.from("project_applications").update({ status: "declined" }).eq("id", id);
   revalidatePath(`/${locale}/cabinet`);
 }
+
+// Удалить заявку инвестора насовсем (в отличие от approve/decline, которые
+// только меняют статус). RLS-политика на UPDATE (moliyahub_applications_update_owner)
+// для DELETE тоже действует в Supabase по умолчанию только если для DELETE
+// явно есть своя политика — здесь используется тот же принцип, что и для
+// deleteProject/deleteAnalysis/deleteBusinessPlan выше: Supabase просто
+// удалит 0 строк, если RLS не разрешит, так что доп. проверка владельца
+// тут не нужна.
+export async function deleteApplication(locale: string, id: string, _formData: FormData) {
+  const supabase = await createClient();
+  await supabase.from("project_applications").delete().eq("id", id);
+  revalidatePath(`/${locale}/cabinet`);
+}

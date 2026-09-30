@@ -916,6 +916,7 @@ const dict: Dictionary = {
     requestStatusDeclined: "Request declined",
     openContacts: "Open contacts",
     declineRequest: "Decline",
+    deleteRequest: "Delete",
     contactHidden: "Contacts are hidden until you decide",
     draftBadge: "Draft",
     projectViews: "public",

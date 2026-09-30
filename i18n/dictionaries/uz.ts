@@ -918,6 +918,7 @@ const dict: Dictionary = {
     requestStatusDeclined: "Ariza rad etildi",
     openContacts: "Kontaktlarni ochish",
     declineRequest: "Rad etish",
+    deleteRequest: "Oʻchirish",
     contactHidden: "Kontaktlar siz qaror qabul qilguningizcha yashirin",
     draftBadge: "Qoralama",
     projectViews: "ommaviy",

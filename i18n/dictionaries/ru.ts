@@ -930,6 +930,7 @@ const dict = {
     requestStatusDeclined: "Заявка отклонена",
     openContacts: "Открыть контакты",
     declineRequest: "Отклонить",
+    deleteRequest: "Удалить",
     contactHidden: "Контакты скрыты до вашего решения",
     draftBadge: "Черновик",
     projectViews: "публично",
