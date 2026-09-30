@@ -85,7 +85,10 @@ async function logExchange(row: {
       })
       .select("id")
       .single();
-    if (error) return null;
+    if (error) {
+      console.error("[assistant] log insert failed:", error.message);
+      return null;
+    }
     return (data?.id as string) ?? null;
   } catch {
     return null;

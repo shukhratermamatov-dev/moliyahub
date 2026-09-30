@@ -21,6 +21,12 @@ create index if not exists assistant_logs_rating_idx on public.assistant_logs (r
 -- authenticated нет намеренно: посетители не могут читать чужие вопросы.
 alter table public.assistant_logs enable row level security;
 
+-- В этом проекте Supabase новые таблицы не получают прав автоматически
+-- (проверено 30.09.2026: без этой строки сервер сайта не мог писать в
+-- журнал). Права — только серверной роли; anon/authenticated доступа нет.
+grant select, insert, update on public.assistant_logs to service_role;
+notify pgrst, 'reload schema';
+
 -- Полезные запросы для разбора качества:
 --   Плохо оценённые ответы:
 --     select created_at, locale, question, answer from assistant_logs where rating = -1 order by created_at desc;
