@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast, Toaster } from "sonner";
-import { NumberField } from "@/components/ui/number-input";
 import { AnalysisPanel } from "@/components/finance/analysis-panel";
 import { VarianceDashboard } from "@/components/finance/variance-dashboard";
 import { PlanPanel } from "@/components/business-plan/plan-panel";
@@ -20,13 +19,11 @@ import { pickText } from "@/lib/i18n-text";
 import { formatMoney, formatPct, formatRatio } from "@/lib/utils";
 import { signOut } from "../login/actions";
 import {
-  addProject,
   approveApplication,
   declineApplication,
   deleteAnalysis,
   deleteBusinessPlan,
   deleteProject,
-  type ProjectFormState,
 } from "./actions";
 
 export type ProjectRow = {
@@ -74,11 +71,6 @@ export type BusinessPlanRow = {
   created_at: string;
 };
 
-const initialState: ProjectFormState = undefined;
-
-const inputClass =
-  "h-10 w-full rounded-lg bg-raised px-3 text-sm text-fg shadow-[0_0_0_1px_rgba(255,255,255,0.08)] focus:outline-none focus:ring-2 focus:ring-primary/50";
-
 const COMPARE_ROWS: { key: keyof FinancialRatios; kind: "ratio" | "pct" | "money" | "score" }[] = [
   { key: "score", kind: "score" },
   { key: "currentRatio", kind: "ratio" },
@@ -123,9 +115,6 @@ export function CabinetClient({
   businessPlans: BusinessPlanRow[];
 }) {
   const { locale, dict } = useI18n();
-  const boundAddProject = addProject.bind(null, locale);
-  const [state, formAction, pending] = useActionState(boundAddProject, initialState);
-  const [projectAmount, setProjectAmount] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
@@ -758,47 +747,15 @@ export function CabinetClient({
               </ul>
             )}
 
-            <div id="new-project" className="mt-6 scroll-mt-24 rounded-2xl bg-surface p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
+            <div id="new-project" className="mt-6 scroll-mt-24 rounded-2xl bg-surface p-5 text-center shadow-[0_0_0_1px_rgba(255,255,255,0.07)]">
               <h3 className="font-display text-lg">{dict.cabinet.newProjectTitle}</h3>
-              <form action={formAction} className="mt-4 flex flex-col gap-3">
-                <label className="block text-sm">
-                  <span className="mb-1 block text-muted">{dict.cabinet.projectNameLabel}</span>
-                  <input type="text" name="name" required className={inputClass} />
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block text-muted">{dict.cabinet.projectDescriptionLabel}</span>
-                  <textarea name="description" rows={2} className={`${inputClass} h-auto py-2`} />
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="block text-sm">
-                    <span className="mb-1 block text-muted">{dict.cabinet.projectRegionLabel}</span>
-                    <input type="text" name="region" className={inputClass} />
-                  </label>
-                  <label className="block text-sm">
-                    <span className="mb-1 block text-muted">{dict.cabinet.projectAmountLabel}</span>
-                    <NumberField value={projectAmount} onValueChange={setProjectAmount} className={inputClass} />
-                    <input type="hidden" name="amount" value={projectAmount || ""} />
-                  </label>
-                  <label className="block text-sm">
-                    <span className="mb-1 block text-muted">{dict.cabinet.projectStageLabel}</span>
-                    <select name="stage" defaultValue="IDEA" className={inputClass}>
-                      {(Object.keys(dict.projectStages) as (keyof typeof dict.projectStages)[]).map((key) => (
-                        <option key={key} value={key}>
-                          {dict.projectStages[key]}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                {state?.error ? <p className="text-sm text-danger">{state.error}</p> : null}
-                <button
-                  type="submit"
-                  disabled={pending}
-                  className="mt-1 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-fg transition-all hover:brightness-110 disabled:pointer-events-none disabled:opacity-40"
-                >
-                  {pending ? dict.cabinet.addingProject : dict.cabinet.addProject}
-                </button>
-              </form>
+              <p className="mx-auto mt-2 max-w-md text-sm text-muted">{dict.cabinet.newProjectHint}</p>
+              <Link
+                href={`/${locale}/projects/new`}
+                className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-fg transition-all hover:brightness-110"
+              >
+                {dict.cabinet.newProjectCta}
+              </Link>
             </div>
           </section>
 
