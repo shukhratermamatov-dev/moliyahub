@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { OTHER_SUB_INDUSTRY_ID } from "@/lib/data/industries";
 
@@ -120,28 +121,28 @@ export async function submitApplication(
     return { error: "fill_required" };
   }
 
-  const { data, error } = await supabase
-    .from("project_applications")
-    .insert({
-      project_id: projectId,
-      applicant_name: name,
-      applicant_contact: contact,
-      message: message || null,
-    })
-    .select("id")
-    .single();
+  // Генерируем id сами и не просим Supabase вернуть строку обратно
+  // (.select().single() после insert). Причина: для анонимной заявки
+  // Postgres требует SELECT-права на только что вставленную строку, а
+  // политика moliyahub_applications_select_owner разрешает SELECT только
+  // authenticated-владельцу проекта — у анонимного отправителя такого права
+  // нет. Без RETURNING/SELECT это ограничение не применяется, и вставка,
+  // разрешённая политикой moliyahub_applications_insert_public_project,
+  // проходит нормально.
+  const id = randomUUID();
 
-  if (error || !data) {
-    console.error("[submitApplication] supabase insert error:", error, "projectId:", projectId);
-    // TEMP DIAGNOSTIC: surface the real Postgres/PostgREST error AND the
-    // projectId we actually tried to insert with, to rule out a wrong id
-    // being sent. Revert to "generic_error" once diagnosed.
-    return {
-      error: error
-        ? `diag:pid=${projectId}:${error.code ?? "?"}:${error.message ?? "?"}`
-        : "generic_error",
-    };
+  const { error } = await supabase.from("project_applications").insert({
+    id,
+    project_id: projectId,
+    applicant_name: name,
+    applicant_contact: contact,
+    message: message || null,
+  });
+
+  if (error) {
+    console.error("[submitApplication] supabase insert error:", error);
+    return { error: "generic_error" };
   }
 
-  return { success: true, id: data.id as string };
+  return { success: true, id };
 }
