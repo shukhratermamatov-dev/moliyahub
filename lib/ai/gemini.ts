@@ -33,13 +33,13 @@
 // "application/json" заставляет Gemini вернуть чистый JSON без markdown-
 // обёртки, но extractJsonObject() всё равно есть как страховка.
 
-const GEMINI_MODEL = "gemini-3.8-flash";
+export const GEMINI_MODEL = "gemini-3.8-flash";
 // Запасная модель — тоже бесплатный тариф, но менее востребованная/более
 // лёгкая, поэтому реже упирается в 503 "high demand" у основной модели.
 // Используется только если основная модель дважды подряд отказала с
 // перегрузкой — качество ответа чуть ниже, но живой ИИ-анализ лучше, чем
 // молчаливый откат в локальный разбор по правилам.
-const GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
+export const GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
 // gemini-3.8-flash — популярная бесплатная модель, поэтому Google иногда
 // отвечает 503 "This model is currently experiencing high demand" в часы

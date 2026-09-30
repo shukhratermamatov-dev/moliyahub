@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { I18nProvider } from "@/i18n/provider";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import "../globals.css";
 
 const unbounded = Unbounded({
@@ -73,7 +74,10 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full">
-        <I18nProvider locale={locale}>{children}</I18nProvider>
+        <I18nProvider locale={locale}>
+          {children}
+          <AssistantWidget />
+        </I18nProvider>
       </body>
     </html>
   );

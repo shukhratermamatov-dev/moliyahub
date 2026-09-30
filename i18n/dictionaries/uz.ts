@@ -1226,6 +1226,30 @@ const dict: Dictionary = {
     ctaCopy: "Nusxalash",
     ctaCopied: "Nusxalandi",
   },
+  assistant: {
+    buttonLabel: "AI yordamchi",
+    openLabel: "AI yordamchini ochish",
+    closeLabel: "Yopish",
+    title: "MoliyaHub AI yordamchisi",
+    subtitle: "Moliya, kreditlar, islomiy moliya, biznes-rejalar",
+    greeting:
+      "Assalomu alaykum! Moliyaviy ko'rsatkichlarni tahlil qilish, moliyalashtirish tanlash, kredit to'lovini hisoblash yoki saytning kerakli bo'limini topishda yordam beraman. Savol bering yoki quyidagilardan birini tanlang.",
+    suggestions: [
+      "Uskunalar uchun 500 mln so'mni qayerdan olsa bo'ladi?",
+      "Murobaha kreditdan nimasi bilan farq qiladi?",
+      "Tushum 2 mlrd, foyda 150 mln, aylanma aktivlar 900 mln, qarzlar 520 mln — ko'rsatkichlarim qanday?",
+      "To'lovni hisoblang: 300 mln, 36 oy, 22%",
+    ],
+    placeholder: "Savol bering…",
+    send: "Yuborish",
+    thinking: "O'ylayapman…",
+    newChat: "Yangi suhbat",
+    helpful: "Foydali",
+    notHelpful: "Foydali emas",
+    thanks: "Baho uchun rahmat",
+    error: "Javob olinmadi. Internetni tekshiring va qayta urinib ko'ring.",
+    disclaimer: "AI javoblari ma'lumot uchun berilgan va bank ofertasi yoki yurist maslahati hisoblanmaydi.",
+  },
 };
 
 export default dict;

@@ -1224,6 +1224,30 @@ const dict: Dictionary = {
     ctaCopy: "Copy",
     ctaCopied: "Copied",
   },
+  assistant: {
+    buttonLabel: "AI assistant",
+    openLabel: "Open AI assistant",
+    closeLabel: "Close",
+    title: "MoliyaHub AI assistant",
+    subtitle: "Finance, loans, Islamic finance, business plans",
+    greeting:
+      "Hello! I can help you understand your financial ratios, find financing, calculate a loan payment or find the right section of the site. Ask a question or pick one below.",
+    suggestions: [
+      "Where can I get UZS 500 million for equipment?",
+      "How is murabaha different from a loan?",
+      "Revenue 2 bn, profit 150 m, current assets 900 m, debts 520 m — how are my ratios?",
+      "Calculate the payment: 300 m for 36 months at 22%",
+    ],
+    placeholder: "Ask a question…",
+    send: "Send",
+    thinking: "Thinking…",
+    newChat: "New chat",
+    helpful: "Helpful",
+    notHelpful: "Not helpful",
+    thanks: "Thanks for the feedback",
+    error: "Could not get a reply. Check your connection and try again.",
+    disclaimer: "AI answers are for reference only and are not a bank offer or legal advice.",
+  },
 };
 
 export default dict;
